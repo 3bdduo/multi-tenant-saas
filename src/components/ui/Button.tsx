@@ -11,7 +11,7 @@ const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
     "bg-gradient-to-r from-primary via-primary-light to-accent text-slate-950 font-bold shadow-md hover:shadow-glow hover:brightness-110 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]",
   vibrant:
     "bg-gradient-to-r from-cyan-400 via-primary to-emerald-400 text-slate-950 font-extrabold shadow-glow-cyan hover:shadow-glow-emerald hover:brightness-115 hover:-translate-y-0.5 active:scale-[0.98]",
-  secondary:
+  secondary: 
     "bg-surface/90 text-text-primary border border-border/80 hover:border-primary/50 hover:bg-primary-soft hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]",
   outline:
     "bg-transparent text-text-primary border border-border/80 hover:border-primary/50 hover:bg-primary-soft hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]",
