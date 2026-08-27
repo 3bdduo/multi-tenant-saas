@@ -11,10 +11,10 @@ export function Card({
     <div
       className={`
         rounded-2xl border border-border/80 bg-surface p-6 shadow-sm
-        transition-all duration-450 ease-silky
+        transition-all duration-280 ease-smooth
         ${glass ? "glass-alive" : ""}
-        ${vibrant ? "hover:border-primary/60 hover:shadow-glow-cyan" : ""}
-        ${hover ? "hover:shadow-lg hover:border-primary/40 hover:-translate-y-1 cursor-pointer" : ""}
+        ${vibrant ? "hover:border-primary/60 hover:shadow-glow" : ""}
+        ${hover ? "hover:shadow-card hover:border-primary/50 hover:-translate-y-1 cursor-pointer active:translate-y-0 active:scale-[0.995]" : ""}
         ${className}
       `}
       {...props}

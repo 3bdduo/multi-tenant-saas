@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getMyClinic } from "@/lib/api/doctor";
+import { getMe, getMyClinic } from "@/lib/api/doctor";
 import { getMyAppointments } from "@/lib/api/appointment";
 import { getMyPatients } from "@/lib/api/patient";
 import { Card } from "@/components/ui/Card";
@@ -17,28 +17,37 @@ export default function DoctorDashboardPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [needsClinic, setNeedsClinic] = useState(false);
-  const [subscriptionExpired, setSubscriptionExpired] = useState(false);
+  // isPaid: null = loading, true = active, false = not activated/expired
+  const [isPaid, setIsPaid] = useState<boolean | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
+        // ─── 1. Check activation status directly from API ───────────────
+        // GET /doctor returns 403 if account is not paid/activated.
+        // This is the authoritative source — the JWT alone is not enough
+        // because it was signed before the admin activated the account.
+        let doctorActive = false;
+        try {
+          await getMe();
+          doctorActive = true;
+        } catch {
+          doctorActive = false;
+        }
+
+        if (cancelled) return;
+        setIsPaid(doctorActive);
+
+        if (!doctorActive) return; // Show activation screen — no need to load more
+
+        // ─── 2. Load dashboard data ──────────────────────────────────────
         const [clinicRes, apptRes, patientRes] = await Promise.allSettled([
           getMyClinic(),
           getMyAppointments(),
           getMyPatients(),
         ]);
         if (cancelled) return;
-
-        // Check if subscription is expired in any rejected response
-        const errors = [clinicRes, apptRes, patientRes]
-          .filter((r): r is PromiseRejectedResult => r.status === "rejected")
-          .map((r) => String(r.reason?.message || r.reason));
-
-        if (errors.some((e) => e.toLowerCase().includes("subscription expired"))) {
-          setSubscriptionExpired(true);
-          return;
-        }
 
         if (clinicRes.status === "fulfilled") setClinic(clinicRes.value.data);
         else setNeedsClinic(true);
@@ -62,7 +71,8 @@ export default function DoctorDashboardPage() {
     return <DashboardSkeleton />;
   }
 
-  if (subscriptionExpired) {
+  // ── Account NOT activated / subscription expired ──────────────────────
+  if (isPaid === false) {
     return (
       <Card className="mx-auto max-w-xl text-center animate-fade-in p-8 border-warning/30 bg-surface">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-warning/15 text-warning">
@@ -73,18 +83,16 @@ export default function DoctorDashboardPage() {
           </svg>
         </div>
         <h2 className="font-display text-xl font-bold text-text-primary">
-          اشتراك حساب الطبيب منتهي (Subscription Expired)
+          الحساب غير مفعّل أو انتهى الاشتراك
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-          هذا الحساب غير مفعّل حالياً في السيرفر. يلزم تفعيل أو تجديد الاشتراك من حساب الإدارة (Admin) من صفحة الأطباء (<code className="text-primary font-mono">/admin/doctors</code>) لتأكيد الدفع والسماح بالوصول لكافة الخدمات.
+          حسابك غير مفعّل حالياً. يلزم التواصل مع الإدارة لتفعيل الحساب أو تجديد الاشتراك. بعد التفعيل اضغط &ldquo;إعادة المحاولة&rdquo;.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/admin/doctors">
-            <Button variant="vibrant" size="sm">
-              الانتقال لإدارة الأطباء (Admin)
-            </Button>
-          </Link>
-          <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>
+        <div className="mt-6 text-right">
+          <SupportContactBox />
+        </div>
+        <div className="mt-4 flex flex-wrap justify-center gap-3">
+          <Button variant="vibrant" size="sm" onClick={() => window.location.reload()}>
             إعادة المحاولة
           </Button>
         </div>
@@ -92,31 +100,27 @@ export default function DoctorDashboardPage() {
     );
   }
 
+  // ── No clinic yet ─────────────────────────────────────────────────────
   if (needsClinic) {
     return (
       <Card className="mx-auto max-w-xl text-center animate-fade-in p-6 sm:p-8 border-warning/30">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-warning/15 text-warning text-2xl font-bold">
-          ️
+          🏥
         </div>
         <h2 className="font-display text-xl font-extrabold text-text-primary">
-          الحساب غير مفعل حالياً (لم يتم التفعيل)
+          لم يتم تسجيل عيادة بعد
         </h2>
         <p className="mt-2 text-sm text-text-secondary">
-          يرجى التواصل مع إدارة المنصة والدعم الفني لتفعيل حساب العيادة وتحديد خطة الاشتراك.
+          ابدأ بتسجيل بيانات عيادتك لتتمكن من استخدام النظام بالكامل.
         </p>
-
-        <div className="mt-6 text-right">
-          <SupportContactBox />
-        </div>
-
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link href="/doctor/clinic">
             <Button variant="vibrant">
-              بيانات العيادة 
+              تسجيل العيادة 🏥
             </Button>
           </Link>
           <Button variant="secondary" onClick={() => window.location.reload()}>
-            إعادة الفحص 
+            إعادة الفحص 🔄
           </Button>
         </div>
       </Card>
@@ -141,7 +145,9 @@ export default function DoctorDashboardPage() {
           {appointments.slice(0, 5).map((a) => (
             <div key={a._id} className="flex items-center justify-between py-3 text-sm">
               <span className="text-text-primary">
-                {typeof a.patientId === "object" ? `${a.patientId.firstName} ${a.patientId.lastName}` : a.patientId}
+                {typeof a.patientId === "object"
+                  ? `${a.patientId.firstName} ${a.patientId.lastName}`
+                  : a.patientId}
               </span>
               <span className="text-text-secondary">
                 {new Date(a.date).toLocaleDateString("ar-EG")}

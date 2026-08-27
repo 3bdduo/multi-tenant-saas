@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cairo, Manrope } from "next/font/google";
+import { Alexandria, Readex_Pro, Aref_Ruqaa_Ink } from "next/font/google";
 import "./globals.css";
 import { themeInitScript } from "@/lib/themeInitScript";
 import { ThemeProvider } from "@/hooks/useTheme";
@@ -8,22 +8,30 @@ import { Preloader } from "@/components/Preloader";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { HeartbeatLoader } from "@/components/ui/HeartbeatLoader";
+import { GlobalBackButton } from "@/components/GlobalBackButton";
 
-// Cairo: Arabic + Latin, calm geometric shapes fit a clinical/medical tone.
-const cairo = Cairo({
+// Readex Pro: Modern, geometric, friendly Arabic body font (matching Tinta Arabic & Ramis Arabic style)
+const readexPro = Readex_Pro({
   subsets: ["arabic", "latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-body",
-  display: "optional", // avoid FOUT entirely per the "preload, never flash" brief
+  display: "swap",
 });
 
-// Manrope: a slightly more distinctive display face for headings (Latin only,
-// falls back to Cairo automatically for Arabic headings).
-const manrope = Manrope({
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
+// Alexandria: Bold, distinctive modern Arabic display font for headings & branding
+const alexandria = Alexandria({
+  subsets: ["arabic", "latin"],
+  weight: ["500", "600", "700", "800", "900"],
   variable: "--font-display",
-  display: "optional",
+  display: "swap",
+});
+
+// Aref Ruqaa Ink: Authentic artistic Arabic brush / ink calligraphy font (matching Lemon Brush style)
+const arefRuqaaInk = Aref_Ruqaa_Ink({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "700"],
+  variable: "--font-brush",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -48,7 +56,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl" className={`${cairo.variable} ${manrope.variable}`}>
+    <html lang="ar" dir="rtl" className={`${readexPro.variable} ${alexandria.variable} ${arefRuqaaInk.variable}`}>
       <head>
         {/* Blocking script: applies the correct theme class before first paint. */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
@@ -64,6 +72,7 @@ export default function RootLayout({
           <AuthProvider>
             <AmbientBackground />
             <HeartbeatLoader />
+            <GlobalBackButton />
             <Preloader>{children}</Preloader>
           </AuthProvider>
         </ThemeProvider>

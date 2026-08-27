@@ -5,8 +5,11 @@ import type {
   Clinic,
   DashboardStats,
   Doctor,
+  Hospital,
   RenewDoctorSubscriptionPayload,
+  RenewHospitalSubscriptionPayload,
 } from "@/types/api";
+
 
 // GET /admin/dash-board
 export function getDashboard() {
@@ -80,3 +83,27 @@ export function deletePatient(id: string) {
     method: "DELETE",
   });
 }
+
+// ---- Hospital Admin APIs ----
+
+// GET /admin/hospital  (list all hospitals)
+export function getHospitals() {
+  return apiFetch<ApiEnvelope<{ hospitals: Hospital[] }>>("/admin/hospital");
+}
+
+// GET /admin/hospital/:id  (hospital details)
+export function getHospitalById(id: string) {
+  return apiFetch<ApiEnvelope<{ hospital: Hospital }>>(`/admin/hospital/${id}`);
+}
+
+// PATCH /admin/hospital/:id/active  (renew hospital subscription)
+export function renewHospitalSubscription(
+  id: string,
+  payload: RenewHospitalSubscriptionPayload
+) {
+  return apiFetch<ApiEnvelope<{ hospital: Hospital }>>(
+    `/admin/hospital/${id}/active`,
+    { method: "PATCH", body: JSON.stringify(payload) }
+  );
+}
+

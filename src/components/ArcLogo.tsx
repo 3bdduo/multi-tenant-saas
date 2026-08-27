@@ -23,7 +23,7 @@ export function ArcLogo({ className = "", size = "md", showText = true }: ArcLog
     <div className={`inline-flex items-center gap-3 ${className}`}>
       {/* ARC Emblem styled to match Nabd medical cyan/mint gradient */}
       <div
-        className={`relative flex shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-cyan-400 to-accent p-2.5 shadow-glow-cyan transition-transform duration-300 hover:scale-105 ${iconSizes[size]}`}
+        className={`relative flex shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-primary-light to-accent p-2.5 shadow-glow-cyan transition-transform duration-300 hover:scale-105 ${iconSizes[size]}`}
       >
         <svg
           viewBox="0 0 40 40"

@@ -16,6 +16,7 @@ const ROLE_HOME: Record<string, string> = {
   Admin: "/admin",
   Doctor: "/doctor",
   Patient: "/patient",
+  Hospital: "/hospital",
 };
 
 export default function LoginPage() {

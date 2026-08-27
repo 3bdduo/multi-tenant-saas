@@ -115,7 +115,7 @@ export function Logo({
                 setIsModalOpen(false);
                 window.location.href = "/";
               }}
-              className="flex-1 rounded-xl bg-gradient-to-r from-primary via-cyan-500 to-accent py-2.5 text-sm font-bold text-slate-950 shadow-glow-cyan hover:opacity-95 transition-opacity"
+              className="flex-1 rounded-[1rem] bg-primary py-2.5 text-sm font-bold text-primary-foreground shadow-glow hover:brightness-105 transition-all"
             >
               الصفحة الرئيسية 
             </button>
@@ -139,36 +139,40 @@ export function Logo({
         className={`inline-flex items-center gap-3 cursor-pointer group transition-transform duration-300 hover:scale-105 active:scale-95 ${className}`}
         title="انقر لمشاهدة الشعار بالتفصيل"
       >
-        {/* Dual Mode Images: Light & Dark logo */}
-        <div className="relative flex shrink-0 items-center justify-center">
-          {/* Light Mode Logo */}
-          <img
-            src="/logo/nabd-logo-light.png"
-            alt="شعار نبض Nabd"
-            className={`object-contain dark:hidden ${iconSizes[size]}`}
-          />
-          {/* Dark Mode Logo */}
-          <img
-            src="/logo/nabd-logo-dark.png"
-            alt="شعار نبض Nabd"
-            className={`object-contain hidden dark:block drop-shadow-[0_0_12px_rgba(0,229,255,0.4)] ${iconSizes[size]}`}
-          />
+        {/* ── EKG Visual Mark (pure icon, no text inside) ── */}
+        <div
+          className={`relative flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-[#0F5357] dark:from-primary dark:to-[#22A599] shadow-[0_2px_12px_rgba(20,107,112,0.35)] dark:shadow-[0_2px_16px_rgba(46,196,182,0.40)] group-hover:shadow-[0_4px_18px_rgba(20,107,112,0.50)] transition-shadow duration-300 ${
+            size === "sm" ? "h-9 w-9" : size === "lg" ? "h-14 w-14" : "h-11 w-11"
+          }`}
+        >
+          {/* EKG / Heartbeat pulse line */}
+          <svg
+            viewBox="0 0 40 20"
+            fill="none"
+            stroke="rgba(255,255,255,0.92)"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={size === "sm" ? "w-5" : size === "lg" ? "w-8" : "w-6"}
+            aria-hidden="true"
+          >
+            <polyline points="0,10 6,10 9,4 12,17 16,2 19,14 22,10 40,10" />
+          </svg>
+          {/* Subtle inner glow dot */}
+          <span className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-white/50 animate-pulse" />
         </div>
 
         {showText && (
           <div className="flex flex-col text-right">
-            <div className="flex items-center gap-1.5">
-              <span
-                className={`font-display font-extrabold tracking-tight gradient-text-alive ${textSizes[size]}`}
-              >
-                نبض
-              </span>
-              <span className="font-display font-bold text-xs px-1.5 py-0.5 rounded-md bg-primary-soft text-primary border border-primary/20">
-                Nabd
-              </span>
-            </div>
-            <span className="text-[10px] font-medium text-text-secondary tracking-wide">
-              رعاية طبية متكاملة
+            {/* Single brand name — no duplication */}
+            <span
+              className={`font-brush font-bold tracking-normal gradient-text-alive leading-none ${textSizes[size]}`}
+            >
+              نبض
+            </span>
+            {/* Single concise tagline */}
+            <span className="text-[10px] font-semibold text-text-muted tracking-wider mt-0.5 font-body">
+              Nabd · رعاية متكاملة
             </span>
           </div>
         )}

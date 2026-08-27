@@ -1,131 +1,211 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
+import { PatientInfoButton } from "./PatientInfoButton";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen relative overflow-hidden transition-colors duration-600 ease-silky">
+    <div className="min-h-screen relative overflow-hidden transition-colors duration-500 ease-silky">
+      {/* Subtle Radial Gradient Depth behind Hero */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[560px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(184,125,101,0.08),transparent_75%)] dark:bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(71,85,105,0.20),transparent_75%)] -z-10"
+      />
+
       {/* Navigation Header */}
-      <header className="sticky top-0 z-40 border-b border-border/50 bg-surface/75 px-6 py-4 backdrop-blur-xl transition-all duration-450 md:px-12">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
+      <header
+        className="sticky top-0 z-40 px-6 py-4 backdrop-blur-xl transition-all duration-350 md:px-12"
+        style={{
+          background: "var(--color-header-bg)",
+          borderBottom: "1px solid var(--color-header-border)",
+        }}
+      >
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between">
           <Logo size="md" />
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                تسجيل الدخول
-              </Button>
-            </Link>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-6xl px-6 py-10 md:px-12 md:py-16">
+      <main className="mx-auto max-w-[1400px] px-6 py-10 md:px-12 md:py-16">
         {/* Intro Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 animate-fade-in-slow">
-          <div className="mb-4 inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary-soft px-4 py-1.5 text-xs font-bold text-primary shadow-glow-cyan">
-            <span className="h-2.5 w-2.5 rounded-full bg-primary animate-pulse-glow" />
-            المنصة الطبية الأكثر تطورًا لإدارة العيادات والحجوزات
-          </div>
-          <h1 className="font-display text-4xl font-extrabold leading-[1.2] tracking-tight text-text-primary md:text-5xl lg:text-6xl">
-            مرحباً بك في منصة <span className="gradient-text-alive">نبض | Nabd</span>
+        <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in-slow">
+          <h1 className="font-brush text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.35] tracking-normal text-text-primary">
+            مرحباً بك في منصة <span className="gradient-text-alive font-brush">نبض | Nabd</span>
           </h1>
           <p className="mt-4 text-base leading-relaxed text-text-secondary md:text-lg">
-            اختر وجهتك للدخول إلى الخدمة المناسبة لك فوراً
+            منصة سحابية متكاملة لربط المرضى، العيادات، والمستشفيات. اختر وجهتك للبدء.
           </p>
         </div>
 
-        {/* 2 HUGE SPLIT PORTAL CARDS */}
-        <div className="grid gap-8 md:grid-cols-2 animate-scale-in-slow">
-          {/* DOCTORS PORTAL CARD */}
+        {/* 4 PORTAL CARDS — 2 columns on desktop for bigger cards */}
+        <div className="grid gap-8 sm:grid-cols-2 animate-scale-in-slow max-w-5xl mx-auto">
+
+          {/* 1. EMERGENCY PORTAL CARD */}
           <Card
             hover
             glass
-            vibrant
-            className="group relative flex flex-col justify-between p-8 md:p-10 border-primary/30 shadow-2xl transition-all duration-500 hover:scale-[1.02] hover:border-primary/70"
+            className="group relative flex flex-col justify-between p-8 md:p-9 min-h-[490px] rounded-3xl border-border/80 hover:border-destructive/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(184,125,101,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
           >
-            <div className="absolute top-4 left-4 rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold text-primary">
-              قسم الأطباء والعيادات
-            </div>
-
-            <div>
-              {/* Icon / Image Header */}
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-hover text-surface shadow-glow-cyan transition-transform duration-500 group-hover:scale-110">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4.8 2.3A.3.3 0 0 0 4.5 2.6V5a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V2.6a.3.3 0 0 0-.3-.3H4.8z" />
-                  <path d="M8 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8" />
-                  <path d="M16 8v11a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V8" />
-                  <path d="M12 18a4 4 0 0 0 4-4V6H8v8a4 4 0 0 0 4 4z" />
+            <div className="flex flex-col items-center">
+              {/* Emergency Icon: Frosted Glass Container with Subdued Shadow/Glow */}
+              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive shadow-[0_4px_20px_rgba(200,75,49,0.15)] dark:shadow-[0_0_25px_rgba(230,57,70,0.30)] backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(200,75,49,0.25)]">
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                 </svg>
               </div>
 
-              <h2 className="font-display text-2xl font-extrabold text-text-primary md:text-3xl">
-                بوابة الأطباء والعيادات
+              <h2 className="font-display text-2xl font-extrabold text-text-primary mb-3">
+                الطوارئ والبلاغات
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-text-secondary md:text-base">
-                إدارة العيادة الكاملة، جدول المواعيد، سجلات المرضى بالذكاء الاصطناعي، وإشعارات الطاقم.
+              <p className="text-sm leading-relaxed text-text-secondary">
+                أرسل تقرير حالة طارئة عاجل للمستشفيات، أو تابع حالة بلاغ أرسلته مسبقاً بكود التتبع.
               </p>
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 pt-6 border-t border-border/60">
-              <Link href="/register" className="w-full">
-                <Button variant="vibrant" size="lg" className="w-full justify-center text-base font-bold shadow-glow-cyan">
-                  تسجيل عيادة جديدة 
+            {/* Gradient Fading Divider + Buttons */}
+            <div className="mt-8 flex flex-col gap-3 w-full">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mb-2" />
+              <Link href="/emergency-report" className="w-full">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="w-full justify-center text-sm font-bold"
+                >
+                   إرسال تقرير طوارئ
                 </Button>
               </Link>
-              <Link href="/login" className="w-full">
-                <Button variant="secondary" size="lg" className="w-full justify-center text-base font-semibold">
-                  تسجيل الدخول كطبيب
+              <Link href="/emergency-track" className="w-full">
+                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold">
+                   متابعة حالة بلاغ
                 </Button>
               </Link>
             </div>
           </Card>
 
-          {/* PATIENTS PORTAL CARD */}
+          {/* 2. PATIENTS PORTAL CARD */}
           <Card
             hover
             glass
-            vibrant
-            className="group relative flex flex-col justify-between p-8 md:p-10 border-accent/30 shadow-2xl transition-all duration-500 hover:scale-[1.02] hover:border-accent/70"
+            className="group relative flex flex-col justify-between p-8 md:p-9 min-h-[490px] rounded-3xl border-border/80 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(184,125,101,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
           >
-            <div className="absolute top-4 left-4 rounded-full bg-accent/10 px-3 py-1 text-xs font-extrabold text-accent">
-              قسم المرضى والحجوزات
-            </div>
-
-            <div>
-              {/* Icon / Image Header */}
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-accent-hover text-surface shadow-glow-emerald transition-transform duration-500 group-hover:scale-110">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="flex flex-col items-center">
+              {/* Patient Icon: Frosted Glass Container with Shadow/Glow */}
+              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary shadow-[0_4px_20px_rgba(184,125,101,0.15)] dark:shadow-[0_0_25px_rgba(186,38,84,0.30)] dark:border-primary/30 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(184,125,101,0.25)]">
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
                 </svg>
               </div>
 
-              <h2 className="font-display text-2xl font-extrabold text-text-primary md:text-3xl">
-                بوابة المرضى والخدمات
+              <h2 className="font-display text-2xl font-extrabold text-text-primary mb-3">
+                المرضى والحجوزات
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-text-secondary md:text-base">
-                تصفح العيادات المتاحة، حجز المواعيد، متابعة تخصصك المناسب، والاطلاع على السجلات الطبية.
+              <p className="text-sm leading-relaxed text-text-secondary">
+                احجز مواعيدك الطبية بكل مرونة، وتابع استشاراتك وسجلاتك المعتمدة مع طبيبك.
               </p>
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 pt-6 border-t border-border/60">
-              <Link href="/clinics" className="w-full">
-                <Button variant="vibrant" size="lg" className="w-full justify-center text-base font-bold shadow-glow-emerald">
-                  تصفح العيادات والحجز الآن ️
+            {/* Gradient Fading Divider + Buttons */}
+            <div className="mt-8 flex flex-col gap-3 w-full">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mb-2" />
+              <Link href="/login" className="w-full">
+                <Button variant="primary" size="lg" className="w-full justify-center text-sm font-bold">
+                  تسجيل الدخول لحسابي
                 </Button>
               </Link>
-              <Link href="/patient" className="w-full">
-                <Button variant="secondary" size="lg" className="w-full justify-center text-base font-semibold">
-                  مواعيدي وسجلاتي الطبية
+              <PatientInfoButton />
+            </div>
+          </Card>
+
+          {/* 3. DOCTORS PORTAL CARD */}
+          <Card
+            hover
+            glass
+            className="group relative flex flex-col justify-between p-8 md:p-9 min-h-[490px] rounded-3xl border-border/80 hover:border-accent/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(184,125,101,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
+          >
+            <div className="flex flex-col items-center">
+              {/* Doctor Icon: Frosted Glass Container with Shadow/Glow */}
+              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-accent/15 border border-accent/25 text-primary-hover dark:text-[#F1F4F8] shadow-[0_4px_20px_rgba(184,125,101,0.15)] dark:shadow-[0_0_25px_rgba(100,150,220,0.25)] dark:border-border/40 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(184,125,101,0.25)]">
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4.5 3h15" />
+                  <path d="M6 3v6a6 6 0 0 0 12 0V3" />
+                  <path d="M12 15v3a3 3 0 0 0 3 3h1a2 2 0 0 0 2-2v-1" />
+                  <circle cx="18" cy="18" r="2" />
+                </svg>
+              </div>
+
+              <h2 className="font-display text-2xl font-extrabold text-text-primary mb-3">
+                الأطباء والعيادات
+              </h2>
+              <p className="text-sm leading-relaxed text-text-secondary">
+                منظومة شاملة لإدارة عيادتك، الكشوفات، سجلات المرضى، وجدول المواعيد بدقة.
+              </p>
+            </div>
+
+            {/* Gradient Fading Divider + Buttons */}
+            <div className="mt-8 flex flex-col gap-3 w-full">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mb-2" />
+              <Link href="/login" className="w-full">
+                <Button variant="primary" size="lg" className="w-full justify-center text-sm font-bold">
+                  تسجيل الدخول كطبيب
+                </Button>
+              </Link>
+              <Link href="/register?type=doctor" className="w-full">
+                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold">
+                  إنشاء حساب عيادة جديدة
                 </Button>
               </Link>
             </div>
           </Card>
+
+          {/* 4. HOSPITALS PORTAL CARD */}
+          <Card
+            hover
+            glass
+            className="group relative flex flex-col justify-between p-8 md:p-9 min-h-[490px] rounded-3xl border-border/80 hover:border-secondary/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(184,125,101,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
+          >
+            <div className="flex flex-col items-center">
+              {/* Hospital Icon: Frosted Glass Container with Shadow/Glow */}
+              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-secondary/10 border border-secondary/20 text-secondary shadow-[0_4px_20px_rgba(150,154,131,0.15)] dark:shadow-[0_0_25px_rgba(100,150,220,0.25)] dark:border-border/40 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(150,154,131,0.25)]">
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 21h18" />
+                  <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
+                  <path d="M12 7v4" />
+                  <path d="M10 9h4" />
+                  <path d="M9 17v4" />
+                  <path d="M15 17v4" />
+                </svg>
+              </div>
+
+              <h2 className="font-display text-2xl font-extrabold text-text-primary mb-3">
+                المستشفيات والطوارئ
+              </h2>
+              <p className="text-sm leading-relaxed text-text-secondary">
+                استقبال بلاغات وحالات الطوارئ المحولة فورياً، وتنسيق الأقسام والطاقة الاستيعابية.
+              </p>
+            </div>
+
+            {/* Gradient Fading Divider + Buttons */}
+            <div className="mt-8 flex flex-col gap-3 w-full">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mb-2" />
+              <Link href="/login" className="w-full">
+                <Button variant="primary" size="lg" className="w-full justify-center text-sm font-bold">
+                  دخول لوحة المستشفى
+                </Button>
+              </Link>
+              <Link href="/register?type=hospital" className="w-full">
+                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold">
+                  تسجيل مستشفى جديد
+                </Button>
+              </Link>
+            </div>
+          </Card>
+
         </div>
       </main>
     </div>

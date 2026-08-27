@@ -30,7 +30,13 @@ export function DashboardShell({
   return (
     <div className="flex min-h-screen">
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden w-64 shrink-0 flex-col border-l border-border bg-surface px-4 py-6 md:flex">
+      <aside
+        className="hidden w-64 shrink-0 flex-col border-l px-4 py-6 md:flex"
+        style={{
+          background: "var(--color-surface)",
+          borderColor: "var(--color-header-border)",
+        }}
+      >
         <div className="px-2">
           <Logo size="sm" />
         </div>
@@ -72,7 +78,13 @@ export function DashboardShell({
       {/* ── Main Content Area ── */}
       <div className="flex flex-1 flex-col min-w-0">
         {/* Top Header */}
-        <header className="flex items-center justify-between border-b border-border bg-surface/80 px-4 py-3 backdrop-blur-sm md:px-6 md:py-4">
+        <header
+          className="flex items-center justify-between px-4 py-3 backdrop-blur-sm md:px-6 md:py-4"
+          style={{
+            background: "var(--color-header-bg)",
+            borderBottom: "1px solid var(--color-header-border)",
+          }}
+        >
           {/* Mobile: hamburger + logo */}
           <div className="flex items-center gap-3">
             <button
@@ -108,7 +120,13 @@ export function DashboardShell({
               onClick={() => setMobileMenuOpen(false)}
             />
             {/* Drawer */}
-            <div className="fixed top-0 right-0 z-50 h-full w-72 bg-surface border-l border-border px-4 py-6 flex flex-col gap-4 md:hidden animate-slide-in-right">
+            <div
+              className="fixed top-0 right-0 z-50 h-full w-72 px-4 py-6 flex flex-col gap-4 md:hidden animate-slide-in-right"
+              style={{
+                background: "var(--color-surface)",
+                borderLeft: "1px solid var(--color-header-border)",
+              }}
+            >
               <div className="flex items-center justify-between mb-2">
                 <Logo size="sm" />
                 <button
@@ -160,7 +178,13 @@ export function DashboardShell({
       </div>
 
       {/* ── Mobile Bottom Navigation Bar ── */}
-      <nav className="fixed bottom-0 inset-x-0 z-30 flex md:hidden border-t border-border bg-surface/90 backdrop-blur-xl">
+      <nav
+        className="fixed bottom-0 inset-x-0 z-30 flex md:hidden backdrop-blur-xl"
+        style={{
+          background: "var(--color-header-bg)",
+          borderTop: "1px solid var(--color-header-border)",
+        }}
+      >
         {navItems.slice(0, 4).map((item) => {
           const active = pathname === item.href;
           return (

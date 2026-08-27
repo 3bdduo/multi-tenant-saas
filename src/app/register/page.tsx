@@ -1,88 +1,25 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { DoctorRegisterForm } from "./DoctorRegisterForm";
+import { HospitalRegisterForm } from "./HospitalRegisterForm";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { registerDoctor } from "@/lib/api/auth";
-import { Button } from "@/components/ui/Button";
-import { Field } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
-import { ApiError } from "@/lib/http";
-import {
-  validateEgyptianNationalId,
-  validateEgyptianPhone,
-  validateName,
-  validateEmail,
-  validatePassword,
-} from "@/lib/validators";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
+import { Button } from "@/components/ui/Button";
 
-export default function RegisterDoctorPage() {
-  const router = useRouter();
-  const [form, setForm] = useState({
-    nationalId: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    email: "",
-  });
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+function RegisterContent() {
+  const searchParams = useSearchParams();
+  const type = searchParams.get("type");
 
-  function update<K extends keyof typeof form>(key: K, value: string) {
-    setForm((f) => ({ ...f, [key]: value }));
-    if (fieldErrors[key]) {
-      setFieldErrors((prev) => ({ ...prev, [key]: "" }));
-    }
+  if (type === "doctor") {
+    return <DoctorRegisterForm />;
   }
 
-  function validate(): boolean {
-    const errs: Record<string, string> = {};
-
-    const fnErr = validateName(form.firstName, "الاسم الأول");
-    if (fnErr) errs.firstName = fnErr;
-
-    const lnErr = validateName(form.lastName, "اسم العائلة");
-    if (lnErr) errs.lastName = lnErr;
-
-    const nidErr = validateEgyptianNationalId(form.nationalId);
-    if (nidErr) errs.nationalId = nidErr;
-
-    const emailErr = validateEmail(form.email);
-    if (emailErr) errs.email = emailErr;
-
-    const phoneErr = validateEgyptianPhone(form.phoneNumber);
-    if (phoneErr) errs.phoneNumber = phoneErr;
-
-    const passErr = validatePassword(form.password);
-    if (passErr) errs.password = passErr;
-
-    setFieldErrors(errs);
-    return Object.keys(errs).length === 0;
-  }
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError(null);
-
-    if (!validate()) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await registerDoctor(form);
-      router.push("/login");
-    } catch (err) {
-      setError(
-        err instanceof ApiError ? err.message : "تعذّر إنشاء الحساب، حاول مرة أخرى"
-      );
-    } finally {
-      setLoading(false);
-    }
+  if (type === "hospital") {
+    return <HospitalRegisterForm />;
   }
 
   return (
@@ -96,84 +33,25 @@ export default function RegisterDoctorPage() {
             <Logo size="lg" href={null} />
           </div>
           <h1 className="font-display text-2xl font-extrabold text-text-primary">
-            تسجيل عيادة جديدة
+            إنشاء حساب جديد
           </h1>
           <p className="mt-1.5 text-sm text-text-secondary">
-            حساب الطبيب هو الحساب الرئيسي لإدارة العيادة وإضافة الطاقم والمواعيد
+            اختر نوع الحساب الذي ترغب في إنشائه
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2" noValidate>
-          <Field
-            label="الاسم الأول"
-            required
-            value={form.firstName}
-            onChange={(e) => update("firstName", e.target.value)}
-            error={fieldErrors.firstName}
-            placeholder="مثال: أحمد"
-          />
-          <Field
-            label="اسم العائلة"
-            required
-            value={form.lastName}
-            onChange={(e) => update("lastName", e.target.value)}
-            error={fieldErrors.lastName}
-            placeholder="مثال: محمود"
-          />
-          <Field
-            label="الرقم القومي (14 رقمًا)"
-            required
-            inputMode="numeric"
-            value={form.nationalId}
-            onChange={(e) => update("nationalId", e.target.value)}
-            error={fieldErrors.nationalId}
-            placeholder="مثال: 00000000000000"
-            className="sm:col-span-2"
-          />
-          <Field
-            label="البريد الإلكتروني"
-            type="email"
-            required
-            value={form.email}
-            onChange={(e) => update("email", e.target.value)}
-            error={fieldErrors.email}
-            placeholder="example@domain.com"
-            className="sm:col-span-2"
-          />
-          <Field
-            label="رقم الهاتف المصري"
-            required
-            inputMode="tel"
-            value={form.phoneNumber}
-            onChange={(e) => update("phoneNumber", e.target.value)}
-            error={fieldErrors.phoneNumber}
-            placeholder="مثال: 01000000000"
-          />
-          <Field
-            label="كلمة المرور"
-            type="password"
-            required
-            value={form.password}
-            onChange={(e) => update("password", e.target.value)}
-            error={fieldErrors.password}
-            placeholder="******"
-          />
-
-          {error && (
-            <div className="sm:col-span-2 rounded-xl bg-danger/10 border border-danger/20 px-4 py-3 text-sm font-medium text-danger animate-fade-in-slow flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              {error}
-            </div>
-          )}
-
-          <Button type="submit" variant="vibrant" loading={loading} className="mt-2 w-full sm:col-span-2 shadow-glow-cyan text-base">
-            {loading ? "جارٍ الإنشاء..." : "إنشاء حساب العيادة"}
-          </Button>
-        </form>
+        <div className="mt-8 flex flex-col gap-4">
+          <Link href="/register?type=doctor" className="w-full">
+            <Button variant="vibrant" size="lg" className="w-full justify-center text-base font-bold shadow-glow-cyan">
+              إنشاء حساب عيادة طبية (طبيب)
+            </Button>
+          </Link>
+          <Link href="/register?type=hospital" className="w-full">
+            <Button variant="secondary" size="lg" className="w-full justify-center text-base font-semibold shadow-glow-purple bg-violet-500 hover:bg-violet-600 border-violet-500">
+              إنشاء حساب مستشفى
+            </Button>
+          </Link>
+        </div>
 
         <p className="mt-6 text-center text-sm text-text-secondary pt-4 border-t border-border/60">
           لديك حساب بالفعل؟{" "}
@@ -185,3 +63,16 @@ export default function RegisterDoctorPage() {
     </div>
   );
 }
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-10 w-10 rounded-full border-4 border-primary/30 border-t-primary animate-spin" />
+      </div>
+    }>
+      <RegisterContent />
+    </Suspense>
+  );
+}
+

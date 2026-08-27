@@ -1,7 +1,7 @@
 // Types derived from the clinic-saas Postman collection
-// Groups: auth, doctor, admin, appointment, patient, medical-record
+// Groups: auth, doctor, admin, appointment, patient, medical-record, hospital, general-notification
 
-export type Role = "Admin" | "Doctor" | "Patient";
+export type Role = "Admin" | "Doctor" | "Patient" | "Hospital";
 
 export interface ApiEnvelope<T> {
   message: string;
@@ -267,4 +267,90 @@ export interface CreateNotificationPayload {
 export interface UpdateNotificationPayload {
   title?: string;
   message: string;
+}
+
+// ---- Hospital ----
+export interface Hospital {
+  _id: string;
+  hospitalName: string;
+  email: string;
+  nationalId: string;
+  phoneNumber: string;
+  address: string;
+  governorate: string;
+  city: string;
+  role: "Hospital";
+  isPaid: boolean;
+  paidExpired: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RegisterHospitalPayload {
+  nationalId: string;
+  email: string;
+  password: string;
+  hospitalName: string;
+  phoneNumber: string;
+  address: string;
+  governorate: string;
+  city: string;
+}
+
+export interface RenewHospitalSubscriptionPayload {
+  monthNumber: number;
+}
+
+// ---- General Notification ----
+export interface GeneralNotification {
+  _id: string;
+  title: string;
+  message: string;
+  createdBy: string | { _id: string; role: Role; firstName: string; lastName: string };
+  createdByModel: "Doctor" | "Admin";
+  targetRole?: "Patient" | "Doctor" | "Hospital";
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateGeneralNotificationPayload {
+  title: string;
+  message: string;
+}
+
+// ---- Emergency Case ----
+// Status values as defined in the backend EmergencyStatus enum:
+// open (waiting) → claimed (hospital responded) → resolved (done) | expired (cancelled/timed-out)
+export type EmergencyStatus = "open" | "claimed" | "resolved" | "expired";
+
+export interface ClaimedHospital {
+  _id: string;
+  hospitalName: string;
+  city: string;
+  governorate: string;
+  address: string;
+  phoneNumber: string;
+}
+
+export interface EmergencyCase {
+  _id: string;
+  caseCode: string;
+  phoneNumber: string;
+  notes?: string;
+  status: EmergencyStatus;
+  reportImageUrl?: { public_id: string; secure_url: string };
+  claimedByHospitalIds: (string | ClaimedHospital)[];
+  expiresAt: string;
+  createdAt: string;
+}
+
+// trackByCaseCode returns ONLY these 2 fields (reportImageUrl is excluded on purpose)
+export interface TrackEmergencyCaseResponse {
+  status: EmergencyStatus;
+  interestedHospitalsCount: number;
+}
+
+export interface CreateEmergencyCasePayload {
+  phoneNumber: string;
+  notes?: string;
 }

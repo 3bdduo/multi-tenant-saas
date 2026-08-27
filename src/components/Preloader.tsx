@@ -101,7 +101,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
                 />
               </div>
               <div className="text-center">
-                <h2 className="font-display text-xl font-bold text-primary">نبض</h2>
+                <h2 className="font-brush text-2xl font-bold text-primary">نبض</h2>
                 <p className="text-xs font-semibold tracking-[0.2em] text-text-secondary uppercase">Nabd</p>
               </div>
             </div>
@@ -132,11 +132,11 @@ export function Preloader({ children }: { children: React.ReactNode }) {
 
           {/* Text Section */}
           <div className="text-center animate-fade-in-slow mb-12" style={{ animationDelay: "0.5s" }}>
-            <p className="text-sm sm:text-base font-semibold text-text-secondary mb-2">
+            <p className="text-base sm:text-lg font-medium text-text-secondary mb-2">
               مجتمع <span className="text-primary font-bold">ARC</span> يُقدّم لكم
             </p>
-            <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-white">
-              منصة <span className="gradient-text-alive">نبض</span> لإدارة العيادات الطبية
+            <h1 className="font-brush text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-relaxed">
+              منصة <span className="gradient-text-alive font-brush">نبض</span> لإدارة العيادات الطبية
             </h1>
           </div>
 

@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { getMe, updateMe, deleteMyAccount } from "@/lib/api/doctor";
-import { ApiError } from "@/lib/http";
+import { ApiError, clearTokens } from "@/lib/http";
 import { validateEmail, validateEgyptianPhone } from "@/lib/validators";
 
 export default function DoctorAccountSettingsPage() {
@@ -126,8 +126,8 @@ export default function DoctorAccountSettingsPage() {
     setDeleting(true);
     try {
       await deleteMyAccount();
-      // Remove token and redirect to login
-      localStorage.removeItem("token");
+      // Clear all auth tokens properly and redirect
+      clearTokens();
       router.push("/login");
     } catch (err) {
       alert(err instanceof ApiError ? err.message : "تعذّر حذف الحساب");

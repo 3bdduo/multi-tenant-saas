@@ -4,6 +4,7 @@ import type {
   AuthTokens,
   LoginPayload,
   RegisterDoctorPayload,
+  RegisterHospitalPayload,
   RegisterPatientPayload,
   ResetPasswordPayload,
   SendOtpPayload,
@@ -13,6 +14,14 @@ import type {
 export function registerDoctor(payload: RegisterDoctorPayload) {
   return apiFetch<ApiEnvelope<{ createdDoctor: Record<string, unknown> }>>(
     "/auth/register/doctor",
+    { method: "POST", body: JSON.stringify(payload), auth: false }
+  );
+}
+
+// POST /auth/register/hospital
+export function registerHospital(payload: RegisterHospitalPayload) {
+  return apiFetch<ApiEnvelope<{ createdHospital: Record<string, unknown> }>>(
+    "/auth/register/hospital",
     { method: "POST", body: JSON.stringify(payload), auth: false }
   );
 }

@@ -4,58 +4,56 @@ import { useState, useEffect } from "react";
 import { DoctorActivationBanner } from "@/components/DoctorActivationBanner";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-
-interface PatientAnnouncement {
-  id: string;
-  text: string;
-  enabled: boolean;
-  createdAt: string;
-}
+import {
+  createGeneralNotificationByDoctor,
+  getMyGeneralNotifications,
+} from "@/lib/api/generalNotification";
+import { ApiError } from "@/lib/http";
+import type { GeneralNotification } from "@/types/api";
 
 export default function ClinicAnnouncementsPage() {
-  const [announcements, setAnnouncements] = useState<PatientAnnouncement[]>([]);
-  const [text, setText] = useState("");
-  const [enabled, setEnabled] = useState(true);
+  const [notifications, setNotifications] = useState<GeneralNotification[]>([]);
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  async function loadNotifications() {
+    try {
+      setLoading(true);
+      const res = await getMyGeneralNotifications();
+      setNotifications(res.data.notifications ?? []);
+    } catch {
+      // silently fail — might be empty
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    const saved = localStorage.getItem("clinic_announcements");
-    if (saved) {
-      try {
-        setAnnouncements(JSON.parse(saved));
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    loadNotifications();
   }, []);
 
-  function saveAnnouncements(list: PatientAnnouncement[]) {
-    setAnnouncements(list);
-    localStorage.setItem("clinic_announcements", JSON.stringify(list));
-  }
-
-  function handleAdd(e: React.FormEvent) {
+  async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
-    if (!text.trim()) return;
-
-    const newAnn: PatientAnnouncement = {
-      id: `ann-${Date.now()}`,
-      text: text.trim(),
-      enabled,
-      createdAt: new Date().toLocaleDateString("ar-EG"),
-    };
-
-    saveAnnouncements([newAnn, ...announcements]);
-    setText("");
-  }
-
-  function toggleEnable(id: string) {
-    const updated = announcements.map((a) => (a.id === id ? { ...a, enabled: !a.enabled } : a));
-    saveAnnouncements(updated);
-  }
-
-  function removeAnnouncement(id: string) {
-    const updated = announcements.filter((a) => a.id !== id);
-    saveAnnouncements(updated);
+    if (!title.trim() || !message.trim()) return;
+    setError(null);
+    setSuccessMsg(null);
+    setSubmitting(true);
+    try {
+      await createGeneralNotificationByDoctor({ title: title.trim(), message: message.trim() });
+      setTitle("");
+      setMessage("");
+      setSuccessMsg("تم إرسال الإشعار بنجاح ✓");
+      await loadNotifications();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "تعذّر إرسال الإشعار");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -68,11 +66,11 @@ export default function ClinicAnnouncementsPage() {
           إدارة الإشعارات والتنبيهات للمرضى
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          أضف إشعاراً أو تنبيهاً عاماً يظهر للمرضى في أعلى صفحة العيادة فور دخولهم
+          أضف إشعاراً أو تنبيهاً عاماً يُرسَل عبر النظام إلى مرضاك تلقائياً
         </p>
       </div>
 
-      {/* Add Form (Matching Screenshot 4) */}
+      {/* Add Form */}
       <Card glass vibrant className="max-w-2xl border-primary/20 p-6 md:p-8 shadow-2xl">
         <h2 className="font-display text-lg font-bold text-text-primary mb-4">
           إضافة إشعار جديد
@@ -81,69 +79,96 @@ export default function ClinicAnnouncementsPage() {
         <form onSubmit={handleAdd} className="flex flex-col gap-4">
           <div>
             <label className="block text-xs font-bold text-text-primary mb-1.5">
-              نص الإشعار
+              عنوان الإشعار *
             </label>
-            <textarea
+            <input
               required
-              rows={3}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="مثال: تنويه: العيادة مغلقة في الإجازات الرسمية..."
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="مثال: تنويه مهم"
               className="w-full rounded-xl border border-border/80 bg-surface px-4 py-2.5 text-sm outline-none transition-all focus:border-primary"
             />
           </div>
 
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-text-primary">
-            <input
-              type="checkbox"
-              checked={enabled}
-              onChange={(e) => setEnabled(e.target.checked)}
-              className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+          <div>
+            <label className="block text-xs font-bold text-text-primary mb-1.5">
+              نص الإشعار *
+            </label>
+            <textarea
+              required
+              rows={3}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="مثال: العيادة مغلقة في الإجازات الرسمية..."
+              className="w-full rounded-xl border border-border/80 bg-surface px-4 py-2.5 text-sm outline-none transition-all focus:border-primary"
             />
-            <span>إشعار مفعل (يظهر للمرضى في صفحة العيادة)</span>
-          </label>
+          </div>
 
-          <Button type="submit" variant="vibrant" className="mt-2 font-bold shadow-glow-cyan">
-            + إضافة إشعار
+          {error && (
+            <div className="rounded-xl bg-danger/10 border border-danger/20 p-3 text-xs font-bold text-danger">
+              {error}
+            </div>
+          )}
+          {successMsg && (
+            <div className="rounded-xl bg-success/10 border border-success/20 p-3 text-xs font-bold text-success">
+              {successMsg}
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            variant="vibrant"
+            disabled={submitting}
+            className="mt-2 font-bold shadow-glow-cyan"
+          >
+            {submitting ? "جارٍ الإرسال..." : "+ إرسال الإشعار"}
           </Button>
         </form>
       </Card>
 
-      {/* List (Matching Screenshot 4) */}
+      {/* List */}
       <Card className="max-w-2xl">
-        <h2 className="font-display text-base font-bold text-text-primary mb-4">
-          قائمة الإشعارات الحاليّة ({announcements.length})
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-display text-base font-bold text-text-primary">
+            الإشعارات المُرسَلة ({notifications.length})
+          </h2>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={loadNotifications}
+            disabled={loading}
+          >
+            {loading ? "..." : "تحديث"}
+          </Button>
+        </div>
 
         <div className="flex flex-col divide-y divide-border/60">
-          {announcements.map((ann) => (
-            <div key={ann.id} className="flex items-center justify-between gap-4 py-4">
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-bold text-text-primary">{ann.text}</p>
-                <span className="text-[11px] text-text-secondary">{ann.createdAt}</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => toggleEnable(ann.id)}
-                  className={`rounded-full px-3 py-1 text-xs font-extrabold transition-colors ${
-                    ann.enabled ? "bg-success/20 text-success" : "bg-border text-text-secondary"
-                  }`}
-                >
-                  {ann.enabled ? "نشط" : "معطل"}
-                </button>
-
-                <Button size="sm" variant="danger" onClick={() => removeAnnouncement(ann.id)}>
-                  حذف
-                </Button>
-              </div>
+          {notifications.map((n) => (
+            <div key={n._id} className="flex flex-col gap-1 py-4">
+              <p className="text-sm font-bold text-text-primary">{n.title}</p>
+              <p className="text-sm text-text-secondary">{n.message}</p>
+              <span className="text-[11px] text-text-secondary">
+                {new Date(n.createdAt).toLocaleDateString("ar-EG", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
             </div>
           ))}
 
-          {announcements.length === 0 && (
+          {!loading && notifications.length === 0 && (
             <p className="py-8 text-center text-sm text-text-secondary">
-              لا توجد إشعارات حالية
+              لا توجد إشعارات مُرسَلة حتى الآن
             </p>
+          )}
+          {loading && (
+            <div className="py-8 flex justify-center">
+              <div className="h-6 w-6 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+            </div>
           )}
         </div>
       </Card>

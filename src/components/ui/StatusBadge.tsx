@@ -1,9 +1,9 @@
 export function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    pending: "bg-warning/15 text-warning border border-warning/20",
-    confirmed: "bg-primary/15 text-primary border border-primary/20",
-    completed: "bg-success/15 text-success border border-success/20",
-    cancelled: "bg-danger/15 text-danger border border-danger/20",
+    pending: "bg-warning/20 text-warning border border-warning/30",
+    confirmed: "bg-primary/20 text-primary border border-primary/30",
+    completed: "bg-success/20 text-success border border-success/30",
+    cancelled: "bg-danger/20 text-danger border border-danger/30",
   };
   const labels: Record<string, string> = {
     pending: "قيد الانتظار",
@@ -12,7 +12,7 @@ export function StatusBadge({ status }: { status: string }) {
     cancelled: "ملغي",
   };
   return (
-    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${map[status] ?? "bg-border text-text-secondary"}`}>
+    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${map[status] ?? "bg-secondary text-secondary-foreground border border-border"}`}>
       {labels[status] ?? status}
     </span>
   );

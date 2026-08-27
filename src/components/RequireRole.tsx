@@ -18,7 +18,6 @@ export function RequireRole({
   useEffect(() => {
     if (isLoading) return;
     if (!isAuthenticated || currentRole !== role) {
-      // Redirect admins to admin login, others to generic login
       router.replace(role === "Admin" ? "/admin-login" : "/login");
     }
   }, [isLoading, isAuthenticated, currentRole, role, router]);
