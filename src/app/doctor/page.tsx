@@ -104,8 +104,14 @@ export default function DoctorDashboardPage() {
   if (needsClinic) {
     return (
       <Card className="mx-auto max-w-xl text-center animate-fade-in p-6 sm:p-8 border-warning/30">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-warning/15 text-warning text-2xl font-bold">
-          🏥
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-warning/15 text-warning text-xl font-bold">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 21h18" />
+            <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
+            <path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4" />
+            <path d="M10 9h4" />
+            <path d="M12 7v4" />
+          </svg>
         </div>
         <h2 className="font-display text-xl font-extrabold text-text-primary">
           لم يتم تسجيل عيادة بعد
@@ -116,11 +122,11 @@ export default function DoctorDashboardPage() {
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link href="/doctor/clinic">
             <Button variant="vibrant">
-              تسجيل العيادة 🏥
+              تسجيل العيادة
             </Button>
           </Link>
           <Button variant="secondary" onClick={() => window.location.reload()}>
-            إعادة الفحص 🔄
+            إعادة الفحص
           </Button>
         </div>
       </Card>

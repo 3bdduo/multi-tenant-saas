@@ -107,10 +107,10 @@ export default function EmergencyReportPage() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Link href="/emergency-track">
-              <Button variant="secondary" size="sm">🔍 متابعة بلاغ</Button>
+              <Button variant="secondary" size="sm">متابعة بلاغ</Button>
             </Link>
             <Link href="/">
-              <Button variant="ghost" size="sm">← الرئيسية</Button>
+              <Button variant="ghost" size="sm">الرئيسية</Button>
             </Link>
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function EmergencyReportPage() {
             نظام الإبلاغ عن حالات الطوارئ
           </div>
           <h1 className="font-display text-3xl font-extrabold text-text-primary md:text-4xl">
-            🚨 إرسال تقرير طوارئ
+            إرسال تقرير طوارئ
           </h1>
           <p className="mt-3 text-sm text-text-secondary max-w-md mx-auto">
             أرسل البيانات والصورة دفعة واحدة — تُشعَر المستشفيات تلقائياً فور الإرسال
@@ -231,11 +231,11 @@ export default function EmergencyReportPage() {
                 loading={loading}
                 className="w-full h-14 text-base font-extrabold bg-danger hover:bg-red-600 border-danger text-white shadow-lg"
               >
-                🚨 إرسال البلاغ مع التقرير الآن
+                إرسال البلاغ مع التقرير الآن
               </Button>
 
               <p className="text-xs text-text-secondary text-center">
-                ⏰ كل بلاغ صالح لمدة <strong>6 ساعات</strong> — بعد الإرسال، تُشعَر المستشفيات تلقائياً
+                كل بلاغ صالح لمدة <strong>6 ساعات</strong> — بعد الإرسال، تُشعَر المستشفيات تلقائياً
               </p>
             </form>
           )}
@@ -244,8 +244,10 @@ export default function EmergencyReportPage() {
           {stage === "done" && (
             <div className="flex flex-col gap-6 animate-fade-in-slow">
               <div className="text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/15 text-3xl">
-                  ✅
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/15 text-success">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                 </div>
                 <h2 className="font-display text-2xl font-extrabold text-text-primary">تم إرسال البلاغ بنجاح!</h2>
                 <p className="mt-2 text-sm text-text-secondary">
@@ -285,7 +287,7 @@ export default function EmergencyReportPage() {
                   </button>
                 </div>
                 {copied && (
-                  <p className="mt-2 text-xs text-success font-semibold text-center">✓ تم النسخ إلى الحافظة</p>
+                  <p className="mt-2 text-xs text-success font-semibold text-center">تم النسخ إلى الحافظة</p>
                 )}
                 <p className="mt-3 text-xs text-text-secondary text-center">
                   احتفظ بهذا الكود لمتابعة حالتك — صالح لمدة 6 ساعات
@@ -295,7 +297,7 @@ export default function EmergencyReportPage() {
               <div className="flex gap-3">
                 <Link href="/emergency-track" className="flex-1">
                   <Button variant="secondary" className="w-full font-bold">
-                    🔍 متابعة الحالة
+                    متابعة الحالة
                   </Button>
                 </Link>
                 <Button variant="ghost" className="flex-1" onClick={handleReset}>

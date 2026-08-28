@@ -10,11 +10,11 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
 import type { TrackEmergencyCaseResponse } from "@/types/api";
 
-const STATUS_MAP: Record<string, { label: string; color: string; icon: string; bg: string }> = {
-  open:     { label: "مفتوحة — بانتظار استجابة المستشفى", color: "text-warning",        icon: "⏳", bg: "bg-warning/10 border-warning/30" },
-  claimed:  { label: "مستشفى استجاب وقيد الاستقبال",      color: "text-primary",        icon: "🏥", bg: "bg-primary/10 border-primary/30" },
-  resolved: { label: "تم حل الحالة بنجاح",                color: "text-success",        icon: "✅", bg: "bg-success/10 border-success/30" },
-  expired:  { label: "انتهت المهلة أو تم الإلغاء",         color: "text-text-secondary", icon: "❌", bg: "bg-border/10 border-border/40" },
+const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
+  open:     { label: "مفتوحة — بانتظار استجابة المستشفى", color: "text-warning",        bg: "bg-warning/10 border-warning/30" },
+  claimed:  { label: "مستشفى استجاب وقيد الاستقبال",      color: "text-primary",        bg: "bg-primary/10 border-primary/30" },
+  resolved: { label: "تم حل الحالة بنجاح",                color: "text-success",        bg: "bg-success/10 border-success/30" },
+  expired:  { label: "انتهت المهلة أو تم الإلغاء",         color: "text-text-secondary", bg: "bg-border/10 border-border/40" },
 };
 
 export default function EmergencyTrackPage() {
@@ -57,7 +57,7 @@ export default function EmergencyTrackPage() {
     }
   }
 
-  const st = result ? (STATUS_MAP[result.status] ?? { label: result.status, color: "", icon: "❓", bg: "bg-border/10 border-border/30" }) : null;
+  const st = result ? (STATUS_MAP[result.status] ?? { label: result.status, color: "", bg: "bg-border/10 border-border/30" }) : null;
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -74,10 +74,10 @@ export default function EmergencyTrackPage() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Link href="/emergency-report">
-              <Button variant="danger" size="sm">🚨 إرسال بلاغ جديد</Button>
+              <Button variant="danger" size="sm">إرسال بلاغ جديد</Button>
             </Link>
             <Link href="/">
-              <Button variant="ghost" size="sm">← الرئيسية</Button>
+              <Button variant="ghost" size="sm">الرئيسية</Button>
             </Link>
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function EmergencyTrackPage() {
         {/* Title */}
         <div className="text-center mb-10 animate-fade-in-slow">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary">
-            🔍 متابعة حالة البلاغ
+            متابعة حالة البلاغ
           </div>
           <h1 className="font-display text-3xl font-extrabold text-text-primary md:text-4xl">
             متابعة بلاغ الطوارئ
@@ -98,45 +98,30 @@ export default function EmergencyTrackPage() {
         </div>
 
         <Card glass vibrant className="p-8 shadow-2xl border-primary/20">
-          {/* Search form */}
-          <form onSubmit={handleTrack} className="flex flex-col gap-4" noValidate>
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="track-input" className="text-sm font-semibold text-text-primary">
-                كود التتبع
-                <span className="mr-1 text-xs font-normal text-text-secondary">(8 أحرف وأرقام)</span>
-              </label>
-              <div className="flex gap-3">
-                <input
-                  id="track-input"
-                  type="text"
-                  value={trackCode}
-                  onChange={(e) => setTrackCode(e.target.value.toUpperCase())}
-                  placeholder="مثال: A3F7C2B1"
-                  maxLength={8}
-                  className="flex-1 rounded-xl border border-border bg-surface px-4 py-3 text-lg font-mono tracking-[0.3em] text-text-primary placeholder:font-sans placeholder:tracking-normal placeholder:text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors"
-                  autoComplete="off"
-                  spellCheck={false}
-                />
-                <Button type="submit" loading={loading} className="px-6 shrink-0">
-                  متابعة
-                </Button>
-              </div>
-            </div>
-            {error && (
-              <p className="flex items-center gap-2 text-sm text-danger font-medium">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-                {error}
-              </p>
-            )}
+          <form onSubmit={handleTrack} className="flex gap-3 mb-6" noValidate>
+            <input
+              type="text"
+              value={trackCode}
+              onChange={(e) => setTrackCode(e.target.value.toUpperCase())}
+              placeholder="مثال: EMR-AB12CD"
+              className="flex-1 rounded-xl border border-border bg-surface px-4 py-3 font-mono text-base tracking-widest text-text-primary placeholder:text-text-secondary uppercase focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+            <Button type="submit" loading={loading} className="px-6 font-bold">
+              بحث
+            </Button>
           </form>
+
+          {error && (
+            <div className="rounded-xl bg-danger/10 border border-danger/20 p-4 text-sm text-danger font-medium animate-fade-in mb-6">
+              {error}
+            </div>
+          )}
 
           {/* Result */}
           {result && st && (
-            <div className="mt-6 flex flex-col gap-4 animate-fade-in-slow">
-              <div className={`flex items-center gap-4 rounded-2xl border p-5 ${st.bg}`}>
-                <span className="text-4xl">{st.icon}</span>
+            <div className="flex flex-col gap-4 animate-fade-in-slow">
+              {/* Status Banner */}
+              <div className={`rounded-2xl border p-5 ${st.bg} flex items-center gap-4`}>
                 <div>
                   <p className="text-xs text-text-secondary font-semibold mb-0.5">حالة البلاغ</p>
                   <p className={`text-base font-extrabold ${st.color}`}>{st.label}</p>
@@ -151,23 +136,23 @@ export default function EmergencyTrackPage() {
                   <p className="text-xs text-text-secondary mt-0.5">عدد المستشفيات التي طلعت على البلاغ</p>
                 </div>
                 <span className="text-3xl font-extrabold text-text-primary">
-                  {result.interestedHospitalsCount} 🏥
+                  {result.interestedHospitalsCount}
                 </span>
               </div>
 
               <p className="text-xs text-text-secondary text-center bg-border/10 rounded-lg px-4 py-2.5">
-                ℹ️ لأسباب أمنية، لا تُعرض صورة التقرير في هذه الصفحة. المستشفيات هي التي تطلع على التقرير كاملاً.
+                لأسباب أمنية، لا تُعرض صورة التقرير في هذه الصفحة. المستشفيات هي التي تطلع على التقرير كاملاً.
               </p>
 
               {/* Cancel — only when open */}
               {result.status === "open" && (
                 <Button
                   variant="outline"
-                  className="w-full border-danger/30 text-danger hover:bg-danger/10"
+                  className="w-full border-danger/30 text-danger hover:bg-danger/10 font-bold"
                   disabled={cancelLoading}
                   onClick={handleCancel}
                 >
-                  {cancelLoading ? "جارٍ الإلغاء..." : "❌ إلغاء هذا البلاغ"}
+                  {cancelLoading ? "جارٍ الإلغاء..." : "إلغاء هذا البلاغ"}
                 </Button>
               )}
             </div>
@@ -175,7 +160,7 @@ export default function EmergencyTrackPage() {
 
           {/* Info note */}
           <div className="mt-6 rounded-xl bg-warning/5 border border-warning/20 p-4">
-            <p className="text-xs font-bold text-warning mb-2">⚠️ معلومات مهمة</p>
+            <p className="text-xs font-bold text-warning mb-2">معلومات مهمة</p>
             <ul className="text-xs text-text-secondary space-y-1.5">
               <li>• كل بلاغ صالح لمدة <strong>6 ساعات</strong> فقط من وقت الإرسال</li>
               <li>• لا يمكن إلغاء البلاغ بعد استلامه من مستشفى (حالة: جارية)</li>

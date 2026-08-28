@@ -94,9 +94,15 @@ export default function HospitalProfilePage() {
           <div className="h-8 w-px bg-border mx-2" />
           <div>
             <p className="text-xs text-text-secondary">حالة الاشتراك</p>
-            <p className={`text-sm font-bold ${hospital.isPaid ? "text-success" : "text-warning"}`}>
-              {hospital.isPaid ? "فعّال ✅" : "غير مفعّل ⚠️"}
-            </p>
+            {(() => {
+              const isExpired = hospital.paidExpired ? new Date(hospital.paidExpired) < new Date() : false;
+              const isActive = Boolean(hospital.isPaid && !isExpired);
+              return (
+                <p className={`text-sm font-bold ${isActive ? "text-success" : "text-warning"}`}>
+                  {isActive ? "فعّال" : "غير مفعّل"}
+                </p>
+              );
+            })()}
           </div>
           {hospital.paidExpired && (
             <>
@@ -163,7 +169,7 @@ export default function HospitalProfilePage() {
         )}
         {success && (
           <div className="mt-4 rounded-xl bg-success/10 border border-success/20 px-4 py-3 text-sm text-success font-semibold">
-            ✅ تم حفظ البيانات بنجاح!
+            تم حفظ البيانات بنجاح!
           </div>
         )}
 

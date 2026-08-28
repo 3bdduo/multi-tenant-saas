@@ -91,11 +91,12 @@ export default function PublicClinicsPage() {
                 {clinic.description || "لا يوجد وصف."}
               </p>
               <div className="mt-auto flex items-center justify-between pt-4 border-t border-border/50">
-                <div className="text-sm font-medium text-text-primary">
-                  سعر الكشف: <span className="text-accent">{clinic.consultationPrice} ج.م</span>
+                <div className="flex flex-col text-xs font-semibold text-text-primary">
+                  <span>كشف: <strong className="text-accent">{clinic.consultationPrice} ج.م</strong></span>
+                  <span className="text-text-secondary text-[11px]">إعادة: <strong className="text-primary">{clinic.followUpPrice != null ? clinic.followUpPrice : clinic.consultationPrice} ج.م</strong></span>
                 </div>
                 <Link href={`/clinics/${clinic._id}`}>
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="vibrant" className="shadow-glow-cyan font-bold">
                     التفاصيل والحجز
                   </Button>
                 </Link>

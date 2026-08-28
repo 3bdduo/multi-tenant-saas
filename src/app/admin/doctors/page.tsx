@@ -31,6 +31,9 @@ export default function AdminDoctorsPage() {
     try {
       const res = await getDoctors();
       setDoctors(res.data.doctors ?? []);
+    } catch (err) {
+      console.error("Failed to load doctors:", err);
+      setDoctors([]);
     } finally {
       setLoading(false);
     }

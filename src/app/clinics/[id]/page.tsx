@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getPublicClinicById, getPublicClinicSlots } from "@/lib/api/public";
-import { createAppointmentByPatient } from "@/lib/api/appointment";
+import { createAppointmentByPatient, getMyAppointments } from "@/lib/api/appointment";
 import { useAuth } from "@/hooks/useAuth";
 import type { Clinic } from "@/types/api";
 import { Card } from "@/components/ui/Card";
@@ -31,7 +31,6 @@ function formatTime(iso: string) {
   try {
     const d = new Date(iso);
     if (isNaN(d.getTime())) {
-      // It might already be HH:mm
       return iso.slice(0, 5);
     }
     return d.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", hour12: true });
@@ -52,6 +51,8 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
   const [date, setDate] = useState(tomorrow());
   const [notes, setNotes] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
+  const [visitingType, setVisitingType] = useState<"NEW" | "FOLLOW_UP">("NEW");
+  const [hasPreviousVisit, setHasPreviousVisit] = useState(false);
 
   // Slots state (only for time clinics)
   const [slots, setSlots] = useState<string[]>([]);
@@ -72,7 +73,32 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     async function load() {
       try {
         const res = await getPublicClinicById(params.id);
-        if (res.success) setClinic(res.data.clinic);
+        if (res.success) {
+          const loadedClinic = res.data.clinic;
+          setClinic(loadedClinic);
+
+          // If patient is logged in, check if they have a previous booking with this clinic/doctor
+          if (isAuthenticated && role === "Patient") {
+            try {
+              const apptsRes = await getMyAppointments();
+              const myAppts = apptsRes.data.appointments ?? [];
+              const docId = typeof loadedClinic.doctorId === "string" ? loadedClinic.doctorId : loadedClinic.doctorId?._id;
+              
+              const prev = myAppts.some((a) => {
+                const aDocId = typeof a.doctorId === "object" ? a.doctorId?._id : a.doctorId;
+                const aClinicId = typeof a.clinicId === "object" ? a.clinicId?._id : a.clinicId;
+                return (aDocId === docId || aClinicId === params.id) && (a.status === "completed" || a.status === "confirmed" || a.status === "pending");
+              });
+
+              if (prev) {
+                setHasPreviousVisit(true);
+                setVisitingType("FOLLOW_UP"); // Auto-select follow-up discount for returning patient
+              }
+            } catch {
+              // Ignore history error
+            }
+          }
+        }
       } catch {
         /* not found */
       } finally {
@@ -80,7 +106,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
       }
     }
     load();
-  }, [params.id]);
+  }, [params.id, isAuthenticated, role]);
 
   /* ── Fetch slots whenever date changes (time clinics only) ── */
   const fetchSlots = useCallback(
@@ -93,7 +119,6 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
         const res = await getPublicClinicSlots(params.id, selectedDate);
         setSlots(res.data.availableSlots ?? []);
       } catch (err: any) {
-        // 400 = queue clinic, or other error
         setSlotsError(err?.message || "تعذّر تحميل المواعيد المتاحة");
         setSlots([]);
       } finally {
@@ -134,10 +159,17 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     setMessage(null);
 
     try {
-      const payload: { doctorId: string; date: string; startTime?: string; notes?: string } = {
+      const payload: {
+        doctorId: string;
+        date: string;
+        startTime?: string;
+        notes?: string;
+        visitingType?: "NEW" | "FOLLOW_UP";
+      } = {
         doctorId,
         date,
         notes: notes || undefined,
+        visitingType,
       };
 
       if (clinic?.bookingType === "time") {
@@ -153,12 +185,13 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
           text: "تم تسجيل طلبك، لكنك في قائمة الانتظار حالياً. سيتم تأكيد موعدك عند توفر مكان.",
         });
       } else {
+        const visitLabel = visitingType === "FOLLOW_UP" ? "إعادة كشف" : "كشف جديد";
         setMessage({
           type: "success",
           text:
             clinic?.bookingType === "queue"
-              ? `تم الحجز بنجاح! رقمك في الدور: ${appt.queueNumber ?? "—"}`
-              : `تم الحجز بنجاح! موعدك الساعة ${appt.startTime ? appt.startTime.slice(11, 16) : selectedSlot}`,
+              ? `تم حجز موعد (${visitLabel}) بنجاح! رقمك في الدور: ${appt.queueNumber ?? "—"}`
+              : `تم حجز موعد (${visitLabel}) بنجاح! موعدك الساعة ${appt.startTime ? appt.startTime.slice(11, 16) : selectedSlot}`,
           queueNumber: appt.queueNumber,
           startTime: appt.startTime,
         });
@@ -169,16 +202,14 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
       setSelectedSlot("");
       setNotes("");
 
-      // Refresh slots after booking (slot just got taken)
+      // Refresh slots after booking
       if (clinic?.bookingType === "time") fetchSlots(tomorrow());
     } catch (err: any) {
       if (err instanceof ApiError && err.status === 409) {
-        // Race condition — slot taken by someone else
         setMessage({
           type: "error",
           text: "هذا الموعد تم حجزه للتو من شخص آخر. يرجى اختيار وقت آخر.",
         });
-        // Refresh the slots list
         fetchSlots(date);
       } else {
         setMessage({ type: "error", text: err.message || "حدث خطأ أثناء الحجز، يرجى المحاولة لاحقاً." });
@@ -213,6 +244,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
 
   const isQueue = clinic.bookingType !== "time";
   const isInactive = clinic.isActive === false;
+  const followUpPrice = clinic.followUpPrice != null ? clinic.followUpPrice : clinic.consultationPrice;
 
   // Disable booking button logic
   const canSubmit =
@@ -225,7 +257,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
       {/* Header */}
       <div className="mb-8">
         <Button variant="ghost" size="sm" onClick={() => router.push("/clinics")} className="mb-4">
-          ← العودة لقائمة العيادات
+          العودة لقائمة العيادات
         </Button>
         <div className="flex flex-wrap items-center gap-3 mb-1">
           <h1 className="font-display text-3xl font-extrabold text-text-primary">{clinic.name}</h1>
@@ -236,7 +268,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                 : "bg-success/10 text-success border-success/30"
             }`}
           >
-            {isInactive ? "🔴 مغلقة حالياً" : "🟢 تقبل حجوزات"}
+            {isInactive ? "مغلقة حالياً" : "تقبل حجوزات"}
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -247,13 +279,13 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
             {clinic.governorate} - {clinic.city}
           </span>
           <span
-            className={`rounded px-2 py-0.5 text-xs font-bold ${
+            className={`rounded px-2.5 py-1 text-xs font-bold ${
               isQueue
                 ? "bg-accent/10 text-accent border border-accent/30"
                 : "bg-primary/10 text-primary border border-primary/30"
             }`}
           >
-            {isQueue ? "📋 حجز بالدور" : "🕐 حجز بمواعيد محددة"}
+            {isQueue ? "حجز بالدور" : "حجز بمواعيد محددة"}
           </span>
         </div>
       </div>
@@ -267,10 +299,10 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
           </p>
 
           <div className="space-y-0 divide-y divide-border/40 text-sm">
-            <InfoRow label="سعر الكشف" value={`${clinic.consultationPrice} ج.م`} accent />
+            <InfoRow label="سعر الكشف (جديد)" value={`${clinic.consultationPrice} ج.م`} accent />
+            <InfoRow label="سعر إعادة الكشف / متابعة" value={`${followUpPrice} ج.م`} accent />
             <InfoRow label="العنوان" value={clinic.street || "غير محدد"} />
             <InfoRow label="رقم الهاتف" value={clinic.phoneNumber} dir="ltr" />
-            {clinic.email && <InfoRow label="البريد الإلكتروني" value={clinic.email} />}
             <InfoRow
               label="مدة الكشف"
               value={
@@ -313,7 +345,6 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
 
           {isInactive ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-4 py-8 text-center">
-              <span className="text-5xl">🔴</span>
               <p className="text-text-secondary text-sm leading-relaxed max-w-xs">
                 هذه العيادة غير متاحة للحجز حالياً. يرجى التواصل مع العيادة أو المحاولة في وقت لاحق.
               </p>
@@ -322,12 +353,64 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                   href={`tel:${clinic.phoneNumber}`}
                   className="rounded-xl bg-primary/10 text-primary px-4 py-2 text-sm font-bold hover:bg-primary/20 transition-colors"
                 >
-                  📞 {clinic.phoneNumber}
+                  {clinic.phoneNumber}
                 </a>
               )}
             </div>
           ) : (
             <form onSubmit={handleBook} className="flex flex-col gap-5 flex-1">
+
+              {/* Returning Patient Recognition Banner */}
+              {hasPreviousVisit && (
+                <div className="rounded-2xl border border-primary/30 bg-primary/10 p-3.5 text-xs text-primary font-bold animate-fade-in">
+                  مرحباً بك مجدداً! تم تحديد (إعادة الكشف) تلقائياً كمريض سابق لدى الطبيب.
+                </div>
+              )}
+
+              {/* Visit Type Selector */}
+              <div>
+                <label className="mb-2 block text-sm font-bold text-text-primary">
+                  نوع الكشف المطلوب *
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setVisitingType("NEW")}
+                    className={`flex flex-col items-start p-3.5 rounded-2xl border transition-all ${
+                      visitingType === "NEW"
+                        ? "bg-primary text-surface border-primary shadow-glow-cyan font-bold"
+                        : "border-border/70 bg-surface text-text-secondary hover:border-primary/40"
+                    }`}
+                  >
+                    <span className="text-xs font-black">كشف جديد</span>
+                    <span className="text-base font-extrabold mt-1">
+                      {clinic.consultationPrice} ج.م
+                    </span>
+                    <span className={`text-[10px] mt-0.5 ${visitingType === "NEW" ? "opacity-90" : "opacity-60"}`}>
+                      لأول مرة في العيادة
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setVisitingType("FOLLOW_UP")}
+                    className={`flex flex-col items-start p-3.5 rounded-2xl border transition-all ${
+                      visitingType === "FOLLOW_UP"
+                        ? "bg-primary text-surface border-primary shadow-glow-cyan font-bold"
+                        : "border-border/70 bg-surface text-text-secondary hover:border-primary/40"
+                    }`}
+                  >
+                    <span className="text-xs font-black">إعادة كشف / متابعة</span>
+                    <span className="text-base font-extrabold mt-1">
+                      {followUpPrice} ج.م
+                    </span>
+                    <span className={`text-[10px] mt-0.5 ${visitingType === "FOLLOW_UP" ? "opacity-90" : "opacity-60"}`}>
+                      لمن كشف سابقاً
+                    </span>
+                  </button>
+                </div>
+              </div>
+
               {/* Date picker */}
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-text-primary">
@@ -390,7 +473,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
               {/* Queue notice */}
               {isQueue && date && (
                 <div className="rounded-xl bg-accent/10 border border-accent/20 px-4 py-3 text-sm text-text-primary">
-                  <span className="font-bold text-accent">📋 نظام الطابور:</span> ستحصل على رقم دور تلقائياً عند تأكيد الحجز. لا حاجة لاختيار وقت محدد.
+                  <span className="font-bold text-accent">نظام الطابور:</span> ستحصل على رقم دور تلقائياً عند تأكيد الحجز.
                 </div>
               )}
 
@@ -426,7 +509,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                       onClick={() => fetchSlots(date)}
                       className="block mt-1 underline text-xs opacity-70 hover:opacity-100"
                     >
-                      🔄 تحديث الأوقات المتاحة
+                      تحديث الأوقات المتاحة
                     </button>
                   )}
                 </div>
@@ -446,16 +529,16 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                   <Button
                     type="submit"
                     variant="vibrant"
-                    className="w-full shadow-glow-cyan font-bold"
+                    className="w-full shadow-glow-cyan font-bold py-3.5"
                     loading={bookingLoading}
                     disabled={!canSubmit || bookingLoading}
                   >
                     {bookingLoading
                       ? "جارٍ تأكيد الحجز..."
                       : isQueue
-                      ? "تأكيد الحجز 📋"
+                      ? `تأكيد الحجز (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`
                       : selectedSlot
-                      ? `احجز الساعة ${selectedSlot} 🕐`
+                      ? `احجز الساعة ${selectedSlot} (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`
                       : "اختر وقتاً أولاً"}
                   </Button>
                 )}

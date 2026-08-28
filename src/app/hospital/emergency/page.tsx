@@ -65,14 +65,14 @@ export default function HospitalEmergencyPage() {
     <div className="flex flex-col gap-8 animate-fade-in">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-extrabold text-text-primary flex items-center gap-2">
-            🚨 تقارير الطوارئ الواردة
+          <h1 className="font-display text-2xl font-extrabold text-text-primary">
+            تقارير الطوارئ الواردة
           </h1>
           <p className="mt-1 text-sm text-text-secondary">
             اعرض وادِر الحالات الطارئة الواردة من الأطباء والمسعفين
           </p>
         </div>
-        <Button variant="ghost" size="sm" onClick={loadCases}>🔄 تحديث</Button>
+        <Button variant="ghost" size="sm" onClick={loadCases}>تحديث</Button>
       </div>
 
       {/* Filter Tabs */}
@@ -105,7 +105,6 @@ export default function HospitalEmergencyPage() {
         </div>
       ) : filtered.length === 0 ? (
         <Card className="py-16 text-center text-text-secondary">
-          <div className="text-5xl mb-3">🏥</div>
           <p className="font-semibold">لا توجد حالات في هذا الفلتر</p>
         </Card>
       ) : (
@@ -123,16 +122,16 @@ export default function HospitalEmergencyPage() {
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-4 text-xs text-text-secondary">
-                    <span>📞 {ec.phoneNumber}</span>
-                    {ec.notes && <span>📝 {ec.notes}</span>}
-                    <span>⏰ {new Date(ec.createdAt).toLocaleString("ar-EG")}</span>
-                    <span>🏥 {ec.claimedByHospitalIds?.length ?? 0} مستشفى استجاب</span>
+                    <span>الهاتف: {ec.phoneNumber}</span>
+                    {ec.notes && <span>الملاحظات: {ec.notes}</span>}
+                    <span>الوقت: {new Date(ec.createdAt).toLocaleString("ar-EG")}</span>
+                    <span>المستجيبون: {ec.claimedByHospitalIds?.length ?? 0} مستشفى</span>
                   </div>
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {ec.reportImageUrl?.secure_url && (
                     <a href={ec.reportImageUrl.secure_url} target="_blank" rel="noopener noreferrer">
-                      <Button variant="ghost" size="sm" className="text-xs">📎 التقرير</Button>
+                      <Button variant="ghost" size="sm" className="text-xs">عرض التقرير</Button>
                     </a>
                   )}
                   {ec.status === "open" && (
@@ -152,7 +151,7 @@ export default function HospitalEmergencyPage() {
                       disabled={isActioning}
                       onClick={() => handleResolve(ec._id)}
                     >
-                      {isActioning ? "..." : "تم الحل ✓"}
+                      {isActioning ? "..." : "تم الحل"}
                     </Button>
                   )}
                 </div>

@@ -105,13 +105,19 @@ export default function HospitalDashboard() {
                 {hospital.address} — {hospital.city}، {hospital.governorate}
               </p>
             </div>
-            <div className={`rounded-full px-4 py-1.5 text-xs font-bold border ${
-              hospital.isPaid
-                ? "bg-success/10 text-success border-success/30"
-                : "bg-warning/10 text-warning border-warning/30"
-            }`}>
-              {hospital.isPaid ? "✅ اشتراك فعّال" : "⚠️ اشتراك غير مفعّل"}
-            </div>
+            {(() => {
+              const isExpired = hospital.paidExpired ? new Date(hospital.paidExpired) < new Date() : false;
+              const isActive = Boolean(hospital.isPaid && !isExpired);
+              return (
+                <div className={`rounded-full px-4 py-1.5 text-xs font-bold border ${
+                  isActive
+                    ? "bg-success/10 text-success border-success/30"
+                    : "bg-warning/10 text-warning border-warning/30"
+                }`}>
+                  {isActive ? "اشتراك فعّال" : "اشتراك غير مفعّل"}
+                </div>
+              );
+            })()}
           </div>
         </Card>
       )}
@@ -133,8 +139,7 @@ export default function HospitalDashboard() {
       {/* Emergency Cases Table */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-display text-lg font-bold text-text-primary flex items-center gap-2">
-            <span className="text-danger">🚨</span>
+          <h2 className="font-display text-lg font-bold text-text-primary">
             تقارير الطوارئ الواردة ({cases.length})
           </h2>
           <Button variant="ghost" size="sm" onClick={loadData}>تحديث</Button>
@@ -142,7 +147,6 @@ export default function HospitalDashboard() {
 
         {cases.length === 0 ? (
           <div className="py-12 text-center text-text-secondary">
-            <div className="text-5xl mb-3">🏥</div>
             <p className="font-semibold">لا توجد تقارير طوارئ حالياً</p>
             <p className="text-xs mt-1">ستظهر هنا فور إرسال أي طبيب تقريراً</p>
           </div>
@@ -197,7 +201,7 @@ export default function HospitalDashboard() {
                               onClick={() => handleResolve(ec._id)}
                               className="text-xs"
                             >
-                              {isActioning ? "..." : "تم الحل ✓"}
+                              {isActioning ? "..." : "تم الحل"}
                             </Button>
                           )}
                           {ec.reportImageUrl?.secure_url && (
@@ -205,9 +209,9 @@ export default function HospitalDashboard() {
                               href={ec.reportImageUrl.secure_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-primary hover:underline"
+                              className="text-xs text-primary hover:underline font-bold"
                             >
-                              📎 التقرير
+                              عرض التقرير
                             </a>
                           )}
                         </div>

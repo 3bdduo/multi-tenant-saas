@@ -1,42 +1,39 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { getClinicById } from "@/lib/api/admin";
+import { Clinic } from "@/types/api";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import type { Clinic } from "@/types/api";
 
-export default function AdminClinicDetailPage() {
-  const params = useParams();
-  const router = useRouter();
+export default function AdminClinicDetailsPage({ params }: { params: { id: string } }) {
   const [clinic, setClinic] = useState<Clinic | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    if (!params.id) return;
-    
-    getClinicById(params.id as string)
-      .then((res) => {
-        setClinic(res.data.clinic);
-      })
-      .catch((err) => {
-        console.error("Failed to load clinic details:", err);
-      })
-      .finally(() => {
+    async function fetchClinic() {
+      try {
+        const res = await getClinicById(params.id);
+        if (res.success) {
+          setClinic(res.data.clinic);
+        }
+      } catch (err: any) {
+        setError(err?.message || "حدث خطأ أثناء تحميل بيانات العيادة");
+      } finally {
         setLoading(false);
-      });
+      }
+    }
+    fetchClinic();
   }, [params.id]);
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-4 max-w-4xl animate-pulse">
-        <div className="h-10 w-32 bg-border/40 rounded-xl mb-4" />
-        <Card className="h-48 bg-border/40 rounded-2xl" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="h-32 bg-border/40 rounded-2xl" />
-          <Card className="h-32 bg-border/40 rounded-2xl" />
-        </div>
+      <div className="flex flex-col gap-6 animate-pulse max-w-4xl">
+        <div className="h-10 w-48 bg-border/50 rounded-xl" />
+        <div className="h-64 bg-surface-raised rounded-2xl border border-border/50" />
       </div>
     );
   }
@@ -44,8 +41,8 @@ export default function AdminClinicDetailPage() {
   if (!clinic) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <div className="h-16 w-16 bg-border/50 rounded-full flex items-center justify-center text-2xl mb-4 opacity-50">
-          ⚠️
+        <div className="h-16 w-16 bg-border/50 rounded-full flex items-center justify-center text-text-secondary mb-4 opacity-50">
+          !
         </div>
         <h2 className="text-xl font-bold text-text-primary mb-2">لم يتم العثور على العيادة</h2>
         <Button variant="secondary" onClick={() => router.back()}>العودة للقائمة</Button>
@@ -58,33 +55,36 @@ export default function AdminClinicDetailPage() {
     : "طبيب غير معروف";
 
   return (
-    <div className="flex flex-col gap-6 max-w-4xl animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => router.back()} className="h-10 w-10 p-0 rounded-full bg-surface-raised hover:bg-surface border border-border/50 flex items-center justify-center">
-          <span className="rtl:rotate-180">←</span>
+    <div className="flex flex-col gap-6 max-w-4xl animate-fade-in pb-12">
+      {/* Top action bar */}
+      <div className="flex items-center justify-between">
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          onClick={() => router.back()}
+          className="gap-2"
+        >
+          العودة للعيادات
         </Button>
-        <div>
-          <h1 className="font-display text-2xl font-extrabold text-text-primary">
-            تفاصيل العيادة
-          </h1>
-          <p className="text-sm text-text-secondary mt-1">
-            عرض بيانات عيادة {clinic.name} بالكامل
-          </p>
-        </div>
       </div>
 
-      {/* Main Info Card */}
-      <Card glass vibrant className="p-6 md:p-8 shadow-2xl border-primary/20">
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-border/50 pb-6 mb-6">
+      {error && (
+        <div className="rounded-xl bg-danger/10 border border-danger/20 p-4 text-sm font-bold text-danger">
+          {error}
+        </div>
+      )}
+
+      {/* Main Clinic Card */}
+      <Card glass vibrant className="flex flex-col gap-6 p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-extrabold text-primary">
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
                 {clinic.specialization}
               </span>
               {clinic.isActive ? (
                 <span className="rounded-full bg-success/20 px-3 py-1 text-xs font-extrabold text-success flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-success"></span> نشطة
+                  <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></span> نشطة
                 </span>
               ) : (
                 <span className="rounded-full bg-warning/20 px-3 py-1 text-xs font-extrabold text-warning flex items-center gap-1.5">
@@ -96,7 +96,7 @@ export default function AdminClinicDetailPage() {
               {clinic.name}
             </h2>
             <p className="text-sm text-text-secondary mt-2 flex items-center gap-2">
-              <span>👨‍⚕️</span> طبيب العيادة: <span className="font-bold text-text-primary">{doctorName}</span>
+              طبيب العيادة: <span className="font-bold text-text-primary">{doctorName}</span>
             </p>
           </div>
           
@@ -114,8 +114,8 @@ export default function AdminClinicDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Location Details */}
           <div>
-            <h3 className="text-sm font-extrabold text-text-primary mb-3 flex items-center gap-2">
-              <span>📍</span> بيانات الموقع
+            <h3 className="text-sm font-extrabold text-text-primary mb-3">
+              بيانات الموقع
             </h3>
             <div className="rounded-xl bg-surface p-4 border border-border/50 flex flex-col gap-3">
               <div className="flex flex-col gap-1">
@@ -139,8 +139,8 @@ export default function AdminClinicDetailPage() {
 
           {/* Contact Details */}
           <div>
-            <h3 className="text-sm font-extrabold text-text-primary mb-3 flex items-center gap-2">
-              <span>📞</span> معلومات الاتصال
+            <h3 className="text-sm font-extrabold text-text-primary mb-3">
+              معلومات الاتصال
             </h3>
             <div className="rounded-xl bg-surface p-4 border border-border/50 flex flex-col gap-3">
               <div className="flex flex-col gap-1">
@@ -154,8 +154,8 @@ export default function AdminClinicDetailPage() {
               </div>
             </div>
 
-            <h3 className="text-sm font-extrabold text-text-primary mt-6 mb-3 flex items-center gap-2">
-              <span>🕒</span> أيام العمل المتاحة
+            <h3 className="text-sm font-extrabold text-text-primary mt-6 mb-3">
+              أيام العمل المتاحة
             </h3>
             <div className="flex flex-wrap gap-2">
               {clinic.workingDays && clinic.workingDays.length > 0 ? (

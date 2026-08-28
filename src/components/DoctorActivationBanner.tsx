@@ -19,11 +19,14 @@ export function DoctorActivationBanner() {
 
   if (loading || !doctor) return null;
 
+  const isExpired = doctor.paidExpired ? new Date(doctor.paidExpired) < new Date() : false;
+  const isActive = Boolean(doctor.isPaid && !isExpired);
+
   return (
     <>
       <div
         className={`mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-2xl border px-5 py-4 text-sm font-medium transition-all duration-300 animate-fade-in ${
-          doctor.isPaid
+          isActive
             ? "bg-success/10 border-success/30 text-success shadow-sm"
             : "bg-warning/10 border-warning/30 text-warning shadow-sm"
         }`}
@@ -31,36 +34,39 @@ export function DoctorActivationBanner() {
         <div className="flex items-center gap-3 font-bold">
           <span
             className={`h-3.5 w-3.5 rounded-full animate-pulse-glow ${
-              doctor.isPaid ? "bg-success" : "bg-warning"
+              isActive ? "bg-success" : "bg-warning"
             }`}
           />
           <span>
-            {doctor.isPaid
-              ? "حساب العيادة مفعل بالكامل ومتاح لاستقبال حجوزات المرضى"
+            {isActive
+              ? `حساب العيادة مفعل بالكامل ومتاح لاستقبال حجوزات المرضى${
+                  doctor.paidExpired
+                    ? ` (ينتهي في ${new Date(doctor.paidExpired).toLocaleDateString("ar-EG")})`
+                    : ""
+                }`
               : "حساب العيادة غير مفعل حالياً (لم يتم التفعيل بعد من إدارة المنصة)"}
           </span>
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
-          {!doctor.isPaid && (
+          {!isActive && (
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-1.5 rounded-xl bg-warning text-surface px-3.5 py-1.5 text-xs font-extrabold shadow-sm hover:opacity-90 transition-opacity"
             >
-              <span></span>
               <span>تواصل مع الدعم للتفعيل</span>
             </button>
           )}
 
           <span
             className={`rounded-full px-3 py-1 text-xs font-extrabold shadow-sm ${
-              doctor.isPaid
+              isActive
                 ? "bg-success/20 text-success border border-success/30"
                 : "bg-warning/20 text-warning border border-warning/30"
             }`}
           >
-            {doctor.isPaid ? "مُفعل " : "لم يتم التفعيل ️"}
+            {isActive ? "مُفعل" : "لم يتم التفعيل"}
           </span>
         </div>
       </div>

@@ -35,6 +35,7 @@ export interface Clinic {
   city: string;
   specialization: string;
   consultationPrice: number;
+  followUpPrice?: number;
   workingDays: WorkingDay[];
   isActive?: boolean;
   bookingType?: "time" | "queue";
@@ -96,6 +97,7 @@ export interface Appointment {
   startTime?: string;
   endTime?: string;
   status: AppointmentStatus;
+  visitingType?: "NEW" | "FOLLOW_UP";
   notes?: string;
   queueNumber?: number;
   createdAt: string;
@@ -188,13 +190,14 @@ export interface CreateClinicPayload {
   name: string;
   description?: string;
   phoneNumber: string;
-  email: string;
+  email?: string;
   governorate: string;
   city: string;
   street?: string;
   address?: string;
   specialization: string;
   consultationPrice: number;
+  followUpPrice?: number;
   workingDays: WorkingDay[];
   bookingType?: "time" | "queue";
   maxPatientsPerDay?: number;
@@ -203,11 +206,16 @@ export interface CreateClinicPayload {
   isActive?: boolean;
 }
 
+export interface CreateAppointmentByPatientPayloadV2 extends CreateAppointmentByPatientPayload {
+  visitingType?: "NEW" | "FOLLOW_UP";
+}
+
 export interface CreateAppointmentByPatientPayload {
   doctorId: string;
   date: string; // YYYY-MM-DD
   startTime?: string; // HH:mm if bookingType is time
   notes?: string;
+  visitingType?: "NEW" | "FOLLOW_UP";
 }
 
 // Path is /appointment/doctor/:patientId — the patient is identified in the
@@ -216,6 +224,7 @@ export interface CreateAppointmentByDoctorPayload {
   date: string;
   startTime?: string;
   notes?: string;
+  visitingType?: "NEW" | "FOLLOW_UP";
 }
 
 // DELETE /appointment/:id body

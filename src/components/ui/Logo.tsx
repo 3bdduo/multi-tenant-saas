@@ -4,11 +4,76 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 
 interface LogoProps {
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   showText?: boolean;
   className?: string;
   allowModal?: boolean;
   href?: string | null;
+}
+
+/**
+ * NabdLogoIcon — Exact vector representation of the luxury Nabd pulse icon:
+ * Gradient squircle (crimson-rose top-left to deep teal-cyan bottom-right)
+ * with a crisp white EKG heartbeat waveform and stethoscope sensor accent.
+ */
+export function NabdLogoIcon({
+  size = "md",
+  className = "",
+}: {
+  size?: "sm" | "md" | "lg" | "xl";
+  className?: string;
+}) {
+  const dimensions = {
+    sm: "h-9 w-9",
+    md: "h-11 w-11",
+    lg: "h-16 w-16",
+    xl: "h-24 w-24",
+  };
+
+  return (
+    <div
+      className={`relative shrink-0 flex items-center justify-center rounded-[24%] overflow-hidden shadow-[0_4px_20px_rgba(225,29,72,0.2),0_4px_20px_rgba(13,148,136,0.25)] border border-white/20 transition-all duration-300 group-hover:shadow-[0_6px_28px_rgba(225,29,72,0.35),0_6px_28px_rgba(13,148,136,0.4)] group-hover:scale-105 ${dimensions[size]} ${className}`}
+      style={{
+        background:
+          "linear-gradient(135deg, #D92662 0%, #B81D52 28%, #362947 56%, #115E59 80%, #0D9488 100%)",
+      }}
+    >
+      {/* Glossy top overlay highlight */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/20 pointer-events-none" />
+
+      {/* SVG Icon: EKG Pulse Waveform + Stethoscope Accent */}
+      <svg
+        viewBox="0 0 100 100"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-full relative z-10"
+        aria-hidden="true"
+      >
+        {/* Heartbeat EKG line in pure crisp white */}
+        <path
+          d="M 23 50 L 32 50 L 37 40 L 43 62 L 49 35 L 54 56 L 58 50 L 77 50"
+          stroke="#FFFFFF"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* Stethoscope sensor dot on bottom-right corner */}
+        <circle cx="74" cy="74" r="6" fill="#80DFD6" fillOpacity="0.5" />
+        <circle cx="74" cy="74" r="3.5" fill="#FFFFFF" fillOpacity="0.7" />
+        <line
+          x1="74"
+          y1="74"
+          x2="74"
+          y2="100"
+          stroke="#80DFD6"
+          strokeOpacity="0.4"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
+    </div>
+  );
 }
 
 export function Logo({
@@ -40,139 +105,117 @@ export function Logo({
     };
   }, [isModalOpen]);
 
-  const iconSizes = {
-    sm: "h-9 w-auto",
-    md: "h-11 w-auto",
-    lg: "h-16 w-auto",
-  };
-
   const textSizes = {
     sm: "text-lg",
     md: "text-2xl",
     lg: "text-3xl",
+    xl: "text-4xl",
   };
 
-  const modalContent = isModalOpen && mounted ? (
-    createPortal(
-      <div
-        className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-xl animate-fade-in overflow-y-auto"
-        onClick={() => setIsModalOpen(false)}
-      >
-        {/* Modal Inner Card */}
-        <div
-          className="relative w-full max-w-md my-auto rounded-3xl bg-surface border border-primary/30 p-6 sm:p-8 shadow-2xl shadow-primary/25 animate-scale-in flex flex-col items-center text-center gap-5"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Close Button */}
-          <button
+  const modalContent =
+    isModalOpen && mounted
+      ? createPortal(
+          <div
+            className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-xl animate-fade-in overflow-y-auto"
             onClick={() => setIsModalOpen(false)}
-            className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-border/60 text-text-secondary hover:bg-danger/20 hover:text-danger transition-colors z-10"
-            title="إغلاق"
-            aria-label="إغلاق"
           >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <line x1="1" y1="1" x2="13" y2="13" />
-              <line x1="13" y1="1" x2="1" y2="13" />
-            </svg>
-          </button>
+            {/* Modal Inner Card */}
+            <div
+              className="relative w-full max-w-md my-auto rounded-3xl bg-surface border border-primary/30 p-6 sm:p-8 shadow-2xl shadow-primary/25 animate-scale-in flex flex-col items-center text-center gap-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 left-4 flex h-8 w-8 items-center justify-center rounded-full bg-border/60 text-text-secondary hover:bg-danger/20 hover:text-danger transition-colors z-10"
+                title="إغلاق"
+                aria-label="إغلاق"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                >
+                  <line x1="1" y1="1" x2="13" y2="13" />
+                  <line x1="13" y1="1" x2="1" y2="13" />
+                </svg>
+              </button>
 
-          {/* Glowing Logo Frame */}
-          <div className="relative w-full mt-2 p-5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-primary/20 shadow-inner flex items-center justify-center">
-            <img
-              src="/logo/nabd-logo-light.png"
-              alt="Nabd Logo Light"
-              className="max-h-48 w-auto object-contain dark:hidden"
-            />
-            <img
-              src="/logo/nabd-logo-dark.png"
-              alt="Nabd Logo Dark"
-              className="max-h-48 w-auto object-contain hidden dark:block drop-shadow-[0_0_20px_rgba(0,229,255,0.7)]"
-            />
-          </div>
+              {/* Large Logo Visual Display */}
+              <div className="relative mt-2 p-8 rounded-3xl bg-surface-raised border border-border/50 shadow-inner flex flex-col items-center justify-center gap-4">
+                <NabdLogoIcon size="xl" />
+                <div className="flex flex-col items-center">
+                  <span className="font-display font-black text-3xl text-text-primary tracking-wide">
+                    نبض
+                  </span>
+                  <span className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary mt-0.5">
+                    Nabd SaaS
+                  </span>
+                </div>
+              </div>
 
-          {/* Logo Info */}
-          <div className="flex flex-col items-center gap-1.5">
-            <div className="flex items-center gap-2">
-              <h3 className="font-display text-2xl font-extrabold text-text-primary">
-                 نبض
-              </h3>
-              <span className="font-display font-bold text-xs px-2 py-0.5 rounded-md bg-primary-soft text-primary border border-primary/20">
-                Nabd SaaS
-              </span>
+              {/* Logo Info */}
+              <div className="flex flex-col items-center gap-1.5">
+                <p className="text-sm font-bold text-primary">
+                  رعاية طبية متكاملة — Integrated Healthcare SaaS
+                </p>
+                <p className="text-xs text-text-secondary max-w-xs mt-1 leading-relaxed">
+                  منظومة  ذكية ومتطورة لإدارة العيادات الطبية، المرضى، المواعيد، والسجلات الصحية.
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-3 w-full pt-2 border-t border-border/60">
+                <button
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    window.location.href = "/";
+                  }}
+                  className="flex-1 rounded-2xl bg-primary py-2.5 text-sm font-bold text-surface shadow-glow-cyan hover:brightness-105 transition-all"
+                >
+                  الصفحة الرئيسية
+                </button>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="rounded-2xl border border-border px-5 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-raised transition-colors"
+                >
+                  إغلاق
+                </button>
+              </div>
             </div>
-            <p className="text-sm font-semibold text-primary">
-              رعاية طبية متكاملة — Integrated Medical Care
-            </p>
-            <p className="text-xs text-text-secondary max-w-xs mt-1 leading-relaxed">
-              منظومة SaaS متطورة لإدارة العيادات الطبية، المرضى، المواعيد، والسجلات الصحية الذكية.
-            </p>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3 w-full pt-2 border-t border-border/60">
-            <button
-              onClick={() => {
-                setIsModalOpen(false);
-                window.location.href = "/";
-              }}
-              className="flex-1 rounded-[1rem] bg-primary py-2.5 text-sm font-bold text-primary-foreground shadow-glow hover:brightness-105 transition-all"
-            >
-              الصفحة الرئيسية 
-            </button>
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="rounded-xl border border-border px-5 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-elevated transition-colors"
-            >
-              إغلاق
-            </button>
-          </div>
-        </div>
-      </div>,
-      document.body
-    )
-  ) : null;
+          </div>,
+          document.body
+        )
+      : null;
 
   return (
     <>
       <div
         onClick={() => allowModal && setIsModalOpen(true)}
-        className={`inline-flex items-center gap-3 cursor-pointer group transition-transform duration-300 hover:scale-105 active:scale-95 ${className}`}
-        title="انقر لمشاهدة الشعار بالتفصيل"
+        className={`inline-flex items-center gap-3 cursor-pointer group transition-transform duration-200 select-none ${className}`}
+        title="شعار منصة نبض | انقر للعرض"
       >
-        {/* ── EKG Visual Mark (pure icon, no text inside) ── */}
-        <div
-          className={`relative flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-[#0F5357] dark:from-primary dark:to-[#22A599] shadow-[0_2px_12px_rgba(20,107,112,0.35)] dark:shadow-[0_2px_16px_rgba(46,196,182,0.40)] group-hover:shadow-[0_4px_18px_rgba(20,107,112,0.50)] transition-shadow duration-300 ${
-            size === "sm" ? "h-9 w-9" : size === "lg" ? "h-14 w-14" : "h-11 w-11"
-          }`}
-        >
-          {/* EKG / Heartbeat pulse line */}
-          <svg
-            viewBox="0 0 40 20"
-            fill="none"
-            stroke="rgba(255,255,255,0.92)"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={size === "sm" ? "w-5" : size === "lg" ? "w-8" : "w-6"}
-            aria-hidden="true"
-          >
-            <polyline points="0,10 6,10 9,4 12,17 16,2 19,14 22,10 40,10" />
-          </svg>
-          {/* Subtle inner glow dot */}
-          <span className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-white/50 animate-pulse" />
-        </div>
+        {/* The New Pulse App Icon */}
+        <NabdLogoIcon size={size} />
 
         {showText && (
-          <div className="flex flex-col text-right">
-            {/* Single brand name — no duplication */}
-            <span
-              className={`font-brush font-bold tracking-normal gradient-text-alive leading-none ${textSizes[size]}`}
-            >
-              نبض
-            </span>
-            {/* Single concise tagline */}
-            <span className="text-[10px] font-semibold text-text-muted tracking-wider mt-0.5 font-body">
-              Nabd · رعاية متكاملة
+          <div className="flex flex-col text-right leading-none">
+            <div className="flex items-center gap-1.5">
+              <span
+                className={`font-display font-extrabold tracking-tight text-text-primary ${textSizes[size]}`}
+              >
+                نبض
+              </span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-primary opacity-90">
+                Nabd
+              </span>
+            </div>
+            <span className="text-[11px] font-semibold text-text-secondary tracking-normal mt-1">
+              رعاية متكاملة
             </span>
           </div>
         )}

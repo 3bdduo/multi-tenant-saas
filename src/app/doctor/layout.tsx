@@ -8,10 +8,10 @@ const NAV_ITEMS = [
   { href: "/doctor", label: "لوحة التحكم", icon: <IconDashboard /> },
   { href: "/doctor/appointments", label: "إدارة الحجوزات", icon: <IconCalendar /> },
   { href: "/doctor/booking-settings", label: "إعدادات الحجز", icon: <IconCalendar /> },
-  { href: "/doctor/announcements", label: "إشعار للمرضى", icon: <IconBell /> },
-  { href: "/doctor/account-settings", label: "إعدادات الحساب", icon: <IconUsers /> },
   { href: "/doctor/clinic", label: "بيانات العيادة", icon: <IconClinic /> },
   { href: "/doctor/patients", label: "سجلات المرضى", icon: <IconUsers /> },
+  { href: "/doctor/announcements", label: "إشعار للمرضى", icon: <IconBell /> },
+  { href: "/doctor/account-settings", label: "إعدادات الحساب", icon: <IconUsers /> },
 ];
 
 export default function DoctorLayout({ children }: { children: React.ReactNode }) {

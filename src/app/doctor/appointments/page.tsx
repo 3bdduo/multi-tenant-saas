@@ -15,18 +15,13 @@ import { ApiError } from "@/lib/http";
 
 type TabFilter = "active" | "completed" | "cancelled" | "past";
 
-interface ClinicDoctorMock {
-  id: string;
-  name: string;
-}
-
 export default function DoctorAppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabFilter>("active");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Clinic state (for bookingType)
+  // Clinic state (for bookingType & prices)
   const [clinic, setClinic] = useState<Clinic | null>(null);
 
   // New Appointment Modal State
@@ -35,6 +30,7 @@ export default function DoctorAppointmentsPage() {
   const [loadingPatients, setLoadingPatients] = useState(false);
 
   const [newPatientId, setNewPatientId] = useState("");
+  const [newVisitingType, setNewVisitingType] = useState<"NEW" | "FOLLOW_UP">("NEW");
   const [newDate, setNewDate] = useState("");
   const [newNotes, setNewNotes] = useState("");
   const [newStartTime, setNewStartTime] = useState("");
@@ -73,6 +69,7 @@ export default function DoctorAppointmentsPage() {
     setShowNewModal(true);
     setCreateError(null);
     setNewPatientId("");
+    setNewVisitingType("NEW");
     setNewDate("");
     setNewNotes("");
     setNewStartTime("");
@@ -128,6 +125,7 @@ export default function DoctorAppointmentsPage() {
         date: newDate,
         startTime: clinic?.bookingType === "time" ? newStartTime : undefined,
         notes: newNotes || undefined,
+        visitingType: newVisitingType,
       });
       setShowNewModal(false);
       fetchAppointments();
@@ -142,7 +140,6 @@ export default function DoctorAppointmentsPage() {
 
   // Filter appointments
   const filteredAppointments = appointments.filter((appt) => {
-    // 1. Tab Filter
     const apptDate = appt.date ? appt.date.split("T")[0] : "";
     if (activeTab === "active" && (appt.status === "pending" || appt.status === "confirmed")) {
       return apptDate >= todayStr;
@@ -151,12 +148,10 @@ export default function DoctorAppointmentsPage() {
     if (activeTab === "cancelled" && appt.status === "cancelled") return true;
     if (activeTab === "past" && apptDate < todayStr) return true;
 
-    // Default tab matching if exact status match
     if (activeTab === "active" && apptDate < todayStr) return false;
     
     return true;
   }).filter((appt) => {
-    // 3. Search query filter
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     const patientName = typeof appt.patientId === "object"
@@ -167,7 +162,7 @@ export default function DoctorAppointmentsPage() {
   });
 
   return (
-    <div className="flex flex-col gap-6 animate-fade-in">
+    <div className="flex flex-col gap-6 animate-fade-in pb-12">
       <DoctorActivationBanner />
 
       {/* Page Title */}
@@ -177,7 +172,7 @@ export default function DoctorAppointmentsPage() {
             إدارة الحجوزات
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            متابعة وجدولة كشوفات العيادة وتصفية المواعيد حسب اليوم والحالة
+            متابعة وجدولة كشوفات العيادة وتحديد الكشف الجديد وإعادة الكشف
           </p>
         </div>
         <Button onClick={openNewAppointmentModal} variant="vibrant" className="shadow-glow-cyan font-bold">
@@ -191,22 +186,22 @@ export default function DoctorAppointmentsPage() {
           <TabButton
             active={activeTab === "active"}
             onClick={() => setActiveTab("active")}
-            label="🟢 الحالية (قيد الانتظار)"
+            label="الحالية (قيد الانتظار)"
           />
           <TabButton
             active={activeTab === "completed"}
             onClick={() => setActiveTab("completed")}
-            label=" السجل (المكتملة)"
+            label="السجل (المكتملة)"
           />
           <TabButton
             active={activeTab === "cancelled"}
             onClick={() => setActiveTab("cancelled")}
-            label=" الملغاة"
+            label="الملغاة"
           />
           <TabButton
             active={activeTab === "past"}
             onClick={() => setActiveTab("past")}
-            label=" الأيام السابقة"
+            label="الأيام السابقة"
           />
         </div>
       </Card>
@@ -261,10 +256,7 @@ export default function DoctorAppointmentsPage() {
                 : appt.patientId;
             const patientPhone =
               typeof appt.patientId === "object" ? appt.patientId.phoneNumber : "—";
-            const doctorName =
-              typeof appt.doctorId === "object"
-                ? `د. ${appt.doctorId.firstName} ${appt.doctorId.lastName}`
-                : "دكتور العيادة";
+            const isFollowUp = appt.visitingType === "FOLLOW_UP";
 
             return (
               <Card key={appt._id} hover className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5">
@@ -273,18 +265,29 @@ export default function DoctorAppointmentsPage() {
                     #{index + 1}
                   </div>
                   <div>
-                    <h3 className="font-display text-lg font-bold text-text-primary">
-                      {patientName}
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-text-secondary">
-                      <span dir="ltr"> {patientPhone}</span>
-                      <span>‍️ {doctorName}</span>
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h3 className="font-display text-lg font-bold text-text-primary">
+                        {patientName}
+                      </h3>
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-extrabold ${
+                          isFollowUp
+                            ? "bg-accent/15 text-accent border border-accent/30"
+                            : "bg-primary/15 text-primary border border-primary/30"
+                        }`}
+                      >
+                        {isFollowUp ? "إعادة كشف" : "كشف جديد"}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-text-secondary">
+                      <span dir="ltr">الهاتف: {patientPhone}</span>
                       {appt.startTime ? (
-                        <span>🕐 {appt.startTime.slice(11, 16)}</span>
+                        <span>الساعة: {appt.startTime.slice(11, 16)}</span>
                       ) : appt.queueNumber != null ? (
-                        <span>📋 دور #{appt.queueNumber}</span>
+                        <span>رقم الدور: #{appt.queueNumber}</span>
                       ) : (
-                        <span>📅 {new Date(appt.date).toLocaleDateString("ar-EG")}</span>
+                        <span>التاريخ: {new Date(appt.date).toLocaleDateString("ar-EG")}</span>
                       )}
                     </div>
                   </div>
@@ -339,7 +342,7 @@ export default function DoctorAppointmentsPage() {
               </h3>
               <button
                 onClick={() => setShowNewModal(false)}
-                className="text-text-secondary hover:text-text-primary"
+                className="text-text-secondary hover:text-text-primary text-xl"
               >
                 ✕
               </button>
@@ -360,6 +363,37 @@ export default function DoctorAppointmentsPage() {
                   ]}
                 />
               )}
+
+              {/* Visit Type selector */}
+              <div>
+                <label className="mb-1.5 block text-sm font-bold text-text-primary">
+                  نوع الكشف *
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setNewVisitingType("NEW")}
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
+                      newVisitingType === "NEW"
+                        ? "bg-primary text-surface border-primary shadow-glow-cyan"
+                        : "border-border/60 text-text-secondary hover:border-primary/40"
+                    }`}
+                  >
+                    كشف جديد
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewVisitingType("FOLLOW_UP")}
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
+                      newVisitingType === "FOLLOW_UP"
+                        ? "bg-primary text-surface border-primary shadow-glow-cyan"
+                        : "border-border/60 text-text-secondary hover:border-primary/40"
+                    }`}
+                  >
+                    إعادة كشف / متابعة
+                  </button>
+                </div>
+              </div>
 
               <Field
                 label="تاريخ الموعد *"
@@ -412,7 +446,7 @@ export default function DoctorAppointmentsPage() {
               {/* Queue notice */}
               {clinic && clinic.bookingType !== "time" && newDate && (
                 <div className="rounded-xl bg-accent/10 border border-accent/20 px-3 py-2 text-xs text-text-primary">
-                  📋 العيادة تعمل بنظام الطابور — سيتم تعيين رقم الدور تلقائياً.
+                  العيادة تعمل بنظام الطابور — سيتم تعيين رقم الدور تلقائياً.
                 </div>
               )}
 

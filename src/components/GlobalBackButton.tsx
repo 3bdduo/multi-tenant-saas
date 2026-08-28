@@ -1,38 +1,39 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Button } from "./ui/Button";
+
+// Root pages where the back button is unnecessary
+const EXCLUDED_PATHS = ["/", "/doctor", "/patient", "/admin", "/hospital"];
 
 export function GlobalBackButton() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Hide on the home page
-  if (pathname === "/") return null;
+  if (EXCLUDED_PATHS.includes(pathname)) return null;
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 animate-scale-in-slow hover:animate-float-slow group">
-      <Button
-        variant="secondary"
-        size="md"
+    <div className="fixed top-5 right-6 z-40 animate-fade-in pointer-events-auto">
+      <button
+        type="button"
         onClick={() => router.back()}
-        className="rounded-full shadow-lg border-primary/20 backdrop-blur-md bg-surface/80 pl-4 pr-5 gap-2 text-text-secondary hover:text-primary transition-all duration-300"
+        className="group flex items-center gap-2 rounded-full border border-border/80 bg-surface/90 px-4 py-2 text-xs font-extrabold text-text-primary shadow-md backdrop-blur-xl transition-all duration-200 hover:border-primary/50 hover:bg-surface hover:text-primary hover:shadow-glow-cyan focus:outline-none"
+        title="الرجوع للصفحة السابقة"
       >
         <svg
-          width="18"
-          height="18"
+          width="16"
+          height="16"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="transition-transform duration-300 group-hover:-translate-x-1"
+          className="transition-transform duration-200 group-hover:translate-x-0.5"
         >
-          <polyline points="10 18 16 12 10 6" />
+          <polyline points="9 18 15 12 9 6" />
         </svg>
-        <span className="font-bold text-sm">رجوع</span>
-      </Button>
+        <span>رجوع</span>
+      </button>
     </div>
   );
 }

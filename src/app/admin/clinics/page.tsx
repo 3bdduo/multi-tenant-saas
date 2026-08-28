@@ -13,6 +13,10 @@ export default function AdminClinicsPage() {
   useEffect(() => {
     getClinics()
       .then((res) => setClinics(res.data.clinics ?? []))
+      .catch((err) => {
+        console.error("Failed to load clinics:", err);
+        setClinics([]);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -26,12 +30,12 @@ export default function AdminClinicsPage() {
             
             <div className="mt-4 flex-1">
               <p className="text-sm text-text-secondary flex items-center gap-1.5 mb-2">
-                <span>📍</span>
+                <span className="font-semibold text-text-primary">الموقع:</span>
                 <span>{c.city}، {c.governorate}</span>
               </p>
               <p className="text-sm font-medium text-text-primary flex items-center gap-1.5">
-                <span>💰</span>
-                <span>{c.consultationPrice} ج.م / الكشف</span>
+                <span className="font-semibold">سعر الكشف:</span>
+                <span>{c.consultationPrice} ج.م</span>
               </p>
             </div>
             

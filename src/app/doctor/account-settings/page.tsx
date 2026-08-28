@@ -284,9 +284,8 @@ export default function DoctorAccountSettingsPage() {
 
       {/* Card 3: Danger Zone */}
       <Card className="p-6 md:p-8 border-danger/30 bg-danger/5 shadow-2xl">
-        <h2 className="font-display text-lg font-bold text-danger mb-2 flex items-center gap-2">
-          <span>⚠️</span>
-          <span>منطقة الخطر (حذف الحساب)</span>
+        <h2 className="font-display text-lg font-bold text-danger mb-2">
+          منطقة الخطر (حذف الحساب)
         </h2>
         <p className="text-sm text-text-secondary mb-4 leading-relaxed">
           حذف حسابك سيؤدي إلى مسح جميع بياناتك، عيادتك، مواعيدك، وسجلات المرضى المرتبطة بك نهائياً ولا يمكن التراجع عن هذا الإجراء.

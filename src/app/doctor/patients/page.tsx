@@ -178,7 +178,7 @@ export default function DoctorPatientsPage() {
                     className="h-8 px-2 z-10 hover:bg-primary hover:text-surface hover:border-primary transition-colors"
                     onClick={(e) => openNotificationModal(e, p)}
                   >
-                    إرسال إشعار 🔔
+                    إرسال إشعار
                   </Button>
                 </div>
               </Card>
@@ -192,9 +192,8 @@ export default function DoctorPatientsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <Card className="max-w-md w-full shadow-2xl bg-surface border-primary/20">
             <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-4">
-              <h3 className="font-display text-lg font-bold text-text-primary flex items-center gap-2">
-                <span>🔔</span>
-                <span>إرسال إشعار للمريض</span>
+              <h3 className="font-display text-lg font-bold text-text-primary">
+                إرسال إشعار للمريض
               </h3>
               <button
                 onClick={() => setShowNotifModal(false)}

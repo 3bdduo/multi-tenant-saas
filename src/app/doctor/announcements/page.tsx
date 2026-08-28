@@ -47,7 +47,7 @@ export default function ClinicAnnouncementsPage() {
       await createGeneralNotificationByDoctor({ title: title.trim(), message: message.trim() });
       setTitle("");
       setMessage("");
-      setSuccessMsg("تم إرسال الإشعار بنجاح ✓");
+      setSuccessMsg("تم إرسال الإشعار بنجاح");
       await loadNotifications();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "تعذّر إرسال الإشعار");

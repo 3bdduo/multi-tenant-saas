@@ -169,8 +169,11 @@ export default function PatientNotificationsPage() {
             
             {notifications.length === 0 && (
               <div className="py-12 text-center flex flex-col items-center justify-center bg-surface-raised rounded-xl border border-border/40 border-dashed">
-                <div className="h-16 w-16 bg-border/50 rounded-full flex items-center justify-center text-2xl mb-4 opacity-50">
-                  📭
+                <div className="h-16 w-16 bg-border/50 rounded-full flex items-center justify-center text-text-secondary mb-4 opacity-50">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
                 </div>
                 <p className="text-base font-bold text-text-secondary">لا توجد إشعارات حالياً</p>
                 <p className="text-xs text-text-secondary mt-1">ستظهر هنا أي رسائل أو تنبيهات تُرسل إليك.</p>

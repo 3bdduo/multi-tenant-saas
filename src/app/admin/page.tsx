@@ -17,7 +17,12 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
 
   useEffect(() => {
-    getDashboard().then((res) => setStats(res.data.result));
+    getDashboard()
+      .then((res) => setStats(res.data.result))
+      .catch((err) => {
+        console.error("Failed to load dashboard stats:", err);
+        setStats(null);
+      });
   }, []);
 
   return (

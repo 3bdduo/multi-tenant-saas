@@ -40,7 +40,7 @@ export default function AdminHospitalDetailPage() {
     setActionMsg(null);
     try {
       await renewHospitalSubscription(id, { monthNumber: n });
-      setActionMsg({ type: "success", text: `✅ تم تجديد الاشتراك لمدة ${n} شهر بنجاح` });
+      setActionMsg({ type: "success", text: `تم تجديد الاشتراك لمدة ${n} شهر بنجاح` });
       loadHospital();
     } catch (err) {
       setActionMsg({
@@ -94,8 +94,14 @@ export default function AdminHospitalDetailPage() {
       {/* Hospital Hero */}
       <Card glass vibrant className="border-primary/20">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-          <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-accent/20 text-2xl">
-            🏥
+          <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-accent/20 text-primary">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 21h18" />
+              <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
+              <path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4" />
+              <path d="M10 9h4" />
+              <path d="M12 7v4" />
+            </svg>
           </div>
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-3">
@@ -109,13 +115,13 @@ export default function AdminHospitalDetailPage() {
                     : "bg-warning/15 text-warning border border-warning/30"
                 }`}
               >
-                {isActive ? "✅ اشتراك فعّال" : "⚠️ اشتراك منتهي"}
+                {isActive ? "اشتراك فعّال" : "اشتراك منتهي"}
               </span>
             </div>
             <div className="mt-2 flex flex-wrap gap-4 text-sm text-text-secondary">
-              <span>📧 {hospital.email}</span>
-              <span>📞 {hospital.phoneNumber}</span>
-              <span>🪪 {hospital.nationalId}</span>
+              <span>البريد: {hospital.email}</span>
+              <span>الهاتف: {hospital.phoneNumber}</span>
+              <span>الرقم القومي: {hospital.nationalId}</span>
             </div>
           </div>
         </div>
@@ -146,7 +152,7 @@ export default function AdminHospitalDetailPage() {
       {/* Renew Subscription */}
       <Card className="border-warning/20">
         <h2 className="font-display text-base font-bold text-text-primary mb-4">
-          ⚙️ إجراءات الاشتراك
+          إجراءات الاشتراك
         </h2>
         <div className="flex flex-col sm:flex-row items-end gap-3">
           <div className="flex flex-col gap-1">

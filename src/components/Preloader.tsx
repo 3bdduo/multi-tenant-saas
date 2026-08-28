@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { IMAGE_MANIFEST } from "@/lib/assetManifest";
+import { NabdLogoIcon } from "@/components/ui/Logo";
 
 const ROUTES_TO_PREFETCH = [
   "/",
@@ -93,16 +94,10 @@ export function Preloader({ children }: { children: React.ReactNode }) {
             
             {/* Nabd Logo */}
             <div className="flex flex-col items-center gap-4">
-              <div className="relative flex h-28 w-28 sm:h-36 sm:w-36 items-center justify-center rounded-full border border-primary/20 bg-surface/5 shadow-[0_0_40px_rgba(0,229,255,0.15)] motion-safe:animate-float-slow">
-                <img
-                  src="/logo/nabd-logo-dark.png"
-                  alt="Nabd"
-                  className="w-20 sm:w-28 h-auto object-contain drop-shadow-[0_0_15px_rgba(0,229,255,0.6)]"
-                />
-              </div>
+              <NabdLogoIcon size="xl" className="motion-safe:animate-float-slow shadow-[0_0_40px_rgba(225,29,72,0.3)]" />
               <div className="text-center">
-                <h2 className="font-brush text-2xl font-bold text-primary">نبض</h2>
-                <p className="text-xs font-semibold tracking-[0.2em] text-text-secondary uppercase">Nabd</p>
+                <h2 className="font-display text-2xl font-black text-white">نبض</h2>
+                <p className="text-xs font-bold tracking-[0.2em] text-primary uppercase">Nabd SaaS</p>
               </div>
             </div>
 

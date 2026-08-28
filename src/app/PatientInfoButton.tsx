@@ -45,7 +45,7 @@ export function PatientInfoButton() {
 
               <div className="rounded-2xl bg-mint border border-[rgba(20,107,112,0.18)] dark:bg-primary/10 dark:border-primary/20 p-4 mb-6 w-full text-right">
                 <p className="text-xs text-text-secondary leading-relaxed">
-                  💡 <strong className="text-text-primary">خطوات بسيطة:</strong> تواصل مع طبيبك أو عيادتك المسجلة، وسيتم تزويدك ببيانات الدخول للوصول الفوري لسجلاتك ومواعيدك.
+                  <strong className="text-text-primary">خطوات بسيطة:</strong> تواصل مع طبيبك أو عيادتك المسجلة، وسيتم تزويدك ببيانات الدخول للوصول الفوري لسجلاتك ومواعيدك.
                 </p>
               </div>
 

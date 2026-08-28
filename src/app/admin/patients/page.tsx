@@ -117,21 +117,20 @@ export default function AdminPatientsPage() {
                 </p>
                 <div className="flex flex-col gap-1 mt-3">
                   <p className="text-sm text-text-secondary flex items-center gap-2">
-                    <span className="w-5 text-center">📱</span> 
+                    <span className="font-semibold text-text-primary">الهاتف:</span> 
                     <span dir="ltr">{patient.phoneNumber}</span>
                   </p>
                   <p className="text-sm text-text-secondary flex items-center gap-2">
-                    <span className="w-5 text-center">🪪</span> 
+                    <span className="font-semibold text-text-primary">الرقم القومي:</span> 
                     <span>{patient.nationalId}</span>
                   </p>
                   {patient.email && (
                     <p className="text-sm text-text-secondary flex items-center gap-2">
-                      <span className="w-5 text-center">📧</span> 
+                      <span className="font-semibold text-text-primary">البريد:</span> 
                       <span>{patient.email}</span>
                     </p>
                   )}
                   <p className="text-xs text-text-secondary flex items-center gap-2 mt-2 opacity-70">
-                    <span className="w-5 text-center">🕒</span> 
                     تاريخ التسجيل: {new Date(patient.createdAt).toLocaleDateString('ar-EG')}
                   </p>
                 </div>

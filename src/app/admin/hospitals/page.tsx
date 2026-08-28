@@ -63,7 +63,7 @@ export default function AdminHospitalsPage() {
           </p>
         </div>
         <Button variant="outline" onClick={load} disabled={loading}>
-          {loading ? "جارٍ التحميل..." : "🔄 تحديث"}
+          {loading ? "جارٍ التحميل..." : "تحديث"}
         </Button>
       </div>
 
@@ -99,7 +99,7 @@ export default function AdminHospitalsPage() {
                         href={`/admin/hospitals/${h._id}`}
                         className="hover:text-primary hover:underline font-bold transition-colors"
                       >
-                        🏥 {h.hospitalName}
+                        {h.hospitalName}
                       </Link>
                     </td>
                     <td className="px-6 py-4 text-text-secondary">{h.email}</td>
@@ -112,7 +112,7 @@ export default function AdminHospitalsPage() {
                             : "bg-warning/15 text-warning border border-warning/30"
                         }`}
                       >
-                        {isActive ? "✅ فعّال" : "⚠️ منتهي"}
+                        {isActive ? "فعّال" : "منتهي"}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-text-secondary text-xs">

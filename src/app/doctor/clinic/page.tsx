@@ -21,19 +21,28 @@ const EMPTY: CreateClinicPayload = {
   street: "",
   specialization: "",
   consultationPrice: 0,
+  followUpPrice: 0,
   workingDays: [],
   bookingType: "queue",
   maxPatientsPerDay: 20,
 };
 
 /* ─── Read-only info row ─────────────────────────────────────────────────── */
-function InfoRow({ label, value }: { label: string; value?: string | number | null }) {
+function InfoRow({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value?: string | number | null;
+  accent?: boolean;
+}) {
   return (
     <div className="flex flex-col gap-0.5 py-3 border-b border-border/40 last:border-0">
       <span className="text-[11px] font-extrabold uppercase tracking-wider text-text-secondary">
         {label}
       </span>
-      <span className="text-sm font-semibold text-text-primary">
+      <span className={`text-sm font-semibold ${accent ? "text-accent font-bold" : "text-text-primary"}`}>
         {value ? (
           String(value)
         ) : (
@@ -47,7 +56,6 @@ function InfoRow({ label, value }: { label: string; value?: string | number | nu
 /* ─── Reusable editable section ──────────────────────────────────────────── */
 function Section({
   title,
-  icon,
   editing,
   saving,
   onEdit,
@@ -57,7 +65,6 @@ function Section({
   children,
 }: {
   title: string;
-  icon: string;
   editing: boolean;
   saving: boolean;
   onEdit: () => void;
@@ -67,20 +74,18 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border/60 bg-surface-raised overflow-hidden">
+    <div className="rounded-2xl border border-border/60 bg-surface-raised overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3 bg-surface border-b border-border/50">
-        <h3 className="flex items-center gap-2 text-sm font-extrabold text-text-primary">
-          <span>{icon}</span>
-          <span>{title}</span>
+      <div className="flex items-center justify-between px-5 py-3.5 bg-surface border-b border-border/50">
+        <h3 className="text-sm font-extrabold text-text-primary">
+          {title}
         </h3>
         {!editing ? (
           <button
             type="button"
             onClick={onEdit}
-            className="flex items-center gap-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 px-3 py-1.5 text-xs font-bold text-primary transition-all duration-200"
+            className="flex items-center gap-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 px-3.5 py-1.5 text-xs font-bold text-primary transition-all duration-200"
           >
-            <span>️</span>
             <span>تعديل</span>
           </button>
         ) : (
@@ -99,9 +104,12 @@ function Section({
               className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-1.5 text-xs font-bold text-surface shadow-glow-cyan transition-all disabled:opacity-60"
             >
               {saving ? (
-                <><span className="h-3 w-3 rounded-full border-2 border-surface/30 border-t-surface animate-spin" /><span>حفظ...</span></>
+                <>
+                  <span className="h-3 w-3 rounded-full border-2 border-surface/30 border-t-surface animate-spin" />
+                  <span>حفظ...</span>
+                </>
               ) : (
-                <><span></span><span>حفظ التغييرات</span></>
+                <span>حفظ التغييرات</span>
               )}
             </button>
           </div>
@@ -171,14 +179,12 @@ export default function DoctorClinicPage() {
         if (docData) setDoctor(docData);
 
         if (clinicRes.status === "fulfilled") {
-          // Clinic exists → populate form fully
           const data = { ...EMPTY, ...(clinicRes.value.data as Partial<CreateClinicPayload>) };
           setForm(data);
           setDraft(data);
           setStreetDetail(data.street ?? "");
           setExists(true);
         } else if (docData) {
-          // No clinic yet → prefill from doctor profile
           const prefill: CreateClinicPayload = {
             ...EMPTY,
             email: docData.email ?? "",
@@ -227,7 +233,7 @@ export default function DoctorClinicPage() {
       }
       setForm({ ...draft });
       setEditingSection(null);
-      setGlobalSuccess("تم حفظ بيانات العيادة بنجاح ");
+      setGlobalSuccess("تم حفظ بيانات العيادة بنجاح");
       setTimeout(() => setGlobalSuccess(null), 4000);
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "تعذّر حفظ البيانات";
@@ -275,49 +281,68 @@ export default function DoctorClinicPage() {
   const isEditing = (s: string) => editingSection === s;
 
   return (
-    <div className="flex flex-col gap-5 animate-fade-in max-w-3xl mx-auto">
+    <div className="flex flex-col gap-5 animate-fade-in max-w-3xl mx-auto pb-10">
 
       {/* Account Status Banner */}
-      {doctor && (
-        <div
-          className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-sm font-medium flex-wrap ${
-            doctor.isPaid
-              ? "bg-success/10 border-success/30 text-success"
-              : "bg-warning/10 border-warning/30 text-warning"
-          }`}
-        >
-          <div className="flex items-center gap-2 font-bold">
-            <span className={`h-3 w-3 rounded-full animate-pulse-glow ${doctor.isPaid ? "bg-success" : "bg-warning"}`} />
-            {doctor.isPaid
-              ? "حساب الطبيب مُفعل بالكامل (اشتراك ساري في المنصة)"
-              : "حساب الطبيب غير مُفعل حالياً (لم يتم التفعيل بعد من إدارة المنصة)"}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className={`rounded-full px-3 py-1 text-xs font-extrabold ${doctor.isPaid ? "bg-success/20 text-success" : "bg-warning/20 text-warning"}`}>
-              {doctor.isPaid ? "مُفعل " : "لم يتم التفعيل ️"}
-            </span>
-            {exists && (
-              <button
-                onClick={handleToggleStatus}
-                disabled={togglingStatus}
-                className={`rounded-full px-3 py-1 text-xs font-extrabold flex items-center gap-1 transition-all ${
-                  form.isActive
-                    ? "bg-primary/20 text-primary hover:bg-primary/30"
-                    : "bg-surface-raised border border-border/50 text-text-secondary hover:bg-surface"
-                }`}
-              >
-                {togglingStatus && <span className="h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin" />}
-                {form.isActive ? "العيادة ظاهرة للجمهور 👁️" : "العيادة مخفية 🚫"}
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      {doctor && (() => {
+        const isExpired = doctor.paidExpired ? new Date(doctor.paidExpired) < new Date() : false;
+        const isDoctorActive = Boolean(doctor.isPaid && !isExpired);
+        return (
+          <>
+            <div
+              className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-sm font-medium flex-wrap ${
+                isDoctorActive
+                  ? "bg-success/10 border-success/30 text-success"
+                  : "bg-warning/10 border-warning/30 text-warning"
+              }`}
+            >
+              <div className="flex items-center gap-2 font-bold">
+                <span className={`h-3 w-3 rounded-full animate-pulse-glow ${isDoctorActive ? "bg-success" : "bg-warning"}`} />
+                {isDoctorActive
+                  ? `حساب الطبيب مُفعل بالكامل${
+                      doctor.paidExpired
+                        ? ` (ينتهي الاشتراك في ${new Date(doctor.paidExpired).toLocaleDateString("ar-EG")})`
+                        : ""
+                    }`
+                  : "حساب الطبيب غير مُفعل حالياً (لم يتم التفعيل بعد من إدارة المنصة)"}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`rounded-full px-3 py-1 text-xs font-extrabold ${isDoctorActive ? "bg-success/20 text-success" : "bg-warning/20 text-warning"}`}>
+                  {isDoctorActive ? "مُفعل" : "لم يتم التفعيل"}
+                </span>
+                {exists && (
+                  <button
+                    onClick={handleToggleStatus}
+                    disabled={togglingStatus}
+                    className={`rounded-full px-3 py-1 text-xs font-extrabold flex items-center gap-1 transition-all ${
+                      form.isActive
+                        ? "bg-primary/20 text-primary hover:bg-primary/30"
+                        : "bg-surface-raised border border-border/50 text-text-secondary hover:bg-surface"
+                    }`}
+                  >
+                    {togglingStatus && <span className="h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin" />}
+                    {form.isActive ? "العيادة ظاهرة للجمهور" : "العيادة مخفية"}
+                  </button>
+                )}
+              </div>
+            </div>
 
-      {/* Show support contact numbers if account is not activated */}
-      {doctor && !doctor.isPaid && (
-        <SupportContactBox />
-      )}
+            {!isDoctorActive && (
+              <SupportContactBox />
+            )}
+          </>
+        );
+      })()}
+
+      {/* Header info */}
+      <div className="flex flex-col gap-1">
+        <h1 className="font-display text-2xl font-extrabold text-text-primary">
+          بيانات العيادة
+        </h1>
+        <p className="text-xs text-text-secondary">
+          إدارة البيانات الضرورية للعيادة والأسعار والموقع والتواصل
+        </p>
+      </div>
 
       {/* Tab Switcher */}
       <Card glass vibrant className="p-2">
@@ -333,8 +358,7 @@ export default function DoctorClinicPage() {
                   : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
               }`}
             >
-              <span>{tab === "private" ? "" : ""}</span>
-              <span>{tab === "private" ? "بيانات العيادة (خاص)" : "معاينة المرضى (عام)"}</span>
+              <span>{tab === "private" ? "بيانات العيادة الأساسية" : "معاينة بطاقة المريض"}</span>
             </button>
           ))}
         </div>
@@ -342,249 +366,383 @@ export default function DoctorClinicPage() {
 
       {/* Global feedback */}
       {globalSuccess && (
-        <div className="rounded-2xl bg-success/10 border border-success/30 px-4 py-3 text-sm font-bold text-success animate-fade-in">
-          {globalSuccess}
+        <div className="rounded-2xl bg-success/10 border border-success/30 px-4 py-3 text-sm font-bold text-success animate-fade-in flex items-center gap-2">
+          <span>{globalSuccess}</span>
         </div>
       )}
       {sectionError && (
         <div className="rounded-2xl bg-danger/10 border border-danger/30 px-4 py-3 text-sm font-bold text-danger animate-fade-in flex items-start gap-2">
-          <span>️</span><span>{sectionError}</span>
+          <span>{sectionError}</span>
         </div>
       )}
 
       {/* ══════════════════════ PRIVATE VIEW ══════════════════════════════ */}
       {activeTab === "private" && (
-        <div className="flex flex-col gap-4 animate-fade-in">
+        <div className="flex flex-col gap-5 animate-fade-in">
 
-          {!exists && (
-            <div className="rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm font-medium text-warning">
-               لم يتم إنشاء بيانات العيادة بعد — أكمل الحقول أدناه ثم اضغط حفظ لتظهر للمرضى
-            </div>
-          )}
-
-          {/* ── Section 1: Basic Info ──────────────────────── */}
-          <Section
-            title="المعلومات الأساسية"
-            icon=""
-            editing={isEditing("basic")}
-            saving={saving}
-            onEdit={() => startEdit("basic")}
-            onCancel={cancelEdit}
-            onSave={saveSection}
-            viewChildren={
-              <>
-                <InfoRow label="اسم العيادة" value={form.name} />
-                <InfoRow label="التخصص الطبي" value={form.specialization} />
-                <InfoRow label="سعر الكشف" value={form.consultationPrice ? `${form.consultationPrice} ج.م` : null} />
-              </>
-            }
-          >
-            <Field
-              label="اسم العيادة *"
-              required
-              value={draft.name}
-              onChange={(e) => updateDraft("name", e.target.value)}
-              placeholder="مثال: عيادة الأمل الطبية"
-              className="sm:col-span-2"
-            />
-            <Field
-              label="التخصص الطبي *"
-              required
-              value={draft.specialization}
-              onChange={(e) => updateDraft("specialization", e.target.value)}
-              placeholder="مثال: باطنة / أطفال"
-            />
-            <Field
-              label="سعر الكشف (ج.م) *"
-              type="number"
-              required
-              value={draft.consultationPrice === 0 ? "" : draft.consultationPrice}
-              onChange={(e) => updateDraft("consultationPrice", Number(e.target.value))}
-            />
-          </Section>
-
-          {/* ── Section 2: Location ───────────────────────── */}
-          <Section
-            title="الموقع والعنوان"
-            icon=""
-            editing={isEditing("location")}
-            saving={saving}
-            onEdit={() => startEdit("location")}
-            onCancel={cancelEdit}
-            onSave={saveSection}
-            viewChildren={
-              <>
-                <InfoRow label="المحافظة" value={form.governorate} />
-                <InfoRow label="المدينة / المركز" value={form.city} />
-                <InfoRow label="الشارع / العنوان التفصيلي" value={form.street} />
-                <InfoRow label="توضيحات الموقع" value={form.description} />
-              </>
-            }
-          >
-            <SelectField
-              label="المحافظة *"
-              required
-              value={draft.governorate}
-              onChange={(e) => {
-                const gov = e.target.value;
-                setDraft((d) => ({ ...d, governorate: gov, city: "" }));
-                setSelectedVillage("");
-              }}
-              options={[
-                { label: "-- اختر المحافظة --", value: "" },
-                ...GOVERNORATES.map((g) => ({ label: g, value: g })),
-              ]}
-            />
-            <SelectField
-              label="المدينة / المركز *"
-              required
-              disabled={!draft.governorate}
-              value={draft.city}
-              onChange={(e) => {
-                updateDraft("city", e.target.value);
-                setSelectedVillage("");
-              }}
-              options={availableCities}
-            />
-            <SelectField
-              label="القرية / المنطقة (اختياري)"
-              disabled={!draft.city}
-              value={selectedVillage}
-              onChange={(e) => {
-                const v = e.target.value;
-                setSelectedVillage(v);
-                updateDraftStreet(v === "other" ? "" : v, streetDetail);
-              }}
-              options={villageOptions}
-              className="sm:col-span-2"
-            />
-            <Field
-              label="اسم الشارع / تفاصيل العنوان"
-              value={streetDetail}
-              onChange={(e) => {
-                setStreetDetail(e.target.value);
-                updateDraftStreet(selectedVillage === "other" ? "" : selectedVillage, e.target.value);
-              }}
-              placeholder="مثال: شارع المحطة / بجوار المخبز الآلي"
-              className="sm:col-span-2"
-            />
-            <TextAreaField
-              label="توضيحات الموقع (علامات مميزة)"
-              value={draft.description ?? ""}
-              onChange={(e) => updateDraft("description", e.target.value)}
-              placeholder="أدخل تفاصيل إضافية للعنوان أو علامات مميزة للوصول للعيادة..."
-              className="sm:col-span-2"
-            />
-          </Section>
-
-          {/* ── Section 3: Contact ────────────────────────── */}
-          <Section
-            title="بيانات التواصل"
-            icon=""
-            editing={isEditing("contact")}
-            saving={saving}
-            onEdit={() => startEdit("contact")}
-            onCancel={cancelEdit}
-            onSave={saveSection}
-            viewChildren={
-              <>
-                <InfoRow label="رقم الهاتف" value={form.phoneNumber} />
-                <InfoRow label="البريد الإلكتروني" value={form.email} />
-              </>
-            }
-          >
-            <Field
-              label="رقم الهاتف المصري *"
-              required
-              inputMode="tel"
-              value={draft.phoneNumber}
-              onChange={(e) => updateDraft("phoneNumber", e.target.value)}
-              placeholder="مثال: 01000000000"
-            />
-            <Field
-              label="البريد الإلكتروني *"
-              type="email"
-              required
-              value={draft.email}
-              onChange={(e) => updateDraft("email", e.target.value)}
-              placeholder="example@domain.com"
-            />
-          </Section>
-
-          {/* ── Section 4: Booking Settings ───────────────── */}
-          <Section
-            title="إعدادات الحجز والكشف"
-            icon="📅"
-            editing={isEditing("booking")}
-            saving={saving}
-            onEdit={() => startEdit("booking")}
-            onCancel={cancelEdit}
-            onSave={saveSection}
-            viewChildren={
-              <>
-                <InfoRow label="نظام الحجز" value={form.bookingType === "time" ? "مواعيد محددة (Time)" : "بالدور (Queue)"} />
-                <InfoRow label="الحد الأقصى للمرضى يومياً" value={form.maxPatientsPerDay} />
-                {form.bookingType === "time" && (
-                  <InfoRow label="مدة الكشف (بالدقائق)" value={form.slotDuration} />
-                )}
-              </>
-            }
-          >
-            <SelectField
-              label="نظام الحجز *"
-              required
-              value={draft.bookingType || "queue"}
-              onChange={(e) => updateDraft("bookingType", e.target.value as "time" | "queue")}
-              options={[
-                { label: "حجز بالدور (Queue)", value: "queue" },
-                { label: "حجز بمواعيد محددة (Time)", value: "time" },
-              ]}
-              className="sm:col-span-2"
-            />
-            <Field
-              label="الحد الأقصى للمرضى في اليوم *"
-              type="number"
-              required
-              min={1}
-              value={draft.maxPatientsPerDay || ""}
-              onChange={(e) => updateDraft("maxPatientsPerDay", Number(e.target.value))}
-            />
-            {draft.bookingType === "time" && (
-              <Field
-                label="مدة الكشف التقريبية (بالدقائق) *"
-                type="number"
-                required
-                min={5}
-                value={draft.slotDuration || ""}
-                onChange={(e) => updateDraft("slotDuration", Number(e.target.value))}
-              />
-            )}
-          </Section>
-
-          {/* Create button only if clinic doesn't exist yet */}
-          {!exists && (
-            <Button
-              type="button"
-              className="w-full text-base font-bold shadow-glow-cyan"
-              disabled={saving}
-              onClick={async () => {
+          {!exists ? (
+            /* ── Unified Initial Setup Form (Essential Data Only) ── */
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
                 setSaving(true);
                 setSectionError(null);
                 try {
                   await createClinic(draft);
                   setForm({ ...draft });
                   setExists(true);
-                  setGlobalSuccess("تم إنشاء بيانات العيادة بنجاح ");
+                  setGlobalSuccess("تم إنشاء وتفعيل بيانات العيادة بنجاح");
                   setTimeout(() => setGlobalSuccess(null), 4000);
                 } catch (err) {
-                  setSectionError(err instanceof ApiError ? err.message : "تعذّر إنشاء العيادة");
+                  const msg = err instanceof ApiError ? err.message : "تعذّر إنشاء العيادة";
+                  setSectionError(
+                    msg.toLowerCase().includes("subscription expired")
+                      ? "اشتراك حساب الطبيب منتهي. يلزم تجديد الاشتراك من إدارة المنصة لتفعيل العيادة."
+                      : msg
+                  );
                 } finally {
                   setSaving(false);
                 }
               }}
+              className="flex flex-col gap-5"
             >
-              {saving ? "جارٍ الحفظ..." : " إنشاء وحفظ بيانات العيادة"}
-            </Button>
+              <div className="rounded-2xl border border-primary/30 bg-primary/10 p-5 text-sm text-text-primary">
+                <h3 className="font-display font-extrabold text-base text-primary">
+                  البيانات الضرورية لإنشاء العيادة
+                </h3>
+                <p className="mt-1 text-xs text-text-secondary leading-relaxed">
+                  أدخل البيانات الأساسية للعيادة وأسعار الكشف والموقع لبدء العمل. يمكنك ضبط أيام ومواعيد ونظام الحجز لاحقاً من خانة <strong>إعدادات الحجز</strong> في السايد بار.
+                </p>
+              </div>
+
+              {/* 1. Basic Information & Pricing */}
+              <Card glass vibrant className="p-6">
+                <h3 className="font-display font-bold text-base text-text-primary mb-4">
+                  1. المعلومات الأساسية وأسعار الكشف
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Field
+                    label="اسم العيادة *"
+                    required
+                    value={draft.name}
+                    onChange={(e) => updateDraft("name", e.target.value)}
+                    placeholder="مثال: عيادة الأمل التخصصية"
+                    className="sm:col-span-2"
+                  />
+                  <Field
+                    label="التخصص الطبي *"
+                    required
+                    value={draft.specialization}
+                    onChange={(e) => updateDraft("specialization", e.target.value)}
+                    placeholder="مثال: باطنة / أطفال / جلدية"
+                    className="sm:col-span-2"
+                  />
+                  <Field
+                    label="سعر الكشف للمريض الجديد (ج.م) *"
+                    type="number"
+                    required
+                    min={1}
+                    value={draft.consultationPrice === 0 ? "" : draft.consultationPrice}
+                    onChange={(e) => updateDraft("consultationPrice", Number(e.target.value))}
+                    placeholder="مثال: 250"
+                  />
+                  <Field
+                    label="سعر إعادة الكشف / متابعة لمريض سابق (ج.م) *"
+                    type="number"
+                    required
+                    min={0}
+                    value={(draft.followUpPrice ?? 0) === 0 ? "" : draft.followUpPrice}
+                    onChange={(e) => updateDraft("followUpPrice", Number(e.target.value))}
+                    placeholder="مثال: 150"
+                  />
+                  <div className="sm:col-span-2 rounded-xl bg-surface-raised border border-border/60 px-4 py-3 text-xs text-text-secondary">
+                    <span className="font-bold text-text-primary">نظام التسعير: </span>
+                    سعر الكشف الجديد يظهر للمريض الذي يحجز لأول مرة، وسعر الإعادة يظهر للمريض الذي سبق وحجز في العيادة.
+                  </div>
+                </div>
+              </Card>
+
+              {/* 2. Location & Address */}
+              <Card glass vibrant className="p-6">
+                <h3 className="font-display font-bold text-base text-text-primary mb-4">
+                  2. الموقع والعنوان
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <SelectField
+                    label="المحافظة *"
+                    required
+                    value={draft.governorate}
+                    onChange={(e) => {
+                      const gov = e.target.value;
+                      setDraft((d) => ({ ...d, governorate: gov, city: "" }));
+                      setSelectedVillage("");
+                    }}
+                    options={[
+                      { label: "-- اختر المحافظة --", value: "" },
+                      ...GOVERNORATES.map((g) => ({ label: g, value: g })),
+                    ]}
+                  />
+                  <SelectField
+                    label="المدينة / المركز *"
+                    required
+                    disabled={!draft.governorate}
+                    value={draft.city}
+                    onChange={(e) => {
+                      updateDraft("city", e.target.value);
+                      setSelectedVillage("");
+                    }}
+                    options={availableCities}
+                  />
+                  <SelectField
+                    label="القرية / المنطقة (اختياري)"
+                    disabled={!draft.city}
+                    value={selectedVillage}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setSelectedVillage(v);
+                      updateDraftStreet(v === "other" ? "" : v, streetDetail);
+                    }}
+                    options={villageOptions}
+                    className="sm:col-span-2"
+                  />
+                  <Field
+                    label="اسم الشارع / تفاصيل العنوان *"
+                    required
+                    value={streetDetail}
+                    onChange={(e) => {
+                      setStreetDetail(e.target.value);
+                      updateDraftStreet(selectedVillage === "other" ? "" : selectedVillage, e.target.value);
+                    }}
+                    placeholder="مثال: شارع الجمهورية - برج الأطباء الدور الثالث"
+                    className="sm:col-span-2"
+                  />
+                  <TextAreaField
+                    label="توضيحات إضافية للموقع (علامات مميزة)"
+                    value={draft.description ?? ""}
+                    onChange={(e) => updateDraft("description", e.target.value)}
+                    placeholder="أدخل علامات مميزة للوصول إلى العيادة بسهولة..."
+                    className="sm:col-span-2"
+                  />
+                </div>
+              </Card>
+
+              {/* 3. Contact Details */}
+              <Card glass vibrant className="p-6">
+                <h3 className="font-display font-bold text-base text-text-primary mb-4">
+                  3. رقم هاتف التواصل والحجز
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Field
+                    label="رقم هاتف العيادة أو الحجز *"
+                    required
+                    inputMode="tel"
+                    value={draft.phoneNumber}
+                    onChange={(e) => updateDraft("phoneNumber", e.target.value)}
+                    placeholder="مثال: 01000000000"
+                    className="sm:col-span-2"
+                  />
+                </div>
+              </Card>
+
+              {/* Sidebar Booking Settings Pointer */}
+              <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h4 className="font-display font-bold text-sm text-text-primary">
+                    إعدادات الحجز وجداول العمل
+                  </h4>
+                  <p className="text-xs text-text-secondary mt-0.5">
+                    يتم تفعيل جدول افتراضي للعيادة تلقائياً. يمكنك تخصيص أيام العمل ومواعيد الكشف في أي وقت من خانة <strong>"إعدادات الحجز"</strong> بالسايد بار.
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                variant="vibrant"
+                size="lg"
+                loading={saving}
+                className="w-full text-base font-bold shadow-glow-cyan py-4"
+              >
+                {saving ? "جارٍ الحفظ والإنشاء..." : "إنشاء وتفعيل العيادة الآن"}
+              </Button>
+            </form>
+          ) : (
+            /* ── Modular Sections (When Clinic Already Exists) ── */
+            <>
+              {/* ── Section 1: Basic Info & Prices ──────────────── */}
+              <Section
+                title="المعلومات الأساسية وأسعار الكشف"
+                editing={isEditing("basic")}
+                saving={saving}
+                onEdit={() => startEdit("basic")}
+                onCancel={cancelEdit}
+                onSave={saveSection}
+                viewChildren={
+                  <>
+                    <InfoRow label="اسم العيادة" value={form.name} />
+                    <InfoRow label="التخصص الطبي" value={form.specialization} />
+                    <InfoRow
+                      label="سعر الكشف للمريض الجديد"
+                      value={form.consultationPrice ? `${form.consultationPrice} ج.م` : null}
+                      accent
+                    />
+                    <InfoRow
+                      label="سعر إعادة الكشف / متابعة لمريض سابق"
+                      value={form.followUpPrice ? `${form.followUpPrice} ج.م` : form.consultationPrice ? `${form.consultationPrice} ج.م` : null}
+                      accent
+                    />
+                  </>
+                }
+              >
+                <Field
+                  label="اسم العيادة *"
+                  required
+                  value={draft.name}
+                  onChange={(e) => updateDraft("name", e.target.value)}
+                  placeholder="مثال: عيادة الأمل الطبية"
+                  className="sm:col-span-2"
+                />
+                <Field
+                  label="التخصص الطبي *"
+                  required
+                  value={draft.specialization}
+                  onChange={(e) => updateDraft("specialization", e.target.value)}
+                  placeholder="مثال: باطنة / أطفال"
+                  className="sm:col-span-2"
+                />
+                <Field
+                  label="سعر الكشف للمريض الجديد (ج.م) *"
+                  type="number"
+                  required
+                  min={1}
+                  value={draft.consultationPrice === 0 ? "" : draft.consultationPrice}
+                  onChange={(e) => updateDraft("consultationPrice", Number(e.target.value))}
+                />
+                <Field
+                  label="سعر إعادة الكشف / متابعة (ج.م) *"
+                  type="number"
+                  required
+                  min={0}
+                  value={(draft.followUpPrice ?? 0) === 0 ? "" : draft.followUpPrice}
+                  onChange={(e) => updateDraft("followUpPrice", Number(e.target.value))}
+                />
+              </Section>
+
+              {/* ── Section 2: Location & Address ───────────────── */}
+              <Section
+                title="الموقع والعنوان"
+                editing={isEditing("location")}
+                saving={saving}
+                onEdit={() => startEdit("location")}
+                onCancel={cancelEdit}
+                onSave={saveSection}
+                viewChildren={
+                  <>
+                    <InfoRow label="المحافظة" value={form.governorate} />
+                    <InfoRow label="المدينة / المركز" value={form.city} />
+                    <InfoRow label="الشارع / العنوان التفصيلي" value={form.street} />
+                    <InfoRow label="توضيحات الموقع" value={form.description} />
+                  </>
+                }
+              >
+                <SelectField
+                  label="المحافظة *"
+                  required
+                  value={draft.governorate}
+                  onChange={(e) => {
+                    const gov = e.target.value;
+                    setDraft((d) => ({ ...d, governorate: gov, city: "" }));
+                    setSelectedVillage("");
+                  }}
+                  options={[
+                    { label: "-- اختر المحافظة --", value: "" },
+                    ...GOVERNORATES.map((g) => ({ label: g, value: g })),
+                  ]}
+                />
+                <SelectField
+                  label="المدينة / المركز *"
+                  required
+                  disabled={!draft.governorate}
+                  value={draft.city}
+                  onChange={(e) => {
+                    updateDraft("city", e.target.value);
+                    setSelectedVillage("");
+                  }}
+                  options={availableCities}
+                />
+                <SelectField
+                  label="القرية / المنطقة (اختياري)"
+                  disabled={!draft.city}
+                  value={selectedVillage}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setSelectedVillage(v);
+                    updateDraftStreet(v === "other" ? "" : v, streetDetail);
+                  }}
+                  options={villageOptions}
+                  className="sm:col-span-2"
+                />
+                <Field
+                  label="اسم الشارع / تفاصيل العنوان"
+                  value={streetDetail}
+                  onChange={(e) => {
+                    setStreetDetail(e.target.value);
+                    updateDraftStreet(selectedVillage === "other" ? "" : selectedVillage, e.target.value);
+                  }}
+                  placeholder="مثال: شارع المحطة / بجوار المخبز الآلي"
+                  className="sm:col-span-2"
+                />
+                <TextAreaField
+                  label="توضيحات الموقع (علامات مميزة)"
+                  value={draft.description ?? ""}
+                  onChange={(e) => updateDraft("description", e.target.value)}
+                  placeholder="أدخل تفاصيل إضافية للعنوان أو علامات مميزة للوصول للعيادة..."
+                  className="sm:col-span-2"
+                />
+              </Section>
+
+              {/* ── Section 3: Contact ────────────────────────── */}
+              <Section
+                title="بيانات التواصل"
+                editing={isEditing("contact")}
+                saving={saving}
+                onEdit={() => startEdit("contact")}
+                onCancel={cancelEdit}
+                onSave={saveSection}
+                viewChildren={
+                  <>
+                    <InfoRow label="رقم الهاتف للحجز والاستعلام" value={form.phoneNumber} />
+                  </>
+                }
+              >
+                <Field
+                  label="رقم هاتف العيادة / الحجز *"
+                  required
+                  inputMode="tel"
+                  value={draft.phoneNumber}
+                  onChange={(e) => updateDraft("phoneNumber", e.target.value)}
+                  placeholder="مثال: 01000000000"
+                  className="sm:col-span-2"
+                />
+              </Section>
+
+              {/* ── Dedicated Sidebar Navigation Card for Booking Settings ── */}
+              <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+                <div>
+                  <h4 className="font-display font-extrabold text-sm text-text-primary">
+                    إعدادات الحجز والمواعيد وأيام العمل
+                  </h4>
+                  <p className="text-xs text-text-secondary mt-0.5">
+                    يمكنك ضبط نظام الحجز (دور أو مواعيد محددة)، مدة الكشف، وساعات وأيام العمل من صفحة إعدادات الحجز بالسايد بار.
+                  </p>
+                </div>
+                <Link href="/doctor/booking-settings">
+                  <Button variant="vibrant" size="sm" className="whitespace-nowrap font-bold shadow-glow-cyan">
+                    إعدادات الحجز
+                  </Button>
+                </Link>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -594,16 +752,15 @@ export default function DoctorClinicPage() {
         <Card glass vibrant className="p-6 md:p-8 shadow-2xl animate-fade-in border-accent/30">
           <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-6">
             <div>
-              <h2 className="font-display text-xl font-extrabold text-text-primary flex items-center gap-2">
-                <span></span>
-                <span>بطاقة العيادة المعروضة للمرضى</span>
+              <h2 className="font-display text-xl font-extrabold text-text-primary">
+                بطاقة العيادة المعروضة للمرضى
               </h2>
               <p className="mt-1 text-xs text-text-secondary">
                 هكذا تظهر بيانات عيادتك تماماً للمرضى عند تصفح العيادات على المنصة.
               </p>
             </div>
             <span className="rounded-full bg-success/20 border border-success/30 px-3 py-1 text-xs font-extrabold text-success">
-              معاينة حية 🟢
+              معاينة حية
             </span>
           </div>
 
@@ -617,15 +774,23 @@ export default function DoctorClinicPage() {
                   {form.name || "اسم العيادة الطبية"}
                 </h3>
                 <p className="text-xs text-text-secondary mt-1">
-                   {form.governorate || "المحافظة"}، {form.city || "المدينة"}
+                  {form.governorate || "المحافظة"}، {form.city || "المدينة"}
                   {form.street ? ` — ${form.street}` : ""}
                 </p>
               </div>
-              <div className="flex flex-col items-start md:items-end">
-                <span className="text-xs text-text-secondary">سعر الكشف</span>
-                <span className="font-display text-2xl font-black text-accent">
-                  {form.consultationPrice ? `${form.consultationPrice} ج.م` : "—"}
-                </span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="flex flex-col items-start sm:items-end bg-surface px-4 py-2 rounded-2xl border border-border/50">
+                  <span className="text-[11px] font-bold text-text-secondary">كشف جديد</span>
+                  <span className="font-display text-xl font-black text-accent">
+                    {form.consultationPrice ? `${form.consultationPrice} ج.م` : "—"}
+                  </span>
+                </div>
+                <div className="flex flex-col items-start sm:items-end bg-surface px-4 py-2 rounded-2xl border border-border/50">
+                  <span className="text-[11px] font-bold text-text-secondary">إعادة كشف / متابعة</span>
+                  <span className="font-display text-xl font-black text-primary">
+                    {form.followUpPrice ? `${form.followUpPrice} ج.م` : form.consultationPrice ? `${form.consultationPrice} ج.م` : "—"}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -638,7 +803,6 @@ export default function DoctorClinicPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-border/50">
               <div className="flex items-center gap-3 rounded-2xl bg-surface p-4 border border-border/60">
-                <span className="text-xl">📅</span>
                 <div>
                   <p className="text-[11px] font-extrabold text-text-secondary">نظام الحجز</p>
                   <p className="text-sm font-bold text-text-primary">
@@ -647,29 +811,9 @@ export default function DoctorClinicPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 rounded-2xl bg-surface p-4 border border-border/60">
-                <span className="text-xl">👥</span>
-                <div>
-                  <p className="text-[11px] font-extrabold text-text-secondary">الحد الأقصى للمرضى</p>
-                  <p className="text-sm font-bold text-text-primary">
-                    {form.maxPatientsPerDay ? `${form.maxPatientsPerDay} مريض يومياً` : "—"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-border/50">
-              <div className="flex items-center gap-3 rounded-2xl bg-surface p-4 border border-border/60">
-                <span className="text-xl"></span>
                 <div>
                   <p className="text-[11px] font-extrabold text-text-secondary">رقم الاستعلام والحجز</p>
                   <p className="text-sm font-bold text-text-primary" dir="ltr">{form.phoneNumber || "—"}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 rounded-2xl bg-surface p-4 border border-border/60">
-                <span className="text-xl">️</span>
-                <div>
-                  <p className="text-[11px] font-extrabold text-text-secondary">البريد الإلكتروني</p>
-                  <p className="text-sm font-bold text-text-primary">{form.email || "—"}</p>
                 </div>
               </div>
             </div>
@@ -680,14 +824,13 @@ export default function DoctorClinicPage() {
                 variant="secondary"
                 size="lg"
                 onClick={() => setActiveTab("private")}
-                className="font-bold flex items-center gap-2"
+                className="font-bold"
               >
-                <span>️</span>
-                <span>تعديل بيانات العيادة</span>
+                تعديل بيانات العيادة
               </Button>
               <Link href="/clinics">
                 <Button variant="vibrant" size="lg" className="font-bold shadow-glow-cyan">
-                  احجز موعدك الآن في هذه العيادة ️
+                  احجز موعدك الآن في هذه العيادة
                 </Button>
               </Link>
             </div>

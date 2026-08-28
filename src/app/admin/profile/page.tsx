@@ -30,6 +30,9 @@ export default function AdminProfilePage() {
         phoneNumber: admin.phoneNumber ?? "",
         email: admin.email ?? "",
       });
+    } catch (err) {
+      console.error("Failed to load admin profile:", err);
+      setProfile(null);
     } finally {
       setLoading(false);
     }
