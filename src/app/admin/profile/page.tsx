@@ -78,7 +78,7 @@ export default function AdminProfilePage() {
       <Card glass vibrant className="border-accent/20">
         <div className="flex items-center gap-5">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent/30 to-primary/20 text-2xl font-black text-accent">
-            ️
+            {profile.firstName?.[0]?.toUpperCase() ?? "A"}
           </div>
           <div>
             <h2 className="font-display text-xl font-extrabold text-text-primary">
@@ -93,13 +93,13 @@ export default function AdminProfilePage() {
 
         <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
-            { label: "البريد الإلكتروني", value: profile.email, emoji: "" },
-            { label: "رقم الهاتف", value: profile.phoneNumber, emoji: "" },
-            { label: "تاريخ الإنشاء", value: new Date(profile.createdAt).toLocaleDateString("ar-EG"), emoji: "" },
-            { label: "آخر تحديث", value: new Date(profile.updatedAt).toLocaleDateString("ar-EG"), emoji: "" },
-          ].map(({ label, value, emoji }) => (
+            { label: "البريد الإلكتروني", value: profile.email },
+            { label: "رقم الهاتف", value: profile.phoneNumber },
+            { label: "تاريخ الإنشاء", value: new Date(profile.createdAt).toLocaleDateString("ar-EG") },
+            { label: "آخر تحديث", value: new Date(profile.updatedAt).toLocaleDateString("ar-EG") },
+          ].map(({ label, value }) => (
             <div key={label} className="rounded-xl bg-surface-raised px-4 py-3">
-              <p className="text-xs text-text-secondary">{emoji} {label}</p>
+              <p className="text-xs text-text-secondary">{label}</p>
               <p className="mt-0.5 text-sm font-semibold text-text-primary">{value}</p>
             </div>
           ))}
@@ -109,7 +109,7 @@ export default function AdminProfilePage() {
       {/* Edit Section */}
       <Card>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-base font-bold text-text-primary">️ تعديل البيانات</h2>
+          <h2 className="font-display text-base font-bold text-text-primary">تعديل البيانات</h2>
           {!editing && (
             <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
               تعديل

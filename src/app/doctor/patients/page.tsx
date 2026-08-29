@@ -164,7 +164,7 @@ export default function DoctorPatientsPage() {
                   )}
                   {p.nationalId && (
                     <p className="mt-1 text-xs text-text-secondary flex items-center gap-1">
-                      <span>🪪</span> {p.nationalId}
+                      <span>الرقم القومي:</span> {p.nationalId}
                     </p>
                   )}
                 </div>
@@ -175,7 +175,7 @@ export default function DoctorPatientsPage() {
                   <Button 
                     variant="secondary" 
                     size="sm" 
-                    className="h-8 px-2 z-10 hover:bg-primary hover:text-surface hover:border-primary transition-colors"
+                    className="z-10 hover:bg-primary hover:text-surface hover:border-primary transition-colors font-bold"
                     onClick={(e) => openNotificationModal(e, p)}
                   >
                     إرسال إشعار

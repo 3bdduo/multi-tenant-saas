@@ -253,7 +253,6 @@ export default function NewMedicalRecordPage() {
             </div>
 
             <div className="mt-3 flex items-center gap-2 rounded-lg bg-warning/10 border border-warning/20 px-3 py-2">
-              <span className="text-warning text-sm">️</span>
               <p className="text-xs text-text-secondary">
                 محدود بـ 5 طلبات / دقيقة — ستظهر رسالة تطلب الانتظار إذا تخطيت الحد
               </p>
@@ -284,7 +283,7 @@ export default function NewMedicalRecordPage() {
             </h3>
             {appointments.length === 0 ? (
               <p className="text-sm text-warning bg-warning/10 rounded-lg px-3 py-2">
-                ️ لا توجد مواعيد متاحة — يجب وجود موعد مسجّل قبل إنشاء سجل طبي
+                لا توجد مواعيد متاحة — يجب وجود موعد مسجّل قبل إنشاء سجل طبي
               </p>
             ) : (
               <div className="flex flex-col gap-2">
@@ -325,7 +324,7 @@ export default function NewMedicalRecordPage() {
 
           {/* Diagnosis */}
           <Card>
-            <h3 className="font-display text-sm font-bold text-text-primary mb-3">🩺 التشخيص</h3>
+            <h3 className="font-display text-sm font-bold text-text-primary mb-3">التشخيص</h3>
             <textarea
               required
               rows={3}
@@ -461,7 +460,7 @@ export default function NewMedicalRecordPage() {
               </label>
             </div>
             <p className="mt-2 text-xs text-text-secondary">
-              ️ الافتراضي دائماً <strong>خاص</strong> — اختر "مشارك" فقط إذا أردت مشاركته
+              الافتراضي دائماً <strong>خاص</strong> — اختر "مشارك" فقط إذا أردت مشاركته
             </p>
           </Card>
 

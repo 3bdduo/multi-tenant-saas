@@ -50,6 +50,8 @@ export const viewport: Viewport = {
 
 
 
+import { GlobalPreloader } from "@/components/GlobalPreloader";
+
 export default function RootLayout({
   children,
 }: {
@@ -68,6 +70,7 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <ThemeProvider>
           <AuthProvider>
+            <GlobalPreloader />
             <AmbientBackground />
             <HeartbeatLoader />
             <GlobalBackButton />

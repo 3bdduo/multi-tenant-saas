@@ -450,10 +450,10 @@ function DoctorNotificationsContent() {
                           <p className="text-xs sm:text-sm text-text-secondary mt-1 leading-relaxed whitespace-pre-wrap">{n.message}</p>
                         </div>
                         <div className="flex items-center gap-2 mt-2 sm:mt-0 shrink-0 self-end sm:self-auto">
-                          <Button size="sm" variant="outline" onClick={() => startEdit(n)} className="text-xs">
+                          <Button size="sm" variant="outline" onClick={() => startEdit(n)} className="font-bold">
                             تعديل
                           </Button>
-                          <Button size="sm" variant="ghost" className="text-danger hover:bg-danger/10 hover:text-danger text-xs" onClick={() => removeDirect(n._id)}>
+                          <Button size="sm" variant="ghost" className="text-danger hover:bg-danger/10 hover:text-danger font-bold" onClick={() => removeDirect(n._id)}>
                             حذف
                           </Button>
                         </div>

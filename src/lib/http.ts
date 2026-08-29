@@ -200,11 +200,62 @@ export function formatArabicErrorMessage(
     : "حدث خطأ أثناء تنفيذ الطلب. يرجى مراجعة البيانات والمحاولة مجدداً.";
 }
 
+const CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes cache
+const apiCache = new Map<string, { data: any; timestamp: number }>();
+
+export function clearApiCache(pathPrefix?: string) {
+  if (!pathPrefix) {
+    apiCache.clear();
+    return;
+  }
+  for (const key of apiCache.keys()) {
+    if (key.startsWith(pathPrefix)) {
+      apiCache.delete(key);
+    }
+  }
+}
+
+interface RequestOptions extends RequestInit {
+  auth?: boolean; // attach Authorization header (default: true)
+  retry?: boolean; // internal flag to prevent infinite refresh loops
+  noCache?: boolean; // bypass memory cache
+}
+
+export async function prefetchApi<T = any>(
+  path: string,
+  options: RequestOptions = {}
+): Promise<void> {
+  try {
+    await apiFetch<T>(path, options);
+  } catch {
+    // ignore prefetch errors
+  }
+}
+
 export async function apiFetch<T>(
   path: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { auth = true, retry = false, headers, ...rest } = options;
+  const { auth = true, retry = false, noCache = false, headers, ...rest } = options;
+  const method = (rest.method || "GET").toUpperCase();
+  const isGet = method === "GET";
+
+  // Build cache key
+  const token = auth ? getAccessToken() : null;
+  const cacheKey = `${method}:${path}:${token || "public"}`;
+
+  // If GET and cached within TTL, return cached value instantly!
+  if (isGet && !noCache && !retry && typeof window !== "undefined") {
+    const cached = apiCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return cached.data as T;
+    }
+  }
+
+  // Mutating methods (POST/PUT/DELETE/PATCH) invalidate cache
+  if (!isGet && typeof window !== "undefined") {
+    clearApiCache();
+  }
 
   if (!retry) updateLoadingState(true);
 
@@ -216,9 +267,8 @@ export async function apiFetch<T>(
     ...(headers as Record<string, string>),
   };
 
-  if (auth) {
-    const token = getAccessToken();
-    if (token) finalHeaders["Authorization"] = token;
+  if (auth && token) {
+    finalHeaders["Authorization"] = token;
   }
 
   let res: Response;
@@ -226,6 +276,7 @@ export async function apiFetch<T>(
     try {
       res = await fetch(`${API_BASE_URL}${path}`, {
         ...rest,
+        method,
         headers: finalHeaders,
         cache: "no-store",
       });
@@ -253,6 +304,7 @@ export async function apiFetch<T>(
         return await apiFetch<T>(path, { ...options, retry: true });
       }
       clearTokens();
+      clearApiCache();
     }
 
     if (!res.ok) {
@@ -262,8 +314,14 @@ export async function apiFetch<T>(
       throw new ApiError(friendlyArabicMessage, res.status, body);
     }
 
+    // Save successful GET response to in-memory cache
+    if (isGet && typeof window !== "undefined") {
+      apiCache.set(cacheKey, { data: body, timestamp: Date.now() });
+    }
+
     return body as T;
   } finally {
     if (!retry) updateLoadingState(false);
   }
 }
+

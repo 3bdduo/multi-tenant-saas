@@ -38,12 +38,12 @@ export default function PatientHomePage() {
           <div className="flex gap-2">
             <Link href="/patient/appointments">
               <Button variant="vibrant" size="sm" className="shadow-glow-cyan">
-                 حجز موعد جديد
+                حجز موعد جديد
               </Button>
             </Link>
             <Link href="/patient/profile">
               <Button variant="outline" size="sm">
-                ️ تعديل البروفايل
+                تعديل البروفايل
               </Button>
             </Link>
           </div>
@@ -54,20 +54,14 @@ export default function PatientHomePage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Link href="/patient/records">
           <Card hover className="p-5 flex items-center gap-4 cursor-pointer border-accent/20">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent text-2xl font-black">
-              ️
-            </div>
             <div>
-              <p className="font-display font-bold text-text-primary text-base">السجلات الطبية المشتركة</p>
-              <p className="text-xs text-text-secondary mt-0.5">الاطلاع على تشخيصات الدكتور والأدوية والروشتات</p>
+              <p className="font-display font-bold text-text-primary text-base">السجلات الطبية المشتركة والمستندات</p>
+              <p className="text-xs text-text-secondary mt-0.5">الاطلاع على تشخيصات الدكتور والأدوية والروشتات والمستندات</p>
             </div>
           </Card>
         </Link>
         <Link href="/patient/notifications">
           <Card hover className="p-5 flex items-center gap-4 cursor-pointer border-success/20">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-success-soft text-success text-2xl font-black">
-              
-            </div>
             <div>
               <p className="font-display font-bold text-text-primary text-base">صندوق الإشعارات والتنبيهات</p>
               <p className="text-xs text-text-secondary mt-0.5">رسائل وتنبيهات مباشرة من عيادتك الخاصة</p>
@@ -80,7 +74,7 @@ export default function PatientHomePage() {
       <Card>
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-border/50">
           <h2 className="font-display text-base font-bold text-text-primary">
-             مواعيدك الأخيرة والقادمة
+            مواعيدك الأخيرة والقادمة
           </h2>
           <Link href="/patient/appointments">
             <span className="text-xs font-bold text-primary hover:underline cursor-pointer">إدارة الحجوزات ←</span>

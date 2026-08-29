@@ -4,16 +4,24 @@ import { FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getMyPatientById, updatePatientByDoctor } from "@/lib/api/patient";
-import { getMedicalRecordsForPatient } from "@/lib/api/medicalRecord";
+import { getMedicalRecordsForPatient, getPatientDocuments } from "@/lib/api/medicalRecord";
 import { getMyAppointments, createAppointmentByDoctor } from "@/lib/api/appointment";
 import { createNotification } from "@/lib/api/notification";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Input";
 import { ApiError } from "@/lib/http";
-import type { Appointment, MedicalRecord, Patient } from "@/types/api";
+import type { Appointment, MedicalRecord, Patient, PatientDocument } from "@/types/api";
 
-type Tab = "records" | "appointments" | "edit" | "notify";
+type Tab = "records" | "documents" | "appointments" | "edit" | "notify";
+
+const TABS: { key: Tab; label: string }[] = [
+  { key: "records", label: "السجلات الطبية" },
+  { key: "documents", label: "المستندات والفحوصات المرفوعة" },
+  { key: "appointments", label: "المواعيد" },
+  { key: "edit", label: "تعديل البيانات" },
+  { key: "notify", label: "إرسال إشعار" },
+];
 
 export default function DoctorPatientDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +29,7 @@ export default function DoctorPatientDetailPage() {
 
   const [patient, setPatient] = useState<Patient | null>(null);
   const [records, setRecords] = useState<MedicalRecord[]>([]);
+  const [documents, setDocuments] = useState<PatientDocument[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("records");
@@ -50,9 +59,10 @@ export default function DoctorPatientDetailPage() {
     if (!id) return;
     async function load() {
       try {
-        const [patRes, recRes, apptRes] = await Promise.allSettled([
+        const [patRes, recRes, docRes, apptRes] = await Promise.allSettled([
           getMyPatientById(id),
           getMedicalRecordsForPatient(id),
+          getPatientDocuments(id),
           getMyAppointments(),
         ]);
 
@@ -67,15 +77,14 @@ export default function DoctorPatientDetailPage() {
           });
         }
         if (recRes.status === "fulfilled") setRecords(recRes.value.data.medicalRecords ?? []);
+        if (docRes.status === "fulfilled") setDocuments(docRes.value.data.documents ?? []);
         if (apptRes.status === "fulfilled") {
           const all = apptRes.value.data.appointments ?? [];
-          // Filter only this patient's appointments
           const filtered = all.filter((a) => {
             const pId = typeof a.patientId === "object" ? a.patientId._id : a.patientId;
             return pId === id;
           });
           setAppointments(filtered);
-          // Try to get doctorId from appointments to prefill booking
           if (filtered.length > 0) {
             const dId = typeof filtered[0].doctorId === "object" ? filtered[0].doctorId._id : filtered[0].doctorId;
             setBookDoctorId(dId);
@@ -93,7 +102,6 @@ export default function DoctorPatientDetailPage() {
     setEditError(null);
     setEditSaving(true);
     try {
-      // Only send firstName, lastName, phoneNumber — nationalId must NOT be sent
       await updatePatientByDoctor(id, {
         firstName: editForm.firstName,
         lastName: editForm.lastName,
@@ -147,46 +155,29 @@ export default function DoctorPatientDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-4 animate-fade-in">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-24 animate-pulse rounded-2xl bg-border/50" />
-        ))}
+      <div className="flex flex-col gap-6 animate-fade-in">
+        <Card className="h-44 animate-pulse bg-surface-raised" />
+        <Card className="h-64 animate-pulse bg-surface-raised" />
       </div>
     );
   }
 
   if (!patient) {
     return (
-      <Card className="mx-auto max-w-lg text-center p-8 border-danger/30">
-        <p className="text-danger font-bold">لم يتم العثور على بيانات المريض أو لا تملك صلاحية الوصول</p>
-        <Button className="mt-4" variant="secondary" onClick={() => router.back()}>العودة</Button>
-      </Card>
+      <div className="text-center py-20 animate-fade-in">
+        <p className="text-xl font-bold text-text-primary">لم يتم العثور على المريض</p>
+        <Button className="mt-4" onClick={() => router.back()}>
+          الرجوع للخلف
+        </Button>
+      </div>
     );
   }
 
-  const TABS: { key: Tab; label: string; emoji: string }[] = [
-    { key: "records", label: "السجلات الطبية", emoji: "️" },
-    { key: "appointments", label: "المواعيد", emoji: "" },
-    { key: "edit", label: "تعديل البيانات", emoji: "️" },
-    { key: "notify", label: "إرسال إشعار", emoji: "" },
-  ];
-
   return (
-    <div className="flex flex-col gap-6 animate-fade-in">
-      {/* Back */}
-      <button
-        onClick={() => router.back()}
-        className="flex items-center gap-2 text-sm text-text-secondary hover:text-primary transition-colors w-fit"
-      >
-        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-        العودة لقائمة المرضى
-      </button>
-
-      {/* Patient Hero Card */}
-      <Card glass vibrant className="border-primary/20 p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="flex flex-col gap-6 animate-fade-in pb-12">
+      {/* Patient Header Card */}
+      <Card glass vibrant className="p-5 sm:p-7">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 sm:gap-5 min-w-0">
             <div className="flex h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-accent/20 text-xl sm:text-2xl font-black text-primary shadow-glow-cyan">
               {patient.firstName?.[0]?.toUpperCase() ?? "م"}
@@ -196,15 +187,15 @@ export default function DoctorPatientDetailPage() {
                 {patient.firstName} {patient.lastName}
               </h1>
               <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm text-text-secondary">
-                <span> {patient.phoneNumber}</span>
-                {patient.email && <span> {patient.email}</span>}
-                {patient.nationalId && <span>🪪 {patient.nationalId}</span>}
+                <span dir="ltr">الهاتف: {patient.phoneNumber}</span>
+                {patient.email && <span>البريد: {patient.email}</span>}
+                {patient.nationalId && <span>الرقم القومي: {patient.nationalId}</span>}
               </div>
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
             <Link href={`/doctor/medical-records/new?patientId=${id}`} className="w-full sm:w-auto">
-              <Button variant="vibrant" size="sm" className="shadow-glow-cyan w-full sm:w-auto justify-center">
+              <Button variant="vibrant" size="sm" className="shadow-glow-cyan w-full sm:w-auto justify-center font-bold">
                 + سجل طبي جديد
               </Button>
             </Link>
@@ -212,16 +203,20 @@ export default function DoctorPatientDetailPage() {
         </div>
 
         {/* Quick Stats */}
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
           <div className="rounded-xl bg-surface-raised px-3.5 sm:px-4 py-2.5 sm:py-3">
-            <p className="text-xs text-text-secondary">عدد السجلات الطبية</p>
+            <p className="text-xs text-text-secondary">السجلات الطبية</p>
             <p className="mt-1 text-xl sm:text-2xl font-bold text-text-primary">{records.length}</p>
+          </div>
+          <div className="rounded-xl bg-surface-raised px-3.5 sm:px-4 py-2.5 sm:py-3">
+            <p className="text-xs text-text-secondary">المستندات المرفوعة</p>
+            <p className="mt-1 text-xl sm:text-2xl font-bold text-accent">{documents.length}</p>
           </div>
           <div className="rounded-xl bg-surface-raised px-3.5 sm:px-4 py-2.5 sm:py-3">
             <p className="text-xs text-text-secondary">عدد المواعيد</p>
             <p className="mt-1 text-xl sm:text-2xl font-bold text-text-primary">{appointments.length}</p>
           </div>
-          <div className="rounded-xl bg-surface-raised px-3.5 sm:px-4 py-2.5 sm:py-3 col-span-2 sm:col-span-1">
+          <div className="rounded-xl bg-surface-raised px-3.5 sm:px-4 py-2.5 sm:py-3">
             <p className="text-xs text-text-secondary">تاريخ التسجيل</p>
             <p className="mt-1 text-xs sm:text-sm font-bold text-text-primary">
               {new Date(patient.createdAt).toLocaleDateString("ar-EG")}
@@ -239,12 +234,16 @@ export default function DoctorPatientDetailPage() {
               onClick={() => setActiveTab(t.key)}
               className={`flex items-center gap-1.5 sm:gap-2 rounded-xl px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition-all duration-200 whitespace-nowrap shrink-0 ${
                 activeTab === t.key
-                  ? "bg-primary text-surface shadow-glow-cyan"
+                  ? "bg-primary text-surface shadow-glow-cyan font-black"
                   : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
               }`}
             >
-              <span>{t.emoji}</span>
               <span>{t.label}</span>
+              {t.key === "documents" && documents.length > 0 && (
+                <span className="rounded-full bg-accent text-surface text-[10px] px-1.5 py-0.2">
+                  {documents.length}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -286,7 +285,7 @@ export default function DoctorPatientDetailPage() {
                       </span>
                     </div>
                   </div>
-                  {r.medications.length > 0 && (
+                  {r.medications && r.medications.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-1">
                       {r.medications.slice(0, 3).map((m, i) => (
                         <span key={i} className="rounded-lg bg-primary/10 px-2.5 py-1 text-xs text-primary font-medium">
@@ -307,6 +306,79 @@ export default function DoctorPatientDetailPage() {
         </div>
       )}
 
+      {/* Documents Tab */}
+      {activeTab === "documents" && (
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between px-1">
+            <h3 className="font-bold text-base text-text-primary">
+              المستندات والفحوصات المرفوعة من المريض ({documents.length})
+            </h3>
+            <p className="text-xs text-text-secondary">
+              تظهر هنا جميع التحاليل والتقارير التي رفعها المريض مع تاريخ ووقت الرفع
+            </p>
+          </div>
+
+          {documents.length === 0 ? (
+            <Card className="py-16 text-center text-text-secondary">
+              <p className="text-base font-semibold">لم يقم المريض برفع أي مستندات حتى الآن</p>
+            </Card>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {documents.map((doc) => {
+                const uploadDate = new Date(doc.createdAt);
+                const dateStr = uploadDate.toLocaleDateString("ar-EG", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                });
+                const timeStr = uploadDate.toLocaleTimeString("ar-EG", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                });
+
+                const isImage =
+                  doc.fileUrl.endsWith(".jpg") ||
+                  doc.fileUrl.endsWith(".jpeg") ||
+                  doc.fileUrl.endsWith(".png") ||
+                  doc.fileUrl.endsWith(".webp") ||
+                  doc.fileUrl.includes("image");
+
+                return (
+                  <Card key={doc._id} hover className="flex flex-col justify-between gap-3 p-4 sm:p-5 border-border/60">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-sm text-text-primary truncate">
+                            {doc.fileName || "مستند مرفق"}
+                          </p>
+                          <div className="flex flex-wrap gap-x-2 text-[11px] text-text-secondary mt-0.5">
+                            <span>تاريخ الرفع: {dateStr}</span>
+                            <span>الساعة: {timeStr}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {isImage && (
+                        <div className="mt-3 rounded-xl overflow-hidden border border-border/50 bg-bg max-h-36 flex items-center justify-center">
+                          <img src={doc.fileUrl} alt="doc" className="max-h-36 object-contain" />
+                        </div>
+                      )}
+                    </div>
+
+                    <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="mt-2">
+                      <Button variant="outline" size="sm" className="w-full font-bold justify-center">
+                        عرض / تحميل المستند
+                      </Button>
+                    </a>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Appointments Tab */}
       {activeTab === "appointments" && (
         <div className="flex flex-col gap-4">
@@ -314,13 +386,6 @@ export default function DoctorPatientDetailPage() {
           <Card className="border-primary/20">
             <h3 className="font-display text-base font-bold text-text-primary mb-4">حجز موعد جديد</h3>
             <form onSubmit={handleBook} className="flex flex-col gap-4">
-              <Field
-                label="معرّف الطبيب (doctorId)"
-                required
-                value={bookDoctorId}
-                onChange={(e) => setBookDoctorId(e.target.value)}
-                placeholder="ID الطبيب"
-              />
               <Field
                 label="تاريخ الموعد"
                 type="date"
@@ -337,7 +402,7 @@ export default function DoctorPatientDetailPage() {
               />
               {bookError && <p className="text-sm text-danger">{bookError}</p>}
               {bookSuccess && <p className="text-sm text-success font-bold"> تم حجز الموعد بنجاح!</p>}
-              <Button type="submit" variant="vibrant" disabled={booking} className="shadow-glow-cyan">
+              <Button type="submit" variant="vibrant" disabled={booking} className="shadow-glow-cyan font-bold">
                 {booking ? "جارٍ الحجز..." : "حجز الموعد"}
               </Button>
             </form>
@@ -412,11 +477,11 @@ export default function DoctorPatientDetailPage() {
               onChange={(e) => setEditForm((f) => ({ ...f, phoneNumber: e.target.value }))}
             />
             <p className="text-xs text-text-secondary rounded-lg bg-surface-raised px-3 py-2">
-              ️ الرقم القومي (nationalId) والبريد الإلكتروني لا يمكن تعديلهما
+              الرقم القومي (nationalId) والبريد الإلكتروني لا يمكن تعديلهما
             </p>
             {editError && <p className="text-sm text-danger">{editError}</p>}
             {editSuccess && <p className="text-sm text-success font-bold"> تم تحديث البيانات بنجاح!</p>}
-            <Button type="submit" variant="vibrant" disabled={editSaving} className="shadow-glow-cyan">
+            <Button type="submit" variant="vibrant" disabled={editSaving} className="shadow-glow-cyan font-bold">
               {editSaving ? "جارٍ الحفظ..." : "حفظ التعديلات"}
             </Button>
           </form>
@@ -446,8 +511,8 @@ export default function DoctorPatientDetailPage() {
             />
             {notifError && <p className="text-sm text-danger">{notifError}</p>}
             {notifSuccess && <p className="text-sm text-success font-bold"> تم إرسال الإشعار بنجاح!</p>}
-            <Button type="submit" variant="vibrant" disabled={notifSending} className="shadow-glow-cyan">
-              {notifSending ? "جارٍ الإرسال..." : "إرسال الإشعار "}
+            <Button type="submit" variant="vibrant" disabled={notifSending} className="shadow-glow-cyan font-bold">
+              {notifSending ? "جارٍ الإرسال..." : "إرسال الإشعار"}
             </Button>
           </form>
         </Card>

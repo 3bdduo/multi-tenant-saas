@@ -108,18 +108,18 @@ export default function PatientProfilePage() {
 
         <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
-            { label: "البريد الإلكتروني", value: profile.email, emoji: "" },
-            { label: "رقم الهاتف", value: profile.phoneNumber, emoji: "" },
-            { label: "تاريخ التسجيل", value: new Date(profile.createdAt).toLocaleDateString("ar-EG"), emoji: "" },
-          ].map(({ label, value, emoji }) => (
+            { label: "البريد الإلكتروني", value: profile.email },
+            { label: "رقم الهاتف", value: profile.phoneNumber },
+            { label: "تاريخ التسجيل", value: new Date(profile.createdAt).toLocaleDateString("ar-EG") },
+          ].map(({ label, value }) => (
             <div key={label} className="rounded-xl bg-surface-raised px-4 py-3">
-              <p className="text-xs text-text-secondary">{emoji} {label}</p>
+              <p className="text-xs text-text-secondary">{label}</p>
               <p className="mt-0.5 text-sm font-semibold text-text-primary">{value ?? "—"}</p>
             </div>
           ))}
           {profile.nationalId && (
             <div className="rounded-xl bg-surface-raised px-4 py-3">
-              <p className="text-xs text-text-secondary">🪪 الرقم القومي</p>
+              <p className="text-xs text-text-secondary">الرقم القومي</p>
               <p className="mt-0.5 text-sm font-semibold text-text-primary" dir="ltr">
                 {profile.nationalId}
               </p>
@@ -130,14 +130,14 @@ export default function PatientProfilePage() {
 
       {success && (
         <div className="rounded-xl bg-success/10 border border-success/20 px-4 py-3 text-sm text-success font-bold animate-fade-in">
-           تم تحديث بياناتك بنجاح!
+          تم تحديث بياناتك بنجاح!
         </div>
       )}
 
       {/* Edit Section */}
       <Card>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-base font-bold text-text-primary">️ تعديل البيانات</h2>
+          <h2 className="font-display text-base font-bold text-text-primary">تعديل البيانات</h2>
           {!editing && (
             <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
               تعديل
@@ -196,7 +196,7 @@ export default function PatientProfilePage() {
             />
 
             <p className="sm:col-span-2 text-xs text-text-secondary rounded-lg bg-surface-raised px-3 py-2">
-              ️ الرقم القومي لا يمكن تعديله
+              الرقم القومي لا يمكن تعديله
             </p>
 
             {error && (

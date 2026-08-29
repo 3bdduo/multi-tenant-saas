@@ -324,8 +324,10 @@ export default function PatientNotificationsPage() {
 
             {filteredList.length === 0 && (
               <div className="py-16 text-center flex flex-col items-center justify-center bg-surface-raised rounded-2xl border border-border/40 border-dashed">
-                <div className="h-16 w-16 bg-border/50 rounded-full flex items-center justify-center text-text-secondary mb-3 opacity-60 text-2xl">
-                  🔔
+                <div className="h-14 w-14 bg-border/50 rounded-full flex items-center justify-center text-text-secondary mb-3 opacity-60">
+                  <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
                 </div>
                 <p className="text-base font-bold text-text-primary">لا توجد إشعارات في هذا القسم</p>
                 <p className="text-xs text-text-secondary mt-1">ستظهر هنا أي رسائل أو تنبيهات تُرسل إليك فوراً.</p>

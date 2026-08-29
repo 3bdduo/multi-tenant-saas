@@ -15,7 +15,7 @@ import { Logo } from "@/components/ui/Logo";
 export default function AdminLoginPage() {
   const router = useRouter();
   const { login } = useAuth();
-  const [username, setUsername] = useState("");
+  const [nationalId, setNationalId] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
@@ -24,8 +24,9 @@ export default function AdminLoginPage() {
   function validate(): boolean {
     const errs: Record<string, string> = {};
 
-    if (!username || !username.trim()) {
-      errs.username = "اسم المستخدم مطلوب";
+    const cleanId = nationalId.trim();
+    if (!cleanId) {
+      errs.nationalId = "الرقم القومي مطلوب";
     }
 
     const passErr = validatePassword(password);
@@ -45,7 +46,7 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
-      const role = await login({ nationalId: username.trim(), password });
+      const role = await login({ nationalId: nationalId.trim(), password });
       if (role === "Admin") {
         router.push("/admin");
       } else {
@@ -71,29 +72,30 @@ export default function AdminLoginPage() {
             <Logo size="lg" href={null} />
           </div>
           <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-bold text-accent mb-2">
-            <span>️</span>
             <span>بوابة الإدارة والمشرفين</span>
           </div>
           <h1 className="font-display text-2xl font-extrabold text-text-primary">
             تسجيل دخول المشرف
           </h1>
           <p className="mt-1.5 text-sm text-text-secondary">
-            أدخل اسم المستخدم وكلمة المرور للوصول إلى لوحة التحكم الإدارية
+            أدخل الرقم القومي وكلمة المرور للوصول إلى لوحة التحكم الإدارية
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5" noValidate>
           <Field
-            label="اسم المستخدم (Username)"
+            label="الرقم القومي (National ID)"
             type="text"
             required
-            value={username}
+            value={nationalId}
             onChange={(e) => {
-              setUsername(e.target.value);
-              if (fieldErrors.username) setFieldErrors((prev) => ({ ...prev, username: "" }));
+              setNationalId(e.target.value);
+              if (fieldErrors.nationalId) setFieldErrors((prev) => ({ ...prev, nationalId: "" }));
             }}
-            error={fieldErrors.username}
-            placeholder="مثال: admin"
+            error={fieldErrors.nationalId}
+            placeholder="مثال: 29801011234567"
+            dir="ltr"
+            className="text-right"
           />
           <Field
             label="كلمة المرور (Password)"

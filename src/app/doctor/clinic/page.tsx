@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClinic, getMe, getMyClinic, updateMyClinic, updateClinicStatus } from "@/lib/api/doctor";
 import { Card } from "@/components/ui/Card";
 import { Field, SelectField, TextAreaField } from "@/components/ui/Input";
+import { SpecialtySelect } from "@/components/ui/SpecialtySelect";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/http";
 import { GOVERNORATES, EGYPT_LOCATIONS, getVillages } from "@/lib/egyptLocations";
@@ -431,13 +432,11 @@ export default function DoctorClinicPage() {
                     placeholder="مثال: عيادة الأمل التخصصية"
                     className="sm:col-span-2"
                   />
-                  <Field
-                    label="التخصص الطبي *"
-                    required
+                  <SpecialtySelect
                     value={draft.specialization}
-                    onChange={(e) => updateDraft("specialization", e.target.value)}
-                    placeholder="مثال: باطنة / أطفال / جلدية"
+                    onChangeValue={(val) => updateDraft("specialization", val)}
                     className="sm:col-span-2"
+                    required
                   />
                   <Field
                     label="سعر الكشف للمريض الجديد (ج.م) *"
@@ -604,13 +603,11 @@ export default function DoctorClinicPage() {
                   placeholder="مثال: عيادة الأمل الطبية"
                   className="sm:col-span-2"
                 />
-                <Field
-                  label="التخصص الطبي *"
-                  required
+                <SpecialtySelect
                   value={draft.specialization}
-                  onChange={(e) => updateDraft("specialization", e.target.value)}
-                  placeholder="مثال: باطنة / أطفال"
+                  onChangeValue={(val) => updateDraft("specialization", val)}
                   className="sm:col-span-2"
+                  required
                 />
                 <Field
                   label="سعر الكشف للمريض الجديد (ج.م) *"

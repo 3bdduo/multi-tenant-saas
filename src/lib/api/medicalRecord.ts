@@ -4,6 +4,7 @@ import type {
   CreateMedicalRecordPayload,
   ExtractedPrescription,
   MedicalRecord,
+  PatientDocument,
 } from "@/types/api";
 
 // POST /medical-record/extract
@@ -49,5 +50,29 @@ export function getMedicalRecordById(id: string) {
 export function getMyMedicalRecords() {
   return apiFetch<ApiEnvelope<{ medicalRecords: MedicalRecord[] }>>(
     "/medical-record"
+  );
+}
+
+// POST /medical-record/patient/upload  (patient uploads a document file)
+export function uploadPatientDocument(file: File) {
+  const form = new FormData();
+  form.append("file", file);
+  return apiFetch<ApiEnvelope<{ document: PatientDocument }>>(
+    "/medical-record/patient/upload",
+    { method: "POST", body: form }
+  );
+}
+
+// GET /medical-record/patient/my-documents  (patient views their uploaded documents)
+export function getMyDocuments() {
+  return apiFetch<ApiEnvelope<{ documents: PatientDocument[] }>>(
+    "/medical-record/patient/my-documents"
+  );
+}
+
+// GET /medical-record/patient/documents/:patientId  (doctor views patient's documents)
+export function getPatientDocuments(patientId: string) {
+  return apiFetch<ApiEnvelope<{ documents: PatientDocument[] }>>(
+    `/medical-record/patient/documents/${patientId}`
   );
 }

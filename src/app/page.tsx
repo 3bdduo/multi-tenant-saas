@@ -28,7 +28,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <Link href="/clinics">
               <Button variant="vibrant" size="sm" className="font-bold shadow-glow-cyan text-xs sm:text-sm">
-                تصفح العيادات واحجز كشفك 🩺
+                تصفح العيادات واحجز كشفك 
               </Button>
             </Link>
             <ThemeToggle />
@@ -54,7 +54,7 @@ export default function LandingPage() {
             </span>
             <Link href="/clinics">
               <span className="inline-flex items-center gap-1 rounded-xl bg-primary px-3 py-1.5 text-xs font-black text-surface shadow-glow-cyan hover:opacity-90 transition-all">
-                استعراض العيادات والمواعيد المتاحة ↗
+                استعراض العيادات والمواعيد المتاحة
               </span>
             </Link>
           </div>
@@ -128,7 +128,7 @@ export default function LandingPage() {
               <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mb-2" />
               <Link href="/clinics" className="w-full">
                 <Button variant="vibrant" size="lg" className="w-full justify-center text-sm font-bold shadow-glow-cyan">
-                  🩺 تصفح العيادات وحجز كشف أونلاين
+                   تصفح العيادات وحجز كشف أونلاين
                 </Button>
               </Link>
               <Link href="/login" className="w-full">

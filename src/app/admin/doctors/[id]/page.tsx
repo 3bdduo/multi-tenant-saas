@@ -99,7 +99,7 @@ export default function AdminDoctorDetailPage() {
       <Card glass vibrant className="border-primary/20">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
           <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-accent/20 text-2xl font-black text-primary">
-            ‍️
+            {doctor.firstName?.[0]?.toUpperCase() ?? "د"}
           </div>
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-3">
@@ -113,13 +113,13 @@ export default function AdminDoctorDetailPage() {
                     : "bg-warning/15 text-warning border border-warning/30"
                 }`}
               >
-                {doctor.isPaid && !subExpired ? " اشتراك فعّال" : "️ اشتراك منتهي"}
+                {doctor.isPaid && !subExpired ? "اشتراك فعّال" : "اشتراك منتهي"}
               </span>
             </div>
             <div className="mt-2 flex flex-wrap gap-4 text-sm text-text-secondary">
-              <span> {doctor.email}</span>
-              <span> {doctor.phoneNumber}</span>
-              <span> @{doctor.userName}</span>
+              <span>{doctor.email}</span>
+              <span>{doctor.phoneNumber}</span>
+              <span>@{doctor.userName}</span>
             </div>
           </div>
         </div>
@@ -152,7 +152,7 @@ export default function AdminDoctorDetailPage() {
       {/* Clinic Details */}
       {clinic && (
         <Card>
-          <h2 className="font-display text-base font-bold text-text-primary mb-4"> بيانات العيادة</h2>
+          <h2 className="font-display text-base font-bold text-text-primary mb-4">بيانات العيادة</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
               { label: "اسم العيادة", value: clinic.name },
@@ -188,7 +188,7 @@ export default function AdminDoctorDetailPage() {
 
       {/* Actions */}
       <Card className="border-warning/20">
-        <h2 className="font-display text-base font-bold text-text-primary mb-4">️ إجراءات الاشتراك</h2>
+        <h2 className="font-display text-base font-bold text-text-primary mb-4">إجراءات الاشتراك</h2>
 
         <div className="flex flex-col sm:flex-row items-end gap-3">
           <div className="flex flex-col gap-1">
@@ -227,7 +227,7 @@ export default function AdminDoctorDetailPage() {
 
       {/* Danger Zone */}
       <Card className="border-danger/20">
-        <h2 className="font-display text-base font-bold text-danger mb-2">️ منطقة الخطر</h2>
+        <h2 className="font-display text-base font-bold text-danger mb-2">منطقة الخطر</h2>
         <p className="text-xs text-text-secondary mb-4">
           حذف الطبيب سيؤدي إلى حذف عيادته أيضاً. هذا الإجراء لا يمكن التراجع عنه.
         </p>

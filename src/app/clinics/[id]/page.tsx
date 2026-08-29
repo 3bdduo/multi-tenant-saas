@@ -4,8 +4,9 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getPublicClinicById, getPublicClinicSlots } from "@/lib/api/public";
 import { createAppointmentByPatient, getMyAppointments } from "@/lib/api/appointment";
+import { getMyProfile } from "@/lib/api/patient";
 import { useAuth } from "@/hooks/useAuth";
-import type { Clinic } from "@/types/api";
+import type { Clinic, Patient } from "@/types/api";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/http";
@@ -30,9 +31,7 @@ const DAY_MAP: Record<string, string> = {
 function formatTime(iso: string) {
   try {
     const d = new Date(iso);
-    if (isNaN(d.getTime())) {
-      return iso.slice(0, 5);
-    }
+    if (isNaN(d.getTime())) return iso.slice(0, 5);
     return d.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", hour12: true });
   } catch {
     return iso;
@@ -46,13 +45,17 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
 
   const [clinic, setClinic] = useState<Clinic | null>(null);
   const [loading, setLoading] = useState(true);
+  const [patientProfile, setPatientProfile] = useState<Patient | null>(null);
 
   // Booking form state
   const [date, setDate] = useState(tomorrow());
-  const [notes, setNotes] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
   const [visitingType, setVisitingType] = useState<"NEW" | "FOLLOW_UP">("NEW");
   const [hasPreviousVisit, setHasPreviousVisit] = useState(false);
+
+  // Booking confirmation modal
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [contactPhone, setContactPhone] = useState("");
 
   // Slots state (only for time clinics)
   const [slots, setSlots] = useState<string[]>([]);
@@ -77,26 +80,33 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
           const loadedClinic = res.data.clinic;
           setClinic(loadedClinic);
 
-          // If patient is logged in, check if they have a previous booking with this clinic/doctor
           if (isAuthenticated && role === "Patient") {
+            // Load patient profile for modal pre-fill
+            try {
+              const profileRes = await getMyProfile();
+              setPatientProfile(profileRes.data.patient);
+            } catch { /* ignore */ }
+
+            // Check previous visits
             try {
               const apptsRes = await getMyAppointments();
               const myAppts = apptsRes.data.appointments ?? [];
-              const docId = typeof loadedClinic.doctorId === "string" ? loadedClinic.doctorId : loadedClinic.doctorId?._id;
-              
+              const docId = typeof loadedClinic.doctorId === "string"
+                ? loadedClinic.doctorId
+                : loadedClinic.doctorId?._id;
               const prev = myAppts.some((a) => {
                 const aDocId = typeof a.doctorId === "object" ? a.doctorId?._id : a.doctorId;
                 const aClinicId = typeof a.clinicId === "object" ? a.clinicId?._id : a.clinicId;
-                return (aDocId === docId || aClinicId === params.id) && (a.status === "completed" || a.status === "confirmed" || a.status === "pending");
+                return (
+                  (aDocId === docId || aClinicId === params.id) &&
+                  (a.status === "completed" || a.status === "confirmed" || a.status === "pending")
+                );
               });
-
               if (prev) {
                 setHasPreviousVisit(true);
-                setVisitingType("FOLLOW_UP"); // Auto-select follow-up discount for returning patient
+                setVisitingType("FOLLOW_UP");
               }
-            } catch {
-              // Ignore history error
-            }
+            } catch { /* ignore */ }
           }
         }
       } catch {
@@ -108,7 +118,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     load();
   }, [params.id, isAuthenticated, role]);
 
-  /* ── Fetch slots whenever date changes (time clinics only) ── */
+  /* ── Fetch slots ──────────────────────────────────────── */
   const fetchSlots = useCallback(
     async (selectedDate: string) => {
       if (!clinic || clinic.bookingType !== "time" || !selectedDate) return;
@@ -129,16 +139,13 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
   );
 
   useEffect(() => {
-    if (clinic?.bookingType === "time" && date) {
-      fetchSlots(date);
-    }
+    if (clinic?.bookingType === "time" && date) fetchSlots(date);
   }, [date, fetchSlots, clinic?.bookingType]);
 
-  /* ── Book appointment ─────────────────────────────────── */
-  async function handleBook(e: React.FormEvent) {
+  /* ── Open confirmation modal ──────────────────────────── */
+  function handleOpenConfirmModal(e: React.FormEvent) {
     e.preventDefault();
     if (!date) return;
-
     if (!isAuthenticated) {
       router.push(`/login?redirect=/clinics/${params.id}`);
       return;
@@ -147,32 +154,40 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
       setMessage({ type: "error", text: "فقط المرضى يمكنهم الحجز. يرجى تسجيل الدخول كـ مريض." });
       return;
     }
+    setShowConfirmModal(true);
+  }
+
+  /* ── Confirm booking ──────────────────────────────────── */
+  async function handleConfirmBook() {
+    if (!date || !clinic) return;
 
     const doctorId =
-      typeof clinic?.doctorId === "string" ? clinic.doctorId : clinic?.doctorId?._id;
+      typeof clinic.doctorId === "string" ? clinic.doctorId : clinic.doctorId?._id;
     if (!doctorId) {
       setMessage({ type: "error", text: "لا يمكن تحديد الطبيب المعالج لهذه العيادة." });
+      setShowConfirmModal(false);
       return;
     }
 
     setBookingLoading(true);
     setMessage(null);
+    setShowConfirmModal(false);
 
     try {
       const payload: {
         doctorId: string;
         date: string;
         startTime?: string;
-        notes?: string;
         visitingType?: "NEW" | "FOLLOW_UP";
+        contactPhone?: string;
       } = {
         doctorId,
         date,
-        notes: notes || undefined,
         visitingType,
+        contactPhone: contactPhone || undefined,
       };
 
-      if (clinic?.bookingType === "time") {
+      if (clinic.bookingType === "time") {
         payload.startTime = selectedSlot;
       }
 
@@ -189,7 +204,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
         setMessage({
           type: "success",
           text:
-            clinic?.bookingType === "queue"
+            clinic.bookingType === "queue"
               ? `تم حجز موعد (${visitLabel}) بنجاح! رقمك في الدور: ${appt.queueNumber ?? "—"}`
               : `تم حجز موعد (${visitLabel}) بنجاح! موعدك الساعة ${appt.startTime ? appt.startTime.slice(11, 16) : selectedSlot}`,
           queueNumber: appt.queueNumber,
@@ -197,13 +212,10 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
         });
       }
 
-      // Reset form
       setDate(tomorrow());
       setSelectedSlot("");
-      setNotes("");
-
-      // Refresh slots after booking
-      if (clinic?.bookingType === "time") fetchSlots(tomorrow());
+      setContactPhone("");
+      if (clinic.bookingType === "time") fetchSlots(tomorrow());
     } catch (err: any) {
       if (err instanceof ApiError && err.status === 409) {
         setMessage({
@@ -245,18 +257,16 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
   const isQueue = clinic.bookingType !== "time";
   const isInactive = clinic.isActive === false;
   const followUpPrice = clinic.followUpPrice != null ? clinic.followUpPrice : clinic.consultationPrice;
-
-  // Disable booking button logic
   const canSubmit =
-    !isInactive &&
-    date &&
-    (isQueue || (selectedSlot !== "" && !slotsLoading));
+    !isInactive && date && (isQueue || (selectedSlot !== "" && !slotsLoading));
+
+  const currentPrice = visitingType === "FOLLOW_UP" ? followUpPrice : clinic.consultationPrice;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-12 md:px-12 animate-fade-in">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <Button variant="ghost" size="sm" onClick={() => router.push("/clinics")} className="mb-3 sm:mb-4 text-xs sm:text-sm">
+        <Button variant="ghost" size="sm" onClick={() => router.push("/clinics")} className="mb-3 sm:mb-4 font-bold">
           العودة لقائمة العيادات
         </Button>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
@@ -299,22 +309,10 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
           </p>
 
           <div className="space-y-0 divide-y divide-border/40 text-sm">
-            <InfoRow label="سعر الكشف (جديد)" value={`${clinic.consultationPrice} ج.م`} accent />
-            <InfoRow label="سعر إعادة الكشف / متابعة" value={`${followUpPrice} ج.م`} accent />
+            <InfoRow label="سعر الكشف (جديد)" value={clinic.consultationPrice != null ? `${clinic.consultationPrice} ج.م` : "غير محدد"} accent />
+            <InfoRow label="سعر إعادة الكشف / متابعة" value={followUpPrice != null ? `${followUpPrice} ج.م` : "غير محدد"} accent />
             <InfoRow label="العنوان" value={clinic.street || "غير محدد"} />
-            <InfoRow label="رقم الهاتف" value={clinic.phoneNumber} dir="ltr" />
-            <InfoRow
-              label="مدة الكشف"
-              value={
-                isQueue
-                  ? "حجز بأسبقية الحضور"
-                  : `${(clinic as any).slotDuration || "—"} دقيقة`
-              }
-            />
-            <InfoRow
-              label="الحد الأقصى يومياً"
-              value={`${(clinic as any).maxPatientsPerDay || "—"} مريض`}
-            />
+            <InfoRow label="رقم الهاتف" value={clinic.phoneNumber || "غير متوفر"} dir="ltr" />
           </div>
 
           {/* Working days */}
@@ -358,7 +356,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
               )}
             </div>
           ) : (
-            <form onSubmit={handleBook} className="flex flex-col gap-5 flex-1">
+            <form onSubmit={handleOpenConfirmModal} className="flex flex-col gap-5 flex-1">
 
               {/* Returning Patient Recognition Banner */}
               {hasPreviousVisit && (
@@ -435,7 +433,6 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                   <label className="mb-1.5 block text-sm font-semibold text-text-primary">
                     اختر الوقت المناسب *
                   </label>
-
                   {slotsLoading ? (
                     <div className="flex items-center gap-2 rounded-xl border border-border/50 bg-surface-raised px-4 py-3 text-sm text-text-secondary">
                       <span className="h-4 w-4 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
@@ -446,13 +443,13 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                       {slotsError}
                     </div>
                   ) : slots.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                       {slots.map((slot) => (
                         <button
                           key={slot}
                           type="button"
                           onClick={() => setSelectedSlot(slot)}
-                          className={`rounded-xl border px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-bold transition-all duration-150 ${
+                          className={`rounded-xl border min-h-[42px] px-3 py-2 text-xs sm:text-sm font-bold transition-all duration-150 flex items-center justify-center ${
                             selectedSlot === slot
                               ? "bg-primary text-surface border-primary shadow-glow-cyan"
                               : "border-border/60 hover:border-primary/40 text-text-primary bg-surface-raised"
@@ -476,20 +473,6 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                   <span className="font-bold text-accent">نظام الطابور:</span> ستحصل على رقم دور تلقائياً عند تأكيد الحجز.
                 </div>
               )}
-
-              {/* Notes */}
-              <div>
-                <label className="mb-1.5 block text-sm font-semibold text-text-primary">
-                  ملاحظات (اختياري)
-                </label>
-                <textarea
-                  rows={3}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="أضف أي ملاحظات بخصوص حالتك..."
-                  className="w-full rounded-xl border border-border/80 bg-surface px-4 py-2.5 text-sm outline-none resize-none transition-all focus:border-primary focus:shadow-[0_0_0_3px_rgba(var(--color-primary-rgb),0.1)]"
-                />
-              </div>
 
               {/* Feedback message */}
               {message && (
@@ -536,9 +519,9 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                     {bookingLoading
                       ? "جارٍ تأكيد الحجز..."
                       : isQueue
-                      ? `تأكيد الحجز (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`
+                      ? `متابعة الحجز (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`
                       : selectedSlot
-                      ? `احجز الساعة ${selectedSlot} (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`
+                      ? `متابعة الحجز — ${selectedSlot} (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`
                       : "اختر وقتاً أولاً"}
                   </Button>
                 )}
@@ -547,6 +530,100 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
           )}
         </Card>
       </div>
+
+      {/* ── Booking Confirmation Modal ─────────────────────── */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <Card className="max-w-sm w-full shadow-2xl bg-surface p-5 sm:p-6">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-border/50">
+              <h3 className="font-display text-lg font-bold text-text-primary">تأكيد بيانات الحجز</h3>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="text-text-secondary hover:text-text-primary text-xl leading-none"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Booking Summary */}
+            <div className="rounded-xl bg-primary/5 border border-primary/20 p-3.5 mb-4 text-sm space-y-1.5">
+              <div className="flex justify-between">
+                <span className="text-text-secondary">نوع الكشف</span>
+                <span className="font-bold text-text-primary">
+                  {visitingType === "FOLLOW_UP" ? "إعادة كشف" : "كشف جديد"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-secondary">التاريخ</span>
+                <span className="font-bold text-text-primary" dir="ltr">{date}</span>
+              </div>
+              {!isQueue && selectedSlot && (
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">الوقت</span>
+                  <span className="font-bold text-text-primary" dir="ltr">{selectedSlot}</span>
+                </div>
+              )}
+              <div className="flex justify-between border-t border-primary/20 pt-1.5 mt-1.5">
+                <span className="text-text-secondary">السعر</span>
+                <span className="font-black text-accent text-base">{currentPrice} ج.م</span>
+              </div>
+            </div>
+
+            {/* Patient Info (pre-filled, read-only) */}
+            <div className="space-y-3 mb-4">
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1">اسم المريض</label>
+                <div className="w-full rounded-xl border border-border/60 bg-surface-raised px-4 py-2.5 text-sm text-text-primary font-semibold">
+                  {patientProfile
+                    ? `${patientProfile.firstName} ${patientProfile.lastName}`
+                    : "—"}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1">رقم الهاتف</label>
+                <div className="w-full rounded-xl border border-border/60 bg-surface-raised px-4 py-2.5 text-sm text-text-primary font-semibold" dir="ltr">
+                  {patientProfile?.phoneNumber || "—"}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1">
+                  رقم تليفون آخر للتواصل <span className="text-text-secondary font-normal">(اختياري)</span>
+                </label>
+                <input
+                  type="tel"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  placeholder="01xxxxxxxxx"
+                  dir="ltr"
+                  className="w-full rounded-xl border border-border/80 bg-surface px-4 py-2.5 text-sm outline-none transition-all focus:border-primary focus:shadow-[0_0_0_3px_rgba(var(--color-primary-rgb),0.1)]"
+                />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <Button
+                variant="ghost"
+                className="flex-1"
+                onClick={() => setShowConfirmModal(false)}
+                disabled={bookingLoading}
+              >
+                رجوع
+              </Button>
+              <Button
+                variant="vibrant"
+                className="flex-1 shadow-glow-cyan font-bold"
+                onClick={handleConfirmBook}
+                loading={bookingLoading}
+                disabled={bookingLoading}
+              >
+                {bookingLoading ? "جارٍ الحجز..." : "تأكيد الحجز"}
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

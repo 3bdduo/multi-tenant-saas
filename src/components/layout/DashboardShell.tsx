@@ -86,9 +86,9 @@ export function DashboardShell({
           }}
         >
           {/* Mobile: hamburger + title */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
             <button
-              className="flex md:hidden items-center justify-center h-9 w-9 shrink-0 rounded-xl text-text-secondary hover:bg-primary-soft/50 hover:text-primary transition-colors"
+              className="flex md:hidden items-center justify-center h-10 w-10 shrink-0 rounded-xl text-text-secondary hover:bg-primary-soft/50 hover:text-primary transition-colors"
               onClick={() => setMobileMenuOpen((v) => !v)}
               aria-label="القائمة"
             >
@@ -99,7 +99,7 @@ export function DashboardShell({
             </h1>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Quick Notification Bell */}
             {(() => {
               const notifHref = pathname.startsWith("/doctor")
@@ -117,14 +117,14 @@ export function DashboardShell({
               return (
                 <Link
                   href={notifHref}
-                  className={`flex items-center justify-center h-9 w-9 rounded-xl transition-all ${
+                  className={`flex items-center justify-center h-10 w-10 rounded-xl transition-all ${
                     isNotifActive
                       ? "bg-primary text-surface shadow-glow-cyan"
                       : "text-text-secondary hover:bg-primary-soft/50 hover:text-primary"
                   }`}
                   title="الإشعارات"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                   </svg>
@@ -134,13 +134,13 @@ export function DashboardShell({
 
             {/* Mobile logout */}
             <button
-              className="flex md:hidden items-center justify-center h-9 w-9 shrink-0 rounded-xl text-text-secondary hover:bg-danger/10 hover:text-danger transition-colors"
+              className="flex md:hidden items-center justify-center h-10 w-10 shrink-0 rounded-xl text-text-secondary hover:bg-danger/10 hover:text-danger transition-colors"
               onClick={logout}
               aria-label="تسجيل الخروج"
             >
               <LogoutIcon />
             </button>
-            <div className="shrink-0 scale-90 sm:scale-100 origin-left">
+            <div className="shrink-0">
               <ThemeToggle />
             </div>
           </div>

@@ -99,6 +99,7 @@ export interface Appointment {
   status: AppointmentStatus;
   visitingType?: "NEW" | "FOLLOW_UP";
   notes?: string;
+  contactPhone?: string;
   queueNumber?: number;
   createdAt: string;
   updatedAt: string;
@@ -127,6 +128,16 @@ export interface MedicalRecord {
   notes: string;
   prescriptionImageUrl?: string;
   visibility: "private" | "shared";
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PatientDocument {
+  _id: string;
+  patientId: string;
+  fileUrl: string;
+  publicId: string;
+  fileName?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -216,6 +227,7 @@ export interface CreateAppointmentByPatientPayload {
   startTime?: string; // HH:mm if bookingType is time
   notes?: string;
   visitingType?: "NEW" | "FOLLOW_UP";
+  contactPhone?: string;
 }
 
 // Path is /appointment/doctor/:patientId — the patient is identified in the

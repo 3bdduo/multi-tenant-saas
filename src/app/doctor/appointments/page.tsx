@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DoctorActivationBanner } from "@/components/DoctorActivationBanner";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -139,27 +139,60 @@ export default function DoctorAppointmentsPage() {
   const todayStr = new Date().toISOString().split("T")[0];
 
   // Filter appointments
-  const filteredAppointments = appointments.filter((appt) => {
-    const apptDate = appt.date ? appt.date.split("T")[0] : "";
-    if (activeTab === "active" && (appt.status === "pending" || appt.status === "confirmed")) {
-      return apptDate >= todayStr;
-    }
-    if (activeTab === "completed" && appt.status === "completed") return true;
-    if (activeTab === "cancelled" && appt.status === "cancelled") return true;
-    if (activeTab === "past" && apptDate < todayStr) return true;
+  const filteredAppointments = useMemo(() => {
+    return appointments
+      .filter((appt) => {
+        const apptDate = appt.date ? appt.date.split("T")[0] : "";
+        if (activeTab === "active" && (appt.status === "pending" || appt.status === "confirmed")) {
+          return apptDate >= todayStr;
+        }
+        if (activeTab === "completed" && appt.status === "completed") return true;
+        if (activeTab === "cancelled" && appt.status === "cancelled") return true;
+        if (activeTab === "past" && apptDate < todayStr) return true;
 
-    if (activeTab === "active" && apptDate < todayStr) return false;
-    
-    return true;
-  }).filter((appt) => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    const patientName = typeof appt.patientId === "object"
-      ? `${appt.patientId.firstName} ${appt.patientId.lastName}`
-      : appt.patientId;
-    const phone = typeof appt.patientId === "object" ? appt.patientId.phoneNumber : "";
-    return patientName.toLowerCase().includes(q) || phone.includes(q);
-  });
+        if (activeTab === "active" && apptDate < todayStr) return false;
+
+        return true;
+      })
+      .filter((appt) => {
+        if (!searchQuery.trim()) return true;
+        const q = searchQuery.toLowerCase();
+        const patientName =
+          typeof appt.patientId === "object"
+            ? `${appt.patientId.firstName} ${appt.patientId.lastName}`
+            : appt.patientId;
+        const phone = typeof appt.patientId === "object" ? appt.patientId.phoneNumber : "";
+        const contactPhone = appt.contactPhone ?? "";
+        return (
+          patientName.toLowerCase().includes(q) ||
+          phone.includes(q) ||
+          contactPhone.includes(q)
+        );
+      });
+  }, [appointments, activeTab, todayStr, searchQuery]);
+
+  // Group appointments by day
+  const groupedAppointments = useMemo(() => {
+    const groups: { [dateKey: string]: Appointment[] } = {};
+
+    filteredAppointments.forEach((appt) => {
+      const d = appt.date ? appt.date.split("T")[0] : "غير محدد";
+      if (!groups[d]) groups[d] = [];
+      groups[d].push(appt);
+    });
+
+    const sortedDates = Object.keys(groups).sort((a, b) => {
+      if (activeTab === "past" || activeTab === "completed" || activeTab === "cancelled") {
+        return b.localeCompare(a); // recent first
+      }
+      return a.localeCompare(b); // upcoming chronological
+    });
+
+    return sortedDates.map((dateKey) => ({
+      dateKey,
+      items: groups[dateKey],
+    }));
+  }, [filteredAppointments, activeTab]);
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in pb-12">
@@ -172,10 +205,14 @@ export default function DoctorAppointmentsPage() {
             إدارة الحجوزات
           </h1>
           <p className="text-xs sm:text-sm text-text-secondary mt-1">
-            متابعة وجدولة كشوفات العيادة وتحديد الكشف الجديد وإعادة الكشف
+            متابعة وجدولة كشوفات العيادة مقسمة حسب الأيام مع تفاصيل كل مريض
           </p>
         </div>
-        <Button onClick={openNewAppointmentModal} variant="vibrant" className="shadow-glow-cyan font-bold w-full sm:w-auto justify-center">
+        <Button
+          onClick={openNewAppointmentModal}
+          variant="vibrant"
+          className="shadow-glow-cyan font-bold w-full sm:w-auto justify-center"
+        >
           + حجز موعد جديد
         </Button>
       </div>
@@ -210,7 +247,7 @@ export default function DoctorAppointmentsPage() {
       <div className="relative">
         <input
           type="text"
-          placeholder="بحث باسم المريض أو رقم الهاتف..."
+          placeholder="بحث باسم المريض أو رقم الهاتف أو هاتف التواصل..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full rounded-2xl border border-border/80 bg-surface px-5 py-3 text-sm text-text-primary placeholder:text-text-secondary outline-none transition-all focus:border-primary focus:shadow-[0_0_0_3px_rgba(var(--color-primary-rgb),0.1)]"
@@ -230,103 +267,159 @@ export default function DoctorAppointmentsPage() {
         </svg>
       </div>
 
-      {/* Grouping Day Bar */}
-      <div className="rounded-2xl bg-surface-raised px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-text-primary flex items-center justify-between border border-border/50">
-        <span>اليوم ({todayStr})</span>
-        <span className="text-xs text-text-secondary">{filteredAppointments.length} حجز</span>
+      {/* Total count bar */}
+      <div className="flex items-center justify-between rounded-2xl bg-surface-raised px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-text-primary border border-border/50">
+        <span>إجمالي المواعيد في هذه القائمة</span>
+        <span className="rounded-lg bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-black">
+          {filteredAppointments.length} حجز
+        </span>
       </div>
 
-      {/* Appointments List Container */}
+      {/* Appointments List Container Grouped By Day */}
       {loading ? (
         <div className="flex flex-col gap-3">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="h-20 animate-pulse bg-surface-raised" />
+            <Card key={i} className="h-24 animate-pulse bg-surface-raised" />
           ))}
         </div>
-      ) : filteredAppointments.length === 0 ? (
+      ) : groupedAppointments.length === 0 ? (
         <Card className="py-16 text-center text-text-secondary">
           <p className="text-base font-semibold">لا توجد حجوزات في هذه القائمة حتى الآن</p>
         </Card>
       ) : (
-        <div className="flex flex-col gap-3 sm:gap-4">
-          {filteredAppointments.map((appt, index) => {
-            const patientName =
-              typeof appt.patientId === "object"
-                ? `${appt.patientId.firstName} ${appt.patientId.lastName}`
-                : appt.patientId;
-            const patientPhone =
-              typeof appt.patientId === "object" ? appt.patientId.phoneNumber : "—";
-            const isFollowUp = appt.visitingType === "FOLLOW_UP";
+        <div className="flex flex-col gap-8">
+          {groupedAppointments.map(({ dateKey, items }) => {
+            const isToday = dateKey === todayStr;
+            let formattedDayName = "يوم غير محدد";
+            let formattedDateStr = dateKey;
+
+            if (dateKey !== "غير محدد") {
+              const dateObj = new Date(dateKey + "T00:00:00");
+              formattedDayName = dateObj.toLocaleDateString("ar-EG", { weekday: "long" });
+              formattedDateStr = dateObj.toLocaleDateString("ar-EG", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
+            }
 
             return (
-              <Card key={appt._id} hover className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-4 sm:p-5">
-                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                  <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary font-black text-base sm:text-lg">
-                    #{index + 1}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-display text-base sm:text-lg font-bold text-text-primary truncate">
-                        {patientName}
-                      </h3>
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-extrabold shrink-0 ${
-                          isFollowUp
-                            ? "bg-accent/15 text-accent border border-accent/30"
-                            : "bg-primary/15 text-primary border border-primary/30"
-                        }`}
-                      >
-                        {isFollowUp ? "إعادة كشف" : "كشف جديد"}
+              <div key={dateKey} className="flex flex-col gap-3">
+                {/* Day Header */}
+                <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-primary/15 via-surface to-surface-raised px-4 sm:px-5 py-3 border border-primary/25 shadow-sm">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className="font-display font-extrabold text-sm sm:text-base text-text-primary">
+                      {formattedDayName} — {formattedDateStr}
+                    </span>
+                    {isToday && (
+                      <span className="rounded-full bg-success text-surface text-[10px] sm:text-xs font-black px-2.5 py-0.5 shadow-sm">
+                        اليوم
                       </span>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-text-secondary">
-                      <span dir="ltr">الهاتف: {patientPhone}</span>
-                      {appt.startTime ? (
-                        <span>الساعة: {appt.startTime.slice(11, 16)}</span>
-                      ) : appt.queueNumber != null ? (
-                        <span>رقم الدور: #{appt.queueNumber}</span>
-                      ) : (
-                        <span>التاريخ: {new Date(appt.date).toLocaleDateString("ar-EG")}</span>
-                      )}
-                    </div>
+                    )}
                   </div>
+                  <span className="text-xs font-extrabold text-primary bg-primary-soft px-3 py-1 rounded-full">
+                    {items.length} {items.length === 1 ? "حجز" : items.length === 2 ? "حجزان" : "حجوزات"}
+                  </span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0 border-t border-border/40 sm:border-0 justify-end shrink-0">
-                  <StatusBadge status={appt.status} />
+                {/* Day's appointments */}
+                <div className="flex flex-col gap-3 sm:gap-3.5 pr-1 sm:pr-2">
+                  {items.map((appt, index) => {
+                    const patientName =
+                      typeof appt.patientId === "object"
+                        ? `${appt.patientId.firstName} ${appt.patientId.lastName}`
+                        : appt.patientId;
+                    const patientPhone =
+                      typeof appt.patientId === "object" ? appt.patientId.phoneNumber : "—";
+                    const isFollowUp = appt.visitingType === "FOLLOW_UP";
 
-                  {appt.status === "pending" && (
-                    <Button
-                      size="sm"
-                      variant="vibrant"
-                      onClick={() => handleStatusUpdate(appt._id, "confirmed")}
-                    >
-                      تأكيد الحجز
-                    </Button>
-                  )}
+                    return (
+                      <Card
+                        key={appt._id}
+                        hover
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-4 sm:p-5 border-border/60 hover:border-primary/40 transition-all"
+                      >
+                        <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                          <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary font-black text-base sm:text-lg">
+                            #{index + 1}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-display text-base sm:text-lg font-bold text-text-primary truncate">
+                                {patientName}
+                              </h3>
+                              <span
+                                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-extrabold shrink-0 ${
+                                  isFollowUp
+                                    ? "bg-accent/15 text-accent border border-accent/30"
+                                    : "bg-primary/15 text-primary border border-primary/30"
+                                }`}
+                              >
+                                {isFollowUp ? "إعادة كشف" : "كشف جديد"}
+                              </span>
+                            </div>
 
-                  {appt.status === "confirmed" && (
-                    <Button
-                      size="sm"
-                      variant="vibrant"
-                      onClick={() => handleStatusUpdate(appt._id, "completed")}
-                    >
-                      تم الكشف
-                    </Button>
-                  )}
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1.5 text-xs text-text-secondary">
+                              <span dir="ltr" className="font-semibold text-text-primary">
+                                الهاتف: {patientPhone}
+                              </span>
+                              {appt.contactPhone && (
+                                <span dir="ltr" className="rounded-md bg-accent/10 text-accent font-bold px-2 py-0.5 border border-accent/20">
+                                  هاتف بديل: {appt.contactPhone}
+                                </span>
+                              )}
+                              {appt.startTime ? (
+                                <span className="font-semibold text-primary">
+                                  الساعة: {appt.startTime.slice(11, 16)}
+                                </span>
+                              ) : appt.queueNumber != null ? (
+                                <span className="font-semibold text-accent">
+                                  رقم الدور: #{appt.queueNumber}
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
 
-                  {appt.status !== "cancelled" && appt.status !== "completed" && (
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={() => handleStatusUpdate(appt._id, "cancelled")}
-                    >
-                      إلغاء
-                    </Button>
-                  )}
+                        {/* Action buttons */}
+                        <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0 border-t border-border/40 sm:border-0 justify-end shrink-0">
+                          <StatusBadge status={appt.status} />
+
+                          {appt.status === "pending" && (
+                            <Button
+                              size="sm"
+                              variant="vibrant"
+                              onClick={() => handleStatusUpdate(appt._id, "confirmed")}
+                            >
+                              تأكيد الحجز
+                            </Button>
+                          )}
+
+                          {appt.status === "confirmed" && (
+                            <Button
+                              size="sm"
+                              variant="vibrant"
+                              onClick={() => handleStatusUpdate(appt._id, "completed")}
+                            >
+                              تم الكشف
+                            </Button>
+                          )}
+
+                          {appt.status !== "cancelled" && appt.status !== "completed" && (
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={() => handleStatusUpdate(appt._id, "cancelled")}
+                            >
+                              إلغاء
+                            </Button>
+                          )}
+                        </div>
+                      </Card>
+                    );
+                  })}
                 </div>
-              </Card>
+              </div>
             );
           })}
         </div>
@@ -359,7 +452,10 @@ export default function DoctorAppointmentsPage() {
                   onChange={(e) => setNewPatientId(e.target.value)}
                   options={[
                     { label: "-- الرجاء اختيار مريض --", value: "" },
-                    ...patients.map(p => ({ label: `${p.firstName} ${p.lastName} (${p.phoneNumber})`, value: p._id }))
+                    ...patients.map((p) => ({
+                      label: `${p.firstName} ${p.lastName} (${p.phoneNumber})`,
+                      value: p._id,
+                    })),
                   ]}
                 />
               )}
@@ -477,10 +573,10 @@ export default function DoctorAppointmentsPage() {
                 >
                   {creating ? "جارٍ الحفظ..." : "تأكيد الحجز"}
                 </Button>
-                <Button 
+                <Button
                   type="button"
-                  variant="secondary" 
-                  className="flex-1 font-bold" 
+                  variant="secondary"
+                  className="flex-1 font-bold"
                   onClick={() => setShowNewModal(false)}
                 >
                   إلغاء
@@ -505,10 +601,11 @@ function TabButton({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className={`rounded-xl px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition-all duration-200 whitespace-nowrap shrink-0 ${
+      className={`min-h-[40px] sm:min-h-[42px] rounded-xl px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold transition-all duration-200 whitespace-nowrap shrink-0 flex items-center justify-center ${
         active
-          ? "bg-primary text-surface shadow-glow-cyan"
+          ? "bg-primary text-surface shadow-glow-cyan font-extrabold"
           : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
       }`}
     >

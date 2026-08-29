@@ -284,7 +284,7 @@ export default function RegisterPatientPage() {
                 placeholder="كلمة مرور قوية"
               />
               <p className="mt-1.5 text-xs text-warning bg-warning/10 rounded-lg px-3 py-2">
-                ️ ستحتاج لإعطاء كلمة المرور هذه للمريض يدوياً — لا يوجد إرسال تلقائي
+                ستحتاج لإعطاء كلمة المرور هذه للمريض يدوياً — لا يوجد إرسال تلقائي
               </p>
             </div>
 

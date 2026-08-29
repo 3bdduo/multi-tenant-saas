@@ -71,7 +71,7 @@ export default function MedicalRecordDetailPage() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="font-display text-2xl font-extrabold text-text-primary">
-              ️ سجل طبي
+              سجل طبي
             </h1>
             <p className="mt-1 text-xs text-text-secondary">
               تاريخ الإنشاء: {new Date(record.createdAt).toLocaleDateString("ar-EG", {
@@ -88,7 +88,7 @@ export default function MedicalRecordDetailPage() {
                 : "bg-surface-raised text-text-secondary border border-border/60"
             }`}
           >
-            {record.visibility === "shared" ? " مشارك" : " خاص"}
+            {record.visibility === "shared" ? "مشارك" : "خاص"}
           </span>
         </div>
       </Card>
@@ -96,7 +96,7 @@ export default function MedicalRecordDetailPage() {
       {/* Prescription Image */}
       {record.prescriptionImageUrl && (
         <Card>
-          <h2 className="font-display text-sm font-bold text-text-primary mb-3"> صورة الروشتة</h2>
+          <h2 className="font-display text-sm font-bold text-text-primary mb-3">صورة الروشتة</h2>
           <img
             src={record.prescriptionImageUrl}
             alt="prescription"
