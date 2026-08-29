@@ -321,11 +321,11 @@ export default function BookingSettingsPage() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-border/40">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-border/40">
                     <span className="text-xs text-text-secondary">
                       مواعيد العمل: من <span className="font-bold text-text-primary" dir="ltr">{day.fromTime}</span> إلى <span className="font-bold text-text-primary" dir="ltr">{day.toTime}</span>
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       {savedMsgIndex === idx && (
                         <span className="text-xs font-extrabold text-success animate-fade-in">
                           تم الحفظ
@@ -352,9 +352,9 @@ export default function BookingSettingsPage() {
         </div>
       </div>
 
-      {/* Bottom Save All Button */}
-      <div className="sticky bottom-6 z-20 rounded-2xl bg-surface/90 backdrop-blur-md p-4 border border-border/60 shadow-2xl flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-sm font-bold text-text-primary">
+      {/* Bottom Save All Button - elevated above mobile bottom nav */}
+      <div className="sticky bottom-20 sm:bottom-6 z-20 rounded-2xl bg-surface/95 backdrop-blur-md p-3.5 sm:p-4 border border-border/60 shadow-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-text-primary">
           <span>تأكد من حفظ التعديلات لتطبيقها فوراً على نظام الحجز.</span>
         </div>
         <Button
@@ -362,7 +362,7 @@ export default function BookingSettingsPage() {
           size="lg"
           onClick={handleSaveAll}
           loading={savingGlobal}
-          className="font-extrabold shadow-glow-cyan px-8 whitespace-nowrap"
+          className="font-extrabold shadow-glow-cyan px-6 sm:px-8 w-full sm:w-auto justify-center"
         >
           {savingGlobal ? "جارٍ الحفظ..." : "حفظ الكل الآن"}
         </Button>

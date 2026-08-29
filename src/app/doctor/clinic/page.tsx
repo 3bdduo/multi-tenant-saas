@@ -76,24 +76,24 @@ function Section({
   return (
     <div className="rounded-2xl border border-border/60 bg-surface-raised overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3.5 bg-surface border-b border-border/50">
-        <h3 className="text-sm font-extrabold text-text-primary">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-5 sm:py-3.5 bg-surface border-b border-border/50">
+        <h3 className="text-xs sm:text-sm font-extrabold text-text-primary min-w-0">
           {title}
         </h3>
         {!editing ? (
           <button
             type="button"
             onClick={onEdit}
-            className="flex items-center gap-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 px-3.5 py-1.5 text-xs font-bold text-primary transition-all duration-200"
+            className="flex items-center gap-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 px-3 py-1.5 text-xs font-bold text-primary transition-all duration-200 shrink-0"
           >
             <span>تعديل</span>
           </button>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-xl px-3 py-1.5 text-xs font-bold text-text-secondary hover:bg-surface-raised transition-all"
+              className="rounded-xl px-2.5 sm:px-3 py-1.5 text-xs font-bold text-text-secondary hover:bg-surface-raised transition-all"
             >
               إلغاء
             </button>
@@ -101,7 +101,7 @@ function Section({
               type="button"
               onClick={onSave}
               disabled={saving}
-              className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-1.5 text-xs font-bold text-surface shadow-glow-cyan transition-all disabled:opacity-60"
+              className="flex items-center gap-1.5 rounded-xl bg-primary px-3 sm:px-4 py-1.5 text-xs font-bold text-surface shadow-glow-cyan transition-all disabled:opacity-60"
             >
               {saving ? (
                 <>
@@ -290,23 +290,25 @@ export default function DoctorClinicPage() {
         return (
           <>
             <div
-              className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-sm font-medium flex-wrap ${
+              className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-xs sm:text-sm font-medium ${
                 isDoctorActive
                   ? "bg-success/10 border-success/30 text-success"
                   : "bg-warning/10 border-warning/30 text-warning"
               }`}
             >
-              <div className="flex items-center gap-2 font-bold">
-                <span className={`h-3 w-3 rounded-full animate-pulse-glow ${isDoctorActive ? "bg-success" : "bg-warning"}`} />
-                {isDoctorActive
-                  ? `حساب الطبيب مُفعل بالكامل${
-                      doctor.paidExpired
-                        ? ` (ينتهي الاشتراك في ${new Date(doctor.paidExpired).toLocaleDateString("ar-EG")})`
-                        : ""
-                    }`
-                  : "حساب الطبيب غير مُفعل حالياً (لم يتم التفعيل بعد من إدارة المنصة)"}
+              <div className="flex items-center gap-2 font-bold min-w-0">
+                <span className={`h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full shrink-0 animate-pulse-glow ${isDoctorActive ? "bg-success" : "bg-warning"}`} />
+                <span className="leading-snug">
+                  {isDoctorActive
+                    ? `حساب الطبيب مُفعل بالكامل${
+                        doctor.paidExpired
+                          ? ` (ينتهي الاشتراك في ${new Date(doctor.paidExpired).toLocaleDateString("ar-EG")})`
+                          : ""
+                      }`
+                    : "حساب الطبيب غير مُفعل حالياً (لم يتم التفعيل بعد من إدارة المنصة)"}
+                </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap shrink-0">
                 <span className={`rounded-full px-3 py-1 text-xs font-extrabold ${isDoctorActive ? "bg-success/20 text-success" : "bg-warning/20 text-warning"}`}>
                   {isDoctorActive ? "مُفعل" : "لم يتم التفعيل"}
                 </span>
@@ -314,7 +316,7 @@ export default function DoctorClinicPage() {
                   <button
                     onClick={handleToggleStatus}
                     disabled={togglingStatus}
-                    className={`rounded-full px-3 py-1 text-xs font-extrabold flex items-center gap-1 transition-all ${
+                    className={`rounded-full px-3 py-1 text-xs font-extrabold flex items-center gap-1 transition-all shrink-0 ${
                       form.isActive
                         ? "bg-primary/20 text-primary hover:bg-primary/30"
                         : "bg-surface-raised border border-border/50 text-text-secondary hover:bg-surface"

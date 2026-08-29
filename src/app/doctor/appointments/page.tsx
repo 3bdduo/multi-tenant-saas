@@ -166,23 +166,23 @@ export default function DoctorAppointmentsPage() {
       <DoctorActivationBanner />
 
       {/* Page Title */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="font-display text-2xl font-extrabold text-text-primary">
+          <h1 className="font-display text-xl sm:text-2xl font-extrabold text-text-primary">
             إدارة الحجوزات
           </h1>
-          <p className="text-sm text-text-secondary mt-1">
+          <p className="text-xs sm:text-sm text-text-secondary mt-1">
             متابعة وجدولة كشوفات العيادة وتحديد الكشف الجديد وإعادة الكشف
           </p>
         </div>
-        <Button onClick={openNewAppointmentModal} variant="vibrant" className="shadow-glow-cyan font-bold">
+        <Button onClick={openNewAppointmentModal} variant="vibrant" className="shadow-glow-cyan font-bold w-full sm:w-auto justify-center">
           + حجز موعد جديد
         </Button>
       </div>
 
       {/* Main Status Tabs */}
-      <Card glass vibrant className="p-2">
-        <div className="flex items-center justify-start md:justify-center gap-2 overflow-x-auto scrollbar-hide">
+      <Card glass vibrant className="p-1.5 sm:p-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-hide py-1 px-1 -mx-1">
           <TabButton
             active={activeTab === "active"}
             onClick={() => setActiveTab("active")}
@@ -231,7 +231,7 @@ export default function DoctorAppointmentsPage() {
       </div>
 
       {/* Grouping Day Bar */}
-      <div className="rounded-2xl bg-surface-raised px-5 py-3 text-sm font-bold text-text-primary flex items-center justify-between border border-border/50">
+      <div className="rounded-2xl bg-surface-raised px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-text-primary flex items-center justify-between border border-border/50">
         <span>اليوم ({todayStr})</span>
         <span className="text-xs text-text-secondary">{filteredAppointments.length} حجز</span>
       </div>
@@ -248,7 +248,7 @@ export default function DoctorAppointmentsPage() {
           <p className="text-base font-semibold">لا توجد حجوزات في هذه القائمة حتى الآن</p>
         </Card>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:gap-4">
           {filteredAppointments.map((appt, index) => {
             const patientName =
               typeof appt.patientId === "object"
@@ -259,18 +259,18 @@ export default function DoctorAppointmentsPage() {
             const isFollowUp = appt.visitingType === "FOLLOW_UP";
 
             return (
-              <Card key={appt._id} hover className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-soft text-primary font-black text-lg">
+              <Card key={appt._id} hover className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-4 sm:p-5">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                  <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary font-black text-base sm:text-lg">
                     #{index + 1}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <h3 className="font-display text-lg font-bold text-text-primary">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-display text-base sm:text-lg font-bold text-text-primary truncate">
                         {patientName}
                       </h3>
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-extrabold ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-extrabold shrink-0 ${
                           isFollowUp
                             ? "bg-accent/15 text-accent border border-accent/30"
                             : "bg-primary/15 text-primary border border-primary/30"
@@ -280,7 +280,7 @@ export default function DoctorAppointmentsPage() {
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-text-secondary">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-text-secondary">
                       <span dir="ltr">الهاتف: {patientPhone}</span>
                       {appt.startTime ? (
                         <span>الساعة: {appt.startTime.slice(11, 16)}</span>
@@ -293,7 +293,7 @@ export default function DoctorAppointmentsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 self-end md:self-auto">
+                <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0 border-t border-border/40 sm:border-0 justify-end shrink-0">
                   <StatusBadge status={appt.status} />
 
                   {appt.status === "pending" && (
@@ -334,10 +334,10 @@ export default function DoctorAppointmentsPage() {
 
       {/* New Appointment Modal */}
       {showNewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <Card className="max-w-md w-full shadow-2xl bg-surface">
-            <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-4">
-              <h3 className="font-display text-xl font-bold text-text-primary">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200 overflow-y-auto">
+          <Card className="max-w-md w-full shadow-2xl bg-surface max-h-[90vh] overflow-y-auto p-4 sm:p-6 my-auto">
+            <div className="flex items-center justify-between border-b border-border/50 pb-3 mb-4">
+              <h3 className="font-display text-lg sm:text-xl font-bold text-text-primary">
                 إضافة حجز جديد
               </h3>
               <button
@@ -506,7 +506,7 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`rounded-xl px-5 py-2.5 text-xs font-bold transition-all duration-300 whitespace-nowrap ${
+      className={`rounded-xl px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition-all duration-200 whitespace-nowrap shrink-0 ${
         active
           ? "bg-primary text-surface shadow-glow-cyan"
           : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"

@@ -32,23 +32,24 @@ export default function PublicClinicsPage() {
   const filteredClinics = selectedSpecialty === "all" ? clinics : clinics.filter((c) => c.specialization === selectedSpecialty);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12 md:px-12 animate-fade-in">
-      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 md:px-12 animate-fade-in">
+      <div className="mb-8 sm:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
         <div>
-          <h1 className="font-display text-3xl font-extrabold text-text-primary">
+          <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-text-primary">
             تصفح العيادات المتاحة
           </h1>
-          <p className="mt-2 text-text-secondary">
+          <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-text-secondary">
             اختر التخصص والعيادة المناسبة لحجز موعدك فوراً
           </p>
         </div>
         
         {/* Specialty Filter */}
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 pt-1 scrollbar-hide">
           <Button
             size="sm"
             variant={selectedSpecialty === "all" ? "vibrant" : "secondary"}
             onClick={() => setSelectedSpecialty("all")}
+            className="text-xs shrink-0"
           >
             الكل
           </Button>
@@ -58,6 +59,7 @@ export default function PublicClinicsPage() {
               size="sm"
               variant={selectedSpecialty === spec ? "vibrant" : "secondary"}
               onClick={() => setSelectedSpecialty(spec)}
+              className="text-xs shrink-0"
             >
               {spec}
             </Button>

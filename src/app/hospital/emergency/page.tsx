@@ -76,12 +76,12 @@ export default function HospitalEmergencyPage() {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 pt-1 scrollbar-hide">
         {(["all", "open", "claimed", "resolved"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all border ${
+            className={`rounded-xl px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-bold border transition-all shrink-0 whitespace-nowrap ${
               filter === f
                 ? "bg-primary text-surface border-primary shadow-glow-cyan"
                 : "border-border text-text-secondary hover:border-primary/50 hover:text-text-primary"
@@ -108,27 +108,27 @@ export default function HospitalEmergencyPage() {
           <p className="font-semibold">لا توجد حالات في هذا الفلتر</p>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3 sm:gap-4">
           {filtered.map((ec) => {
             const st = STATUS_MAP[ec.status] ?? { label: ec.status, badge: "" };
             const isActioning = actionLoading === ec._id || actionLoading === ec._id + "_resolve";
             return (
-              <Card key={ec._id} glass className="p-5 flex flex-col sm:flex-row sm:items-center gap-4 border-border/40 hover:border-primary/30 transition-all">
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-3 mb-2">
-                    <span className="font-mono text-base font-extrabold text-text-primary">{ec.caseCode}</span>
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold border ${st.badge}`}>
+              <Card key={ec._id} glass className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-border/40 hover:border-primary/30 transition-all">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1.5">
+                    <span className="font-mono text-sm sm:text-base font-extrabold text-text-primary">{ec.caseCode}</span>
+                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] sm:text-xs font-bold border ${st.badge}`}>
                       {st.label}
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-4 text-xs text-text-secondary">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-secondary">
                     <span>الهاتف: {ec.phoneNumber}</span>
                     {ec.notes && <span>الملاحظات: {ec.notes}</span>}
                     <span>الوقت: {new Date(ec.createdAt).toLocaleString("ar-EG")}</span>
                     <span>المستجيبون: {ec.claimedByHospitalIds?.length ?? 0} مستشفى</span>
                   </div>
                 </div>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap pt-2 sm:pt-0 border-t border-border/40 sm:border-0 justify-end shrink-0">
                   {ec.reportImageUrl?.secure_url && (
                     <a href={ec.reportImageUrl.secure_url} target="_blank" rel="noopener noreferrer">
                       <Button variant="ghost" size="sm" className="text-xs">عرض التقرير</Button>

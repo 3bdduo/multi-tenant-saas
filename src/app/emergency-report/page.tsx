@@ -96,21 +96,27 @@ export default function EmergencyReportPage() {
     <div className="min-h-screen relative overflow-hidden">
       {/* Header */}
       <header
-        className="sticky top-0 z-40 px-6 py-4 backdrop-blur-xl"
+        className="sticky top-0 z-40 px-3.5 py-2.5 sm:px-6 sm:py-4 backdrop-blur-xl"
         style={{
           background: "var(--color-header-bg)",
           borderBottom: "1px solid var(--color-header-border)",
         }}
       >
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-2">
           <Logo size="sm" />
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <div className="scale-90 sm:scale-100 origin-left">
+              <ThemeToggle />
+            </div>
             <Link href="/emergency-track">
-              <Button variant="secondary" size="sm">متابعة بلاغ</Button>
+              <Button variant="secondary" size="sm" className="text-xs px-2.5 sm:px-4 py-1.5 sm:py-2">
+                متابعة بلاغ
+              </Button>
             </Link>
             <Link href="/">
-              <Button variant="ghost" size="sm">الرئيسية</Button>
+              <Button variant="ghost" size="sm" className="text-xs px-2 sm:px-3 py-1.5 sm:py-2">
+                الرئيسية
+              </Button>
             </Link>
           </div>
         </div>

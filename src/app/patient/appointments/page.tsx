@@ -318,76 +318,137 @@ export default function PatientAppointmentsPage() {
             <p className="text-xs">اختر الطبيب والتاريخ من النموذج أعلاه للحجز مباشرة</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-right text-text-secondary bg-surface-elevated/50">
-                  <th className="px-4 py-3 font-semibold">الطبيب / العيادة</th>
-                  <th className="px-4 py-3 font-semibold">نوع الكشف</th>
-                  <th className="px-4 py-3 font-semibold">تاريخ الكشف</th>
-                  <th className="px-4 py-3 font-semibold">حالة الموعد</th>
-                  <th className="px-4 py-3 font-semibold">إجراءات</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/60">
-                {appointments.map((a) => {
-                  const doc = typeof a.doctorId === "object" ? a.doctorId : null;
-                  const clinic = typeof a.clinicId === "object" ? a.clinicId : null;
-                  const isFollowUp = a.visitingType === "FOLLOW_UP";
+          <>
+            {/* Mobile Cards View */}
+            <div className="flex flex-col gap-3 sm:hidden">
+              {appointments.map((a) => {
+                const doc = typeof a.doctorId === "object" ? a.doctorId : null;
+                const clinic = typeof a.clinicId === "object" ? a.clinicId : null;
+                const isFollowUp = a.visitingType === "FOLLOW_UP";
 
-                  return (
-                    <tr key={a._id} className="hover:bg-surface-elevated/40 transition-colors">
-                      <td className="px-4 py-3.5 text-text-primary">
-                        <div className="font-bold">
+                return (
+                  <div key={a._id} className="rounded-2xl border border-border/60 bg-surface-raised p-4 flex flex-col gap-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-text-primary text-sm truncate">
                           {doc ? `د. ${doc.firstName} ${doc.lastName}` : "عيادة طبية"}
-                        </div>
-                        <div className="text-xs text-text-secondary">
+                        </p>
+                        <p className="text-xs text-text-secondary mt-0.5 truncate">
                           {clinic ? `${clinic.name} (${clinic.specialization})` : "كشف طبي"}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-extrabold ${
-                            isFollowUp
-                              ? "bg-accent/15 text-accent border border-accent/30"
-                              : "bg-primary/15 text-primary border border-primary/30"
-                          }`}
-                        >
-                          {isFollowUp ? "إعادة كشف" : "كشف جديد"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-text-primary font-medium">
+                        </p>
+                      </div>
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-extrabold shrink-0 ${
+                          isFollowUp
+                            ? "bg-accent/15 text-accent border border-accent/30"
+                            : "bg-primary/15 text-primary border border-primary/30"
+                        }`}
+                      >
+                        {isFollowUp ? "إعادة كشف" : "كشف جديد"}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs text-text-secondary pt-2 border-t border-border/40">
+                      <span>
                         {new Date(a.date).toLocaleDateString("ar-EG", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
+                          weekday: "short",
+                          month: "short",
                           day: "numeric",
                         })}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <StatusBadge status={a.status} />
-                      </td>
-                      <td className="px-4 py-3.5">
-                        {a.status === "pending" ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={cancellingId === a._id}
-                            onClick={() => handleCancel(a)}
-                            className="text-danger hover:bg-danger/10"
+                      </span>
+                      <StatusBadge status={a.status} />
+                    </div>
+
+                    {a.status === "pending" && (
+                      <div className="pt-2 border-t border-border/40 flex justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={cancellingId === a._id}
+                          onClick={() => handleCancel(a)}
+                          className="text-danger hover:bg-danger/10 text-xs w-full justify-center"
+                        >
+                          {cancellingId === a._id ? "جارٍ الإلغاء..." : "إلغاء الموعد"}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-right text-text-secondary bg-surface-elevated/50">
+                    <th className="px-4 py-3 font-semibold">الطبيب / العيادة</th>
+                    <th className="px-4 py-3 font-semibold">نوع الكشف</th>
+                    <th className="px-4 py-3 font-semibold">تاريخ الكشف</th>
+                    <th className="px-4 py-3 font-semibold">حالة الموعد</th>
+                    <th className="px-4 py-3 font-semibold">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60">
+                  {appointments.map((a) => {
+                    const doc = typeof a.doctorId === "object" ? a.doctorId : null;
+                    const clinic = typeof a.clinicId === "object" ? a.clinicId : null;
+                    const isFollowUp = a.visitingType === "FOLLOW_UP";
+
+                    return (
+                      <tr key={a._id} className="hover:bg-surface-elevated/40 transition-colors">
+                        <td className="px-4 py-3.5 text-text-primary">
+                          <div className="font-bold">
+                            {doc ? `د. ${doc.firstName} ${doc.lastName}` : "عيادة طبية"}
+                          </div>
+                          <div className="text-xs text-text-secondary">
+                            {clinic ? `${clinic.name} (${clinic.specialization})` : "كشف طبي"}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-extrabold ${
+                              isFollowUp
+                                ? "bg-accent/15 text-accent border border-accent/30"
+                                : "bg-primary/15 text-primary border border-primary/30"
+                            }`}
                           >
-                            {cancellingId === a._id ? "جارٍ الإلغاء..." : "إلغاء الموعد"}
-                          </Button>
-                        ) : (
-                          <span className="text-xs text-text-secondary">-</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                            {isFollowUp ? "إعادة كشف" : "كشف جديد"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 text-text-primary font-medium">
+                          {new Date(a.date).toLocaleDateString("ar-EG", {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <StatusBadge status={a.status} />
+                        </td>
+                        <td className="px-4 py-3.5">
+                          {a.status === "pending" ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={cancellingId === a._id}
+                              onClick={() => handleCancel(a)}
+                              className="text-danger hover:bg-danger/10"
+                            >
+                              {cancellingId === a._id ? "جارٍ الإلغاء..." : "إلغاء الموعد"}
+                            </Button>
+                          ) : (
+                            <span className="text-xs text-text-secondary">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </Card>
     </div>

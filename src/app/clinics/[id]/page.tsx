@@ -253,16 +253,16 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     (isQueue || (selectedSlot !== "" && !slotsLoading));
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12 md:px-12 animate-fade-in">
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-12 md:px-12 animate-fade-in">
       {/* Header */}
-      <div className="mb-8">
-        <Button variant="ghost" size="sm" onClick={() => router.push("/clinics")} className="mb-4">
+      <div className="mb-6 sm:mb-8">
+        <Button variant="ghost" size="sm" onClick={() => router.push("/clinics")} className="mb-3 sm:mb-4 text-xs sm:text-sm">
           العودة لقائمة العيادات
         </Button>
-        <div className="flex flex-wrap items-center gap-3 mb-1">
-          <h1 className="font-display text-3xl font-extrabold text-text-primary">{clinic.name}</h1>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
+          <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-text-primary">{clinic.name}</h1>
           <span
-            className={`rounded-full px-3 py-1 text-xs font-extrabold border ${
+            className={`rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-extrabold border shrink-0 ${
               isInactive
                 ? "bg-danger/10 text-danger border-danger/30"
                 : "bg-success/10 text-success border-success/30"
@@ -271,15 +271,15 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
             {isInactive ? "مغلقة حالياً" : "تقبل حجوزات"}
           </span>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2">
+          <span className="rounded bg-primary/10 px-2.5 py-0.5 text-xs sm:text-sm font-semibold text-primary">
             {clinic.specialization}
           </span>
-          <span className="text-sm text-text-secondary">
+          <span className="text-xs sm:text-sm text-text-secondary">
             {clinic.governorate} - {clinic.city}
           </span>
           <span
-            className={`rounded px-2.5 py-1 text-xs font-bold ${
+            className={`rounded px-2 py-0.5 text-[11px] sm:text-xs font-bold ${
               isQueue
                 ? "bg-accent/10 text-accent border border-accent/30"
                 : "bg-primary/10 text-primary border border-primary/30"
@@ -372,18 +372,18 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                 <label className="mb-2 block text-sm font-bold text-text-primary">
                   نوع الكشف المطلوب *
                 </label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <button
                     type="button"
                     onClick={() => setVisitingType("NEW")}
-                    className={`flex flex-col items-start p-3.5 rounded-2xl border transition-all ${
+                    className={`flex flex-col items-start p-3 sm:p-3.5 rounded-2xl border transition-all ${
                       visitingType === "NEW"
                         ? "bg-primary text-surface border-primary shadow-glow-cyan font-bold"
                         : "border-border/70 bg-surface text-text-secondary hover:border-primary/40"
                     }`}
                   >
                     <span className="text-xs font-black">كشف جديد</span>
-                    <span className="text-base font-extrabold mt-1">
+                    <span className="text-base font-extrabold mt-0.5 sm:mt-1">
                       {clinic.consultationPrice} ج.م
                     </span>
                     <span className={`text-[10px] mt-0.5 ${visitingType === "NEW" ? "opacity-90" : "opacity-60"}`}>
@@ -394,14 +394,14 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                   <button
                     type="button"
                     onClick={() => setVisitingType("FOLLOW_UP")}
-                    className={`flex flex-col items-start p-3.5 rounded-2xl border transition-all ${
+                    className={`flex flex-col items-start p-3 sm:p-3.5 rounded-2xl border transition-all ${
                       visitingType === "FOLLOW_UP"
                         ? "bg-primary text-surface border-primary shadow-glow-cyan font-bold"
                         : "border-border/70 bg-surface text-text-secondary hover:border-primary/40"
                     }`}
                   >
                     <span className="text-xs font-black">إعادة كشف / متابعة</span>
-                    <span className="text-base font-extrabold mt-1">
+                    <span className="text-base font-extrabold mt-0.5 sm:mt-1">
                       {followUpPrice} ج.م
                     </span>
                     <span className={`text-[10px] mt-0.5 ${visitingType === "FOLLOW_UP" ? "opacity-90" : "opacity-60"}`}>
@@ -446,13 +446,13 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                       {slotsError}
                     </div>
                   ) : slots.length > 0 ? (
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                       {slots.map((slot) => (
                         <button
                           key={slot}
                           type="button"
                           onClick={() => setSelectedSlot(slot)}
-                          className={`rounded-xl border px-3 py-2 text-sm font-bold transition-all duration-150 ${
+                          className={`rounded-xl border px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-bold transition-all duration-150 ${
                             selectedSlot === slot
                               ? "bg-primary text-surface border-primary shadow-glow-cyan"
                               : "border-border/60 hover:border-primary/40 text-text-primary bg-surface-raised"

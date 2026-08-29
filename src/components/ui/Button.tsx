@@ -34,12 +34,12 @@ const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
     "bg-gradient-to-b from-[#DC4545] via-[#CC3D3D] to-[#A82E2E] dark:from-[#F25C68] dark:via-[#E63946] dark:to-[#C1121F] text-white dark:text-[#FFFFFF] font-bold border border-red-700/60 dark:border-red-500/80 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.38),inset_0_-1px_0_0_rgba(0,0,0,0.22),0_2px_4px_0_rgba(0,0,0,0.1),0_4px_12px_0_rgba(204,61,61,0.3)] dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5),0_4px_16px_0_rgba(230,57,70,0.4)] hover:brightness-105 hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98] active:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.3)]",
 };
 
-// Sleek modern radius with generous padding for Arabic text readability
+// Sleek modern radius with responsive padding for Arabic text readability
 const sizes: Record<NonNullable<ButtonProps["size"]>, string> = {
-  sm: "h-9 px-5 text-sm gap-1.5 rounded-[8px]",
-  md: "h-10 px-6 text-sm gap-2 rounded-[10px]",
-  lg: "h-12 px-9 text-base gap-2.5 rounded-[11px]",
-  icon: "h-9 w-9 p-0 rounded-[9px]",
+  sm: "h-8.5 sm:h-9 px-3 sm:px-4 text-xs sm:text-sm gap-1.5 rounded-[8px] whitespace-nowrap shrink-0",
+  md: "h-9.5 sm:h-10 px-4 sm:px-5 text-xs sm:text-sm gap-2 rounded-[10px] whitespace-nowrap shrink-0",
+  lg: "min-h-[44px] h-auto sm:h-12 py-2.5 sm:py-0 px-5 sm:px-8 text-sm sm:text-base gap-2.5 rounded-[11px]",
+  icon: "h-9 w-9 p-0 rounded-[9px] shrink-0",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

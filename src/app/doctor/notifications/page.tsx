@@ -172,7 +172,7 @@ export default function DoctorNotificationsPage() {
       </Card>
 
       <Card className="shadow-xl">
-        <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/50 pb-4 mb-4">
           <div>
             <h2 className="font-display text-lg font-bold text-text-primary">
               الإشعارات المُرسلة
@@ -181,7 +181,7 @@ export default function DoctorNotificationsPage() {
           </div>
           
           {notifications.length > 0 && (
-            <Button size="sm" variant="danger" onClick={() => setShowDeleteAllModal(true)}>
+            <Button size="sm" variant="danger" onClick={() => setShowDeleteAllModal(true)} className="self-start sm:self-auto">
               مسح الكل
             </Button>
           )}
@@ -194,7 +194,7 @@ export default function DoctorNotificationsPage() {
         ) : (
           <div className="flex flex-col divide-y divide-border/60">
             {notifications.map((n) => (
-              <div key={n._id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 py-4 transition-all">
+              <div key={n._id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4 py-4 transition-all">
                 {editingId === n._id ? (
                   // Edit Mode
                   <div className="flex-1 flex flex-col gap-3 bg-surface-raised p-4 rounded-xl border border-primary/30">
@@ -222,14 +222,14 @@ export default function DoctorNotificationsPage() {
                 ) : (
                   // View Mode
                   <>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-text-primary">{n.title}</p>
                       <p className="text-sm text-text-secondary mt-1 leading-relaxed">{n.message}</p>
                       <p className="text-[10px] text-text-secondary mt-2 opacity-60">
                         {new Date(n.createdAt).toLocaleString("ar-EG")} • لمريض: {typeof n.patientId === 'object' ? n.patientId._id : n.patientId}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                    <div className="flex items-center gap-2 mt-2 sm:mt-0 shrink-0 self-end sm:self-auto">
                       <Button size="sm" variant="outline" onClick={() => startEdit(n)}>
                         تعديل
                       </Button>

@@ -185,24 +185,26 @@ export default function DoctorPatientDetailPage() {
       </button>
 
       {/* Patient Hero Card */}
-      <Card glass vibrant className="border-primary/20">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-          <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-accent/20 text-2xl font-black text-primary shadow-glow-cyan">
-            {patient.firstName?.[0]?.toUpperCase() ?? "م"}
-          </div>
-          <div className="flex-1">
-            <h1 className="font-display text-2xl font-extrabold text-text-primary">
-              {patient.firstName} {patient.lastName}
-            </h1>
-            <div className="mt-2 flex flex-wrap gap-4 text-sm text-text-secondary">
-              <span> {patient.phoneNumber}</span>
-              <span> {patient.email}</span>
-              {patient.nationalId && <span>🪪 {patient.nationalId}</span>}
+      <Card glass vibrant className="border-primary/20 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 sm:gap-5 min-w-0">
+            <div className="flex h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-accent/20 text-xl sm:text-2xl font-black text-primary shadow-glow-cyan">
+              {patient.firstName?.[0]?.toUpperCase() ?? "م"}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h1 className="font-display text-xl sm:text-2xl font-extrabold text-text-primary truncate">
+                {patient.firstName} {patient.lastName}
+              </h1>
+              <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm text-text-secondary">
+                <span> {patient.phoneNumber}</span>
+                {patient.email && <span> {patient.email}</span>}
+                {patient.nationalId && <span>🪪 {patient.nationalId}</span>}
+              </div>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Link href={`/doctor/medical-records/new?patientId=${id}`}>
-              <Button variant="vibrant" size="sm" className="shadow-glow-cyan">
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Link href={`/doctor/medical-records/new?patientId=${id}`} className="w-full sm:w-auto">
+              <Button variant="vibrant" size="sm" className="shadow-glow-cyan w-full sm:w-auto justify-center">
                 + سجل طبي جديد
               </Button>
             </Link>
@@ -210,18 +212,18 @@ export default function DoctorPatientDetailPage() {
         </div>
 
         {/* Quick Stats */}
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="rounded-xl bg-surface-raised px-4 py-3">
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
+          <div className="rounded-xl bg-surface-raised px-3.5 sm:px-4 py-2.5 sm:py-3">
             <p className="text-xs text-text-secondary">عدد السجلات الطبية</p>
-            <p className="mt-1 text-2xl font-bold text-text-primary">{records.length}</p>
+            <p className="mt-1 text-xl sm:text-2xl font-bold text-text-primary">{records.length}</p>
           </div>
-          <div className="rounded-xl bg-surface-raised px-4 py-3">
+          <div className="rounded-xl bg-surface-raised px-3.5 sm:px-4 py-2.5 sm:py-3">
             <p className="text-xs text-text-secondary">عدد المواعيد</p>
-            <p className="mt-1 text-2xl font-bold text-text-primary">{appointments.length}</p>
+            <p className="mt-1 text-xl sm:text-2xl font-bold text-text-primary">{appointments.length}</p>
           </div>
-          <div className="rounded-xl bg-surface-raised px-4 py-3 col-span-2 sm:col-span-1">
+          <div className="rounded-xl bg-surface-raised px-3.5 sm:px-4 py-2.5 sm:py-3 col-span-2 sm:col-span-1">
             <p className="text-xs text-text-secondary">تاريخ التسجيل</p>
-            <p className="mt-1 text-sm font-bold text-text-primary">
+            <p className="mt-1 text-xs sm:text-sm font-bold text-text-primary">
               {new Date(patient.createdAt).toLocaleDateString("ar-EG")}
             </p>
           </div>
@@ -229,13 +231,13 @@ export default function DoctorPatientDetailPage() {
       </Card>
 
       {/* Tabs */}
-      <Card glass className="p-2">
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+      <Card glass className="p-1.5 sm:p-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-hide py-1 px-1 -mx-1">
           {TABS.map((t) => (
             <button
               key={t.key}
               onClick={() => setActiveTab(t.key)}
-              className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold transition-all duration-300 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 sm:gap-2 rounded-xl px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition-all duration-200 whitespace-nowrap shrink-0 ${
                 activeTab === t.key
                   ? "bg-primary text-surface shadow-glow-cyan"
                   : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
