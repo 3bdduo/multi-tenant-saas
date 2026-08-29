@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   getHospitals,
   renewHospitalSubscription,
+  deleteHospital,
 } from "@/lib/api/admin";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +16,10 @@ export default function AdminHospitalsPage() {
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Delete modal state
+  const [hospitalToDelete, setHospitalToDelete] = useState<Hospital | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -50,6 +55,20 @@ export default function AdminHospitalsPage() {
     }
   }
 
+  async function confirmDelete() {
+    if (!hospitalToDelete) return;
+    setDeleting(true);
+    try {
+      await deleteHospital(hospitalToDelete._id);
+      setHospitals((prev) => prev.filter((h) => h._id !== hospitalToDelete._id));
+      setHospitalToDelete(null);
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "تعذّر حذف المستشفى");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       {/* Header */}
@@ -59,7 +78,7 @@ export default function AdminHospitalsPage() {
             إدارة المستشفيات
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            عرض وتفعيل اشتراكات المستشفيات المسجّلة في المنصة
+            عرض وتفعيل اشتراكات وحذف المستشفيات المسجّلة في المنصة
           </p>
         </div>
         <Button variant="outline" onClick={load} disabled={loading}>
@@ -103,7 +122,7 @@ export default function AdminHospitalsPage() {
                       </Link>
                     </td>
                     <td className="px-6 py-4 text-text-secondary">{h.email}</td>
-                    <td className="px-6 py-4 text-text-secondary">{h.phoneNumber}</td>
+                    <td className="px-6 py-4 text-text-secondary" dir="ltr">{h.phoneNumber}</td>
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${
@@ -121,16 +140,25 @@ export default function AdminHospitalsPage() {
                         : "—"}
                     </td>
                     <td className="px-6 py-4 text-left">
-                      <div className="flex gap-2 justify-end">
+                      <div className="flex gap-2 justify-end items-center">
                         <Link href={`/admin/hospitals/${h._id}`}>
-                          <Button size="sm" variant="outline">عرض</Button>
+                          <Button size="sm" variant="outline" className="text-xs">عرض</Button>
                         </Link>
                         <Button
                           size="sm"
                           variant="secondary"
                           onClick={() => renew(h._id, h.hospitalName)}
+                          className="text-xs"
                         >
                           تجديد
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setHospitalToDelete(h)}
+                          className="text-danger hover:bg-danger/10 hover:text-danger text-xs font-bold"
+                        >
+                          حذف
                         </Button>
                       </div>
                     </td>
@@ -151,6 +179,45 @@ export default function AdminHospitalsPage() {
           </div>
         )}
       </Card>
+
+      {/* Delete Confirmation Modal */}
+      {hospitalToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <Card className="max-w-md w-full shadow-2xl border-danger/30 bg-surface p-6">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-danger/10 text-danger text-3xl font-black">
+                !
+              </div>
+              <div>
+                <h3 className="font-display text-xl font-bold text-text-primary">
+                  حذف المستشفى نهائياً
+                </h3>
+                <p className="text-xs sm:text-sm text-text-secondary mt-2 leading-relaxed">
+                  هل أنت متأكد من رغبتك في حذف مستشفى <strong>&quot;{hospitalToDelete.hospitalName}&quot;</strong> نهائياً من المنصة؟
+                  لن يتمكن طاقم المستشفى من الدخول أو استلام حالات الطوارئ بعد ذلك.
+                </p>
+              </div>
+              <div className="flex w-full gap-3 mt-4">
+                <Button
+                  variant="danger"
+                  className="flex-1 font-bold"
+                  onClick={confirmDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? "جارٍ الحذف..." : "نعم، حذف المستشفى"}
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="flex-1 font-bold"
+                  onClick={() => setHospitalToDelete(null)}
+                >
+                  إلغاء
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

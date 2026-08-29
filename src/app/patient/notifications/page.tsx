@@ -1,83 +1,158 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   deleteAllNotificationsForPatient,
   deleteNotificationForPatient,
   getAllNotificationsForPatient,
   getNotificationByIdForPatient,
 } from "@/lib/api/notification";
+import { getMyGeneralNotifications } from "@/lib/api/generalNotification";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/http";
-import type { Notification } from "@/types/api";
+import type { GeneralNotification, Notification } from "@/types/api";
+
+type FilterType = "all" | "direct" | "general";
+
+interface UnifiedNotification {
+  _id: string;
+  type: "direct" | "general";
+  title: string;
+  message: string;
+  senderLabel: string;
+  createdAt: string;
+  isRead?: boolean;
+  rawDirect?: Notification;
+  rawGeneral?: GeneralNotification;
+}
 
 export default function PatientNotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [directList, setDirectList] = useState<Notification[]>([]);
+  const [generalList, setGeneralList] = useState<GeneralNotification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<FilterType>("all");
 
   // Delete All state
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
   const [deletingAll, setDeletingAll] = useState(false);
 
-  // Open single notification state (for full screen reading if needed)
-  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  // Selected Notification modal state
+  const [selectedNotification, setSelectedNotification] = useState<UnifiedNotification | null>(null);
 
-  async function load() {
+  async function loadData() {
     setLoading(true);
     try {
-      const res = await getAllNotificationsForPatient();
-      setNotifications(res.data.notification ?? []);
+      // 1. Direct Notifications
+      const directRes = await getAllNotificationsForPatient().catch(() => ({ data: { notification: [] } }));
+      setDirectList(directRes.data.notification ?? []);
+
+      // 2. General Notifications (Announcements)
+      const generalRes = await getMyGeneralNotifications().catch(() => ({ data: { notifications: [] } }));
+      setGeneralList(generalRes.data.notifications ?? []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to load notifications", err);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    load();
+    loadData();
   }, []);
 
-  async function handleOpenNotification(n: Notification) {
+  // Merge and sort all notifications chronologically
+  const unifiedList = useMemo(() => {
+    const list: UnifiedNotification[] = [];
+
+    // Map direct notifications
+    for (const d of directList) {
+      let docName = "طبيبك المعالج";
+      if (typeof d.doctorId === "object" && d.doctorId !== null) {
+        docName = `د. ${d.doctorId.firstName || ""} ${d.doctorId.lastName || ""}`.trim();
+      }
+      list.push({
+        _id: d._id,
+        type: "direct",
+        title: d.title || "إشعار من الطبيب",
+        message: d.message,
+        senderLabel: docName,
+        createdAt: d.createdAt,
+        isRead: d.isRead ?? false,
+        rawDirect: d,
+      });
+    }
+
+    // Map general notifications
+    for (const g of generalList) {
+      let sender = "العيادة / الإدارة";
+      if (typeof g.createdBy === "object" && g.createdBy !== null) {
+        sender = `${g.createdBy.role === "Doctor" ? "د. " : ""}${g.createdBy.firstName || ""} ${g.createdBy.lastName || ""}`.trim();
+      } else if (g.createdByModel === "Doctor") {
+        sender = "العيادة الطبية";
+      }
+      list.push({
+        _id: g._id,
+        type: "general",
+        title: g.title || "تنبيه عام",
+        message: g.message,
+        senderLabel: sender,
+        createdAt: g.createdAt,
+        isRead: true, // general announcements don't have personal unread state
+        rawGeneral: g,
+      });
+    }
+
+    // Sort newest first
+    list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    return list;
+  }, [directList, generalList]);
+
+  // Filtered by selected tab
+  const filteredList = useMemo(() => {
+    if (filter === "direct") return unifiedList.filter((n) => n.type === "direct");
+    if (filter === "general") return unifiedList.filter((n) => n.type === "general");
+    return unifiedList;
+  }, [unifiedList, filter]);
+
+  // Handle open & mark direct notification as read
+  async function handleOpenNotification(n: UnifiedNotification) {
     setSelectedNotification(n);
 
-    // If it's not marked as read locally yet, trigger the API to mark it as read
-    if (n.isRead !== true) {
+    if (n.type === "direct" && !n.isRead) {
       // Optimistic update locally
-      setNotifications((prev) =>
+      setDirectList((prev) =>
         prev.map((item) => (item._id === n._id ? { ...item, isRead: true } : item))
       );
 
       try {
-        // Fetching it by ID automatically marks it as read in the backend as per workflow
         await getNotificationByIdForPatient(n._id);
       } catch (err) {
-        console.error("Failed to mark notification as read", err);
+        console.error("Failed to mark as read", err);
       }
     }
   }
 
-  async function remove(e: React.MouseEvent, id: string) {
-    e.stopPropagation(); // Prevent opening the notification if delete is clicked
-    
-    // Optimistic UI update
-    setNotifications((prev) => prev.filter((n) => n._id !== id));
-    
+  // Delete direct notification
+  async function removeDirect(e: React.MouseEvent, id: string) {
+    e.stopPropagation();
+    setDirectList((prev) => prev.filter((n) => n._id !== id));
+
     try {
       await deleteNotificationForPatient(id);
     } catch (err) {
-      // Revert if failed
-      load();
+      loadData();
       alert(err instanceof ApiError ? err.message : "تعذّر حذف الإشعار");
     }
   }
 
-  async function handleClearAll() {
+  // Delete all direct notifications
+  async function handleClearAllDirect() {
     setDeletingAll(true);
     try {
       await deleteAllNotificationsForPatient();
-      setNotifications([]);
+      setDirectList([]);
       setShowDeleteAllModal(false);
     } catch (err) {
       alert(err instanceof ApiError ? err.message : "تعذّر مسح الإشعارات");
@@ -86,144 +161,238 @@ export default function PatientNotificationsPage() {
     }
   }
 
+  const unreadDirectCount = directList.filter((d) => !d.isRead).length;
+
   return (
-    <div className="flex flex-col gap-6 animate-fade-in max-w-3xl">
+    <div className="flex flex-col gap-6 animate-fade-in max-w-4xl mx-auto">
+      {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-extrabold text-text-primary">
-            صندوق الإشعارات
+          <h1 className="font-display text-2xl md:text-3xl font-extrabold text-text-primary">
+            صندوق الإشعارات والتنبيهات
           </h1>
-          <p className="text-sm text-text-secondary mt-1">
-            رسائل وتنبيهات مرسلة لك مباشرة من أطبائك المعالجين
+          <p className="text-xs sm:text-sm text-text-secondary mt-1">
+            جميع الرسائل والتوجيهات المرسلة لك من أطبائك المعالجين وإعلانات العيادات
           </p>
         </div>
+
+        {unreadDirectCount > 0 && (
+          <div className="inline-flex items-center gap-2 rounded-2xl bg-primary/10 border border-primary/30 px-4 py-2 text-xs font-bold text-primary self-start md:self-auto">
+            <span className="h-2 w-2 rounded-full bg-primary animate-pulse shadow-glow-cyan" />
+            لديك {unreadDirectCount} إشعار جديد لم يُقرأ
+          </div>
+        )}
       </div>
 
-      <Card className="shadow-xl border-primary/10">
+      {/* Filter Tabs */}
+      <Card glass vibrant className="p-1.5 sm:p-2">
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <button
+            type="button"
+            onClick={() => setFilter("all")}
+            className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold transition-all duration-200 ${
+              filter === "all"
+                ? "bg-primary text-surface shadow-glow-cyan"
+                : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
+            }`}
+          >
+            <span>الكل</span>
+            <span className="text-[11px] opacity-80 font-mono">({unifiedList.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFilter("direct")}
+            className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold transition-all duration-200 ${
+              filter === "direct"
+                ? "bg-primary text-surface shadow-glow-cyan"
+                : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
+            }`}
+          >
+            <span>رسائل الطبيب الخاصة</span>
+            <span className="text-[11px] opacity-80 font-mono">({directList.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFilter("general")}
+            className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold transition-all duration-200 ${
+              filter === "general"
+                ? "bg-primary text-surface shadow-glow-cyan"
+                : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
+            }`}
+          >
+            <span>تنبيهات عامة</span>
+            <span className="text-[11px] opacity-80 font-mono">({generalList.length})</span>
+          </button>
+        </div>
+      </Card>
+
+      {/* Notifications List Container */}
+      <Card className="shadow-xl">
         <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-4">
-          <h2 className="font-display text-lg font-bold text-text-primary flex items-center gap-2">
-            <span></span>
-            <span>أحدث الإشعارات</span>
+          <h2 className="font-display text-base sm:text-lg font-bold text-text-primary flex items-center gap-2">
+            <span>سجل الإشعارات</span>
           </h2>
-          
-          {notifications.length > 0 && (
-            <Button size="sm" variant="danger" onClick={() => setShowDeleteAllModal(true)}>
-              مسح الكل
+
+          {directList.length > 0 && filter !== "general" && (
+            <Button
+              size="sm"
+              variant="danger"
+              onClick={() => setShowDeleteAllModal(true)}
+              className="text-xs font-bold"
+            >
+              مسح الرسائل الخاصة
             </Button>
           )}
         </div>
-        
+
         {loading ? (
-          <div className="flex flex-col gap-4 animate-pulse">
-            {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-border/40 rounded-xl" />)}
+          <div className="flex flex-col gap-3 animate-pulse">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-24 bg-border/40 rounded-2xl" />
+            ))}
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {notifications.map((n) => {
-              const isUnread = n.isRead === false || n.isRead === undefined;
-              
+            {filteredList.map((n) => {
+              const isDirect = n.type === "direct";
+              const isUnread = isDirect && !n.isRead;
+
               return (
-                <div 
-                  key={n._id} 
+                <div
+                  key={`${n.type}-${n._id}`}
                   onClick={() => handleOpenNotification(n)}
-                  className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border transition-all cursor-pointer ${
-                    isUnread 
-                      ? "bg-primary/5 border-primary/30 shadow-sm" 
-                      : "bg-surface-raised border-border/40 hover:bg-border/30"
+                  className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-4 rounded-2xl border transition-all cursor-pointer ${
+                    isUnread
+                      ? "bg-primary/10 border-primary/40 shadow-glow-cyan/10"
+                      : "bg-surface-raised border-border/50 hover:border-primary/40 hover:bg-surface"
                   }`}
                 >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1.5">
                       {isUnread && (
-                        <span className="h-2.5 w-2.5 rounded-full bg-primary shadow-glow-cyan animate-pulse"></span>
+                        <span className="h-2.5 w-2.5 rounded-full bg-primary shadow-glow-cyan animate-pulse" />
                       )}
-                      <p className={`text-base ${isUnread ? "font-extrabold text-primary" : "font-bold text-text-primary"}`}>
-                        {n.title}
-                      </p>
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[11px] font-extrabold border ${
+                          isDirect
+                            ? "bg-primary/15 text-primary border-primary/30"
+                            : "bg-accent/15 text-accent border-accent/30"
+                        }`}
+                      >
+                        {isDirect ? `رسالة خاصة: ${n.senderLabel}` : `تنبيه عام: ${n.senderLabel}`}
+                      </span>
+                      <span className="text-[10px] text-text-secondary opacity-60 font-mono">
+                        {new Date(n.createdAt).toLocaleString("ar-EG")}
+                      </span>
                     </div>
-                    <p className={`text-sm ${isUnread ? "text-text-primary font-medium" : "text-text-secondary"}`}>
+
+                    <p className={`text-sm sm:text-base ${isUnread ? "font-extrabold text-primary" : "font-bold text-text-primary"}`}>
+                      {n.title}
+                    </p>
+                    <p className="text-xs sm:text-sm text-text-secondary mt-1 line-clamp-2 leading-relaxed">
                       {n.message}
                     </p>
-                    <p className="text-[10px] text-text-secondary mt-2 opacity-70">
-                      {new Date(n.createdAt).toLocaleString("ar-EG")}
-                    </p>
                   </div>
-                  
-                  <div className="flex items-center justify-end">
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="text-danger hover:bg-danger/10 hover:text-danger rounded-full h-10 w-10 p-0 flex items-center justify-center" 
-                      onClick={(e) => remove(e, n._id)}
-                      title="حذف الإشعار"
+
+                  <div className="flex items-center gap-2 justify-end shrink-0 pt-2 sm:pt-0 border-t border-border/40 sm:border-0">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-xs"
+                      onClick={() => handleOpenNotification(n)}
                     >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                      </svg>
+                      عرض التفاصيل
                     </Button>
+
+                    {isDirect && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-danger hover:bg-danger/10 hover:text-danger rounded-xl p-2 text-xs"
+                        onClick={(e) => removeDirect(e, n._id)}
+                        title="حذف الإشعار"
+                      >
+                        حذف
+                      </Button>
+                    )}
                   </div>
                 </div>
               );
             })}
-            
-            {notifications.length === 0 && (
-              <div className="py-12 text-center flex flex-col items-center justify-center bg-surface-raised rounded-xl border border-border/40 border-dashed">
-                <div className="h-16 w-16 bg-border/50 rounded-full flex items-center justify-center text-text-secondary mb-4 opacity-50">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                  </svg>
+
+            {filteredList.length === 0 && (
+              <div className="py-16 text-center flex flex-col items-center justify-center bg-surface-raised rounded-2xl border border-border/40 border-dashed">
+                <div className="h-16 w-16 bg-border/50 rounded-full flex items-center justify-center text-text-secondary mb-3 opacity-60 text-2xl">
+                  🔔
                 </div>
-                <p className="text-base font-bold text-text-secondary">لا توجد إشعارات حالياً</p>
-                <p className="text-xs text-text-secondary mt-1">ستظهر هنا أي رسائل أو تنبيهات تُرسل إليك.</p>
+                <p className="text-base font-bold text-text-primary">لا توجد إشعارات في هذا القسم</p>
+                <p className="text-xs text-text-secondary mt-1">ستظهر هنا أي رسائل أو تنبيهات تُرسل إليك فوراً.</p>
               </div>
             )}
           </div>
         )}
       </Card>
 
-      {/* Selected Notification Reading Modal */}
+      {/* Full Modal Viewer for Notification */}
       {selectedNotification && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200" onClick={() => setSelectedNotification(null)}>
-          <Card className="max-w-md w-full shadow-2xl border-primary/20 bg-surface" onClick={e => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          onClick={() => setSelectedNotification(null)}
+        >
+          <Card
+            className="max-w-lg w-full shadow-2xl border-primary/30 bg-surface p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-start justify-between border-b border-border/50 pb-4 mb-4">
               <div>
-                <h3 className="font-display text-xl font-extrabold text-primary">
+                <span
+                  className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-extrabold border mb-2 ${
+                    selectedNotification.type === "direct"
+                      ? "bg-primary/15 text-primary border-primary/30"
+                      : "bg-accent/15 text-accent border-accent/30"
+                  }`}
+                >
+                  {selectedNotification.type === "direct"
+                    ? `رسالة خاصة من: ${selectedNotification.senderLabel}`
+                    : `تنبيه عام من: ${selectedNotification.senderLabel}`}
+                </span>
+                <h3 className="font-display text-xl font-extrabold text-text-primary">
                   {selectedNotification.title}
                 </h3>
                 <p className="text-xs text-text-secondary mt-1">
                   {new Date(selectedNotification.createdAt).toLocaleString("ar-EG")}
                 </p>
               </div>
-              <button 
+              <button
                 onClick={() => setSelectedNotification(null)}
-                className="h-8 w-8 rounded-full bg-border/50 flex items-center justify-center text-text-secondary hover:bg-danger/20 hover:text-danger transition-colors"
+                className="h-8 w-8 rounded-full bg-surface-raised flex items-center justify-center text-text-secondary hover:bg-danger/20 hover:text-danger transition-colors shrink-0"
               >
                 ✕
               </button>
             </div>
-            
-            <div className="py-2 min-h-[100px]">
-              <p className="text-base leading-relaxed text-text-primary whitespace-pre-wrap">
+
+            <div className="py-3 min-h-[120px] bg-surface-raised rounded-2xl p-4 border border-border/40">
+              <p className="text-sm sm:text-base leading-relaxed text-text-primary whitespace-pre-wrap">
                 {selectedNotification.message}
               </p>
             </div>
-            
+
             <div className="mt-6 flex justify-end">
-              <Button variant="secondary" onClick={() => setSelectedNotification(null)}>
-                إغلاق
+              <Button variant="vibrant" onClick={() => setSelectedNotification(null)} className="shadow-glow-cyan font-bold">
+                تم، إغلاق النافذة
               </Button>
             </div>
           </Card>
         </div>
       )}
 
-      {/* Delete All Confirmation Modal */}
+      {/* Delete All Modal */}
       {showDeleteAllModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <Card className="max-w-md w-full shadow-2xl border-danger/30 bg-surface">
-            <div className="flex flex-col items-center text-center gap-4 py-4">
+          <Card className="max-w-md w-full shadow-2xl border-danger/30 bg-surface p-6">
+            <div className="flex flex-col items-center text-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-danger/10 text-danger text-3xl font-black">
                 !
               </div>
@@ -231,22 +400,22 @@ export default function PatientNotificationsPage() {
                 <h3 className="font-display text-xl font-bold text-text-primary">
                   هل أنت متأكد؟
                 </h3>
-                <p className="text-sm text-text-secondary mt-2 leading-relaxed">
-                  سيتم حذف <strong>جميع الإشعارات</strong> من صندوق الوارد نهائياً ولا يمكن التراجع عن هذا الإجراء.
+                <p className="text-xs sm:text-sm text-text-secondary mt-2 leading-relaxed">
+                  سيتم حذف <strong>جميع الرسائل الخاصة</strong> من صندوق الوارد نهائياً ولا يمكن التراجع عن هذا الإجراء.
                 </p>
               </div>
               <div className="flex w-full gap-3 mt-4">
-                <Button 
-                  variant="danger" 
-                  className="flex-1 font-bold" 
-                  onClick={handleClearAll}
+                <Button
+                  variant="danger"
+                  className="flex-1 font-bold"
+                  onClick={handleClearAllDirect}
                   disabled={deletingAll}
                 >
                   {deletingAll ? "جارٍ الحذف..." : "نعم، احذف الكل"}
                 </Button>
-                <Button 
-                  variant="secondary" 
-                  className="flex-1 font-bold" 
+                <Button
+                  variant="secondary"
+                  className="flex-1 font-bold"
                   onClick={() => setShowDeleteAllModal(false)}
                 >
                   إلغاء

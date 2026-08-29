@@ -107,3 +107,10 @@ export function renewHospitalSubscription(
   );
 }
 
+// DELETE /admin/hospital/:id
+export function deleteHospital(id: string) {
+  return apiFetch<ApiEnvelope<null>>(`/admin/hospital/${id}`, {
+    method: "DELETE",
+  });
+}
+

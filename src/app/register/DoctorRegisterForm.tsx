@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { registerDoctor } from "@/lib/api/auth";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
@@ -20,6 +21,7 @@ import { Logo } from "@/components/ui/Logo";
 
 export function DoctorRegisterForm() {
   const router = useRouter();
+  const { login } = useAuth();
   const [form, setForm] = useState({
     nationalId: "",
     password: "",
@@ -75,7 +77,13 @@ export function DoctorRegisterForm() {
     setLoading(true);
     try {
       await registerDoctor(form);
-      router.push("/login");
+      // Auto-login with the same credentials so user doesn't have to login again
+      const role = await login({ nationalId: form.nationalId, password: form.password });
+      if (role === "Doctor") {
+        router.push("/doctor");
+      } else {
+        router.push("/login");
+      }
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : "تعذّر إنشاء الحساب، حاول مرة أخرى"

@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { href: "/doctor/booking-settings", label: "إعدادات الحجز", icon: <IconCalendar /> },
   { href: "/doctor/clinic", label: "بيانات العيادة", icon: <IconClinic /> },
   { href: "/doctor/patients", label: "سجلات المرضى", icon: <IconUsers /> },
-  { href: "/doctor/announcements", label: "إشعار للمرضى", icon: <IconBell /> },
+  { href: "/doctor/notifications", label: "إشعارات المرضى", icon: <IconBell /> },
   { href: "/doctor/account-settings", label: "إعدادات الحساب", icon: <IconUsers /> },
 ];
 

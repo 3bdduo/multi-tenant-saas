@@ -830,11 +830,38 @@ export default function DoctorClinicPage() {
               >
                 تعديل بيانات العيادة
               </Button>
-              <Link href="/clinics">
-                <Button variant="vibrant" size="lg" className="font-bold shadow-glow-cyan">
-                  احجز موعدك الآن في هذه العيادة
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Copy link button */}
+                {form._id && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = `${window.location.origin}/clinics/${form._id}`;
+                      navigator.clipboard.writeText(url).then(() => {
+                        const btn = document.getElementById("copy-link-btn");
+                        if (btn) { btn.textContent = "تم النسخ ✓"; setTimeout(() => { btn.textContent = "نسخ رابط الحجز"; }, 2000); }
+                      });
+                    }}
+                    id="copy-link-btn"
+                    className="rounded-2xl border border-border/60 bg-surface-raised px-4 py-2.5 text-xs font-bold text-text-primary hover:border-primary/40 hover:bg-primary/5 transition-all"
+                  >
+                    نسخ رابط الحجز
+                  </button>
+                )}
+                {form._id ? (
+                  <Link href={`/clinics/${form._id}`} target="_blank">
+                    <Button variant="vibrant" size="lg" className="font-bold shadow-glow-cyan">
+                      فتح صفحة الحجز العامة ↗
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link href="/clinics">
+                    <Button variant="vibrant" size="lg" className="font-bold shadow-glow-cyan">
+                      تصفح العيادات
+                    </Button>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </Card>

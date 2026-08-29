@@ -100,6 +100,38 @@ export function DashboardShell({
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Quick Notification Bell */}
+            {(() => {
+              const notifHref = pathname.startsWith("/doctor")
+                ? "/doctor/notifications"
+                : pathname.startsWith("/patient")
+                ? "/patient/notifications"
+                : pathname.startsWith("/hospital")
+                ? "/hospital/notifications"
+                : null;
+
+              if (!notifHref) return null;
+
+              const isNotifActive = pathname === notifHref;
+
+              return (
+                <Link
+                  href={notifHref}
+                  className={`flex items-center justify-center h-9 w-9 rounded-xl transition-all ${
+                    isNotifActive
+                      ? "bg-primary text-surface shadow-glow-cyan"
+                      : "text-text-secondary hover:bg-primary-soft/50 hover:text-primary"
+                  }`}
+                  title="الإشعارات"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                </Link>
+              );
+            })()}
+
             {/* Mobile logout */}
             <button
               className="flex md:hidden items-center justify-center h-9 w-9 shrink-0 rounded-xl text-text-secondary hover:bg-danger/10 hover:text-danger transition-colors"

@@ -59,7 +59,9 @@ export default function HospitalEmergencyPage() {
     }
   }
 
-  const filtered = filter === "all" ? cases : cases.filter((c) => c.status === filter);
+  const filtered = filter === "all"
+    ? cases
+    : cases.filter((c) => (c.status || "").toLowerCase() === filter);
 
   return (
     <div className="flex flex-col gap-8 animate-fade-in">
@@ -77,20 +79,23 @@ export default function HospitalEmergencyPage() {
 
       {/* Filter Tabs */}
       <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 pt-1 scrollbar-hide">
-        {(["all", "open", "claimed", "resolved"] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`rounded-xl px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-bold border transition-all shrink-0 whitespace-nowrap ${
-              filter === f
-                ? "bg-primary text-surface border-primary shadow-glow-cyan"
-                : "border-border text-text-secondary hover:border-primary/50 hover:text-text-primary"
-            }`}
-          >
-            {{all:"الكل", open:"مفتوحة", claimed:"جارية", resolved:"محلولة"}[f]}
-            {" "}({(f === "all" ? cases : cases.filter((c) => c.status === f)).length})
-          </button>
-        ))}
+        {(["all", "open", "claimed", "resolved"] as const).map((f) => {
+          const count = f === "all" ? cases.length : cases.filter((c) => (c.status || "").toLowerCase() === f).length;
+          return (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`rounded-xl px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-bold border transition-all shrink-0 whitespace-nowrap ${
+                filter === f
+                  ? "bg-primary text-surface border-primary shadow-glow-cyan"
+                  : "border-border text-text-secondary hover:border-primary/50 hover:text-text-primary"
+              }`}
+            >
+              {{all:"الكل", open:"مفتوحة (جديدة)", claimed:"جارية", resolved:"محلولة"}[f]}
+              {" "}({count})
+            </button>
+          );
+        })}
       </div>
 
       {error && (
@@ -110,8 +115,12 @@ export default function HospitalEmergencyPage() {
       ) : (
         <div className="grid gap-3 sm:gap-4">
           {filtered.map((ec) => {
-            const st = STATUS_MAP[ec.status] ?? { label: ec.status, badge: "" };
+            const normalizedStatus = (ec.status || "").toLowerCase();
+            const st = STATUS_MAP[normalizedStatus] ?? { label: ec.status, badge: "bg-surface text-text-primary border-border" };
             const isActioning = actionLoading === ec._id || actionLoading === ec._id + "_resolve";
+            const isOpen = normalizedStatus === "open";
+            const isClaimed = normalizedStatus === "claimed";
+
             return (
               <Card key={ec._id} glass className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-border/40 hover:border-primary/30 transition-all">
                 <div className="flex-1 min-w-0">
@@ -134,22 +143,24 @@ export default function HospitalEmergencyPage() {
                       <Button variant="ghost" size="sm" className="text-xs">عرض التقرير</Button>
                     </a>
                   )}
-                  {ec.status === "open" && (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      disabled={isActioning}
-                      onClick={() => handleClaim(ec._id)}
-                    >
-                      {isActioning ? "..." : "استلام الحالة"}
-                    </Button>
-                  )}
-                  {ec.status === "claimed" && (
+                  {isOpen && (
                     <Button
                       size="sm"
                       variant="vibrant"
                       disabled={isActioning}
+                      onClick={() => handleClaim(ec._id)}
+                      className="text-xs font-bold shadow-glow-cyan"
+                    >
+                      {isActioning ? "..." : "قبول واستلام الحالة ✓"}
+                    </Button>
+                  )}
+                  {isClaimed && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={isActioning}
                       onClick={() => handleResolve(ec._id)}
+                      className="text-xs font-bold bg-success/20 text-success border-success/30 hover:bg-success/30"
                     >
                       {isActioning ? "..." : "تم الحل"}
                     </Button>

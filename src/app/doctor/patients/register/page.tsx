@@ -65,7 +65,13 @@ export default function RegisterPatientPage() {
         setStep("register");
       }
     } catch (err) {
-      setLookupError(err instanceof ApiError ? err.message : "تعذّر البحث");
+      // 404 = patient not found in system → proceed to register
+      if (err instanceof ApiError && err.status === 404) {
+        setForm((f) => ({ ...f, nationalId: lookupId.trim() }));
+        setStep("register");
+      } else {
+        setLookupError(err instanceof ApiError ? err.message : "تعذّر البحث، يرجى المحاولة مجدداً");
+      }
     } finally {
       setLookupLoading(false);
     }

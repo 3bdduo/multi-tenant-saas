@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getHospitalById, renewHospitalSubscription } from "@/lib/api/admin";
+import { getHospitalById, renewHospitalSubscription, deleteHospital } from "@/lib/api/admin";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/http";
@@ -17,6 +17,8 @@ export default function AdminHospitalDetailPage() {
   const [renewLoading, setRenewLoading] = useState(false);
   const [months, setMonths] = useState("1");
   const [actionMsg, setActionMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function loadHospital() {
     if (!id) return;
@@ -188,6 +190,71 @@ export default function AdminHospitalDetailPage() {
           </div>
         )}
       </Card>
+
+      {/* Danger Zone: Delete Hospital */}
+      <Card className="border-danger/30 bg-danger/5">
+        <h2 className="font-display text-base font-bold text-danger mb-2">
+          منطقة الحذف والتعطيل
+        </h2>
+        <p className="text-xs text-text-secondary mb-4 leading-relaxed">
+          حذف المستشفى سيؤدي إلى إزالتها نهائياً من قائمة المستشفيات في المنصة وحذف صلاحيات الدخول لطاقمها.
+        </p>
+        <Button
+          variant="danger"
+          onClick={() => setShowDeleteModal(true)}
+          className="font-bold"
+        >
+          حذف هذه المستشفى نهائياً
+        </Button>
+      </Card>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <Card className="max-w-md w-full shadow-2xl border-danger/30 bg-surface p-6">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-danger/10 text-danger text-3xl font-black">
+                !
+              </div>
+              <div>
+                <h3 className="font-display text-xl font-bold text-text-primary">
+                  تأكيد حذف المستشفى
+                </h3>
+                <p className="text-xs sm:text-sm text-text-secondary mt-2 leading-relaxed">
+                  هل أنت متأكد من حذف مستشفى <strong>&quot;{hospital.hospitalName}&quot;</strong> نهائياً؟
+                  هذا الإجراء لا يمكن التراجع عنه.
+                </p>
+              </div>
+              <div className="flex w-full gap-3 mt-4">
+                <Button
+                  variant="danger"
+                  className="flex-1 font-bold"
+                  disabled={deleting}
+                  onClick={async () => {
+                    setDeleting(true);
+                    try {
+                      await deleteHospital(id);
+                      router.push("/admin/hospitals");
+                    } catch (err) {
+                      alert(err instanceof ApiError ? err.message : "تعذّر حذف المستشفى");
+                      setDeleting(false);
+                    }
+                  }}
+                >
+                  {deleting ? "جارٍ الحذف..." : "نعم، احذف المستشفى"}
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="flex-1 font-bold"
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  إلغاء
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
