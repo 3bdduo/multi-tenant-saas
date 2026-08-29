@@ -19,7 +19,6 @@ export function createAppointmentByPatient(
 }
 
 // POST /appointment/doctor/:patientId  (doctor books on behalf of a patient)
-// patientId goes in the URL; body only carries { date }
 export function createAppointmentByDoctor(
   patientId: string,
   payload: CreateAppointmentByDoctorPayload
@@ -30,30 +29,49 @@ export function createAppointmentByDoctor(
   );
 }
 
-// DELETE /appointment/:id  (body carries doctorId, clinicId, date)
-export function deleteAppointment(id: string, payload: DeleteAppointmentPayload) {
+// DELETE /appointment/:id  (patient cancels appointment)
+export function deleteAppointment(id: string, payload?: DeleteAppointmentPayload) {
   return apiFetch<ApiEnvelope<null>>(`/appointment/${id}`, {
     method: "DELETE",
-    body: JSON.stringify(payload),
+    ...(payload ? { body: JSON.stringify(payload) } : {}),
   });
 }
 
-// GET /appointment  (role-scoped: doctor sees clinic appts, patient sees own)
-export function getMyAppointments() {
-  return apiFetch<ApiEnvelope<{ appointments: Appointment[] }>>("/appointment");
+// GET /appointment (doctor) or /appointment/patient (patient)
+export async function getMyAppointments() {
+  try {
+    return await apiFetch<ApiEnvelope<{ appointments: Appointment[] }>>("/appointment");
+  } catch {
+    return await apiFetch<ApiEnvelope<{ appointments: Appointment[] }>>("/appointment/patient");
+  }
 }
 
-// GET /appointment/:id
+// GET /appointment/patient (patient all appointments)
+export function getMyAppointmentsForPatient() {
+  return apiFetch<ApiEnvelope<{ appointments: Appointment[] }>>("/appointment/patient");
+}
+
+// GET /appointment/:id (doctor gets single appointment)
 export function getAppointmentById(id: string) {
   return apiFetch<ApiEnvelope<{ appointment: Appointment }>>(
     `/appointment/${id}`
   );
 }
 
-// PUT /appointment/:id
+// PUT /appointment/:id (doctor updates status / details)
 export function updateAppointment(id: string, payload: UpdateAppointmentPayload) {
   return apiFetch<ApiEnvelope<{ appointment: Appointment }>>(
     `/appointment/${id}`,
     { method: "PUT", body: JSON.stringify(payload) }
   );
+}
+
+// PUT /appointment/patient/:id (patient uploads attachment image)
+export function uploadAppointmentImage(id: string, file: File) {
+  const form = new FormData();
+  form.append("image", file);
+  return apiFetch<ApiEnvelope<{ appointment: Appointment }>>(`/appointment/patient/${id}`, {
+    method: "PUT",
+    body: form,
+  });
 }

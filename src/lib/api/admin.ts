@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/http";
+import { apiFetch, ApiError } from "@/lib/http";
 import type {
   Admin,
   ApiEnvelope,
@@ -107,10 +107,20 @@ export function renewHospitalSubscription(
   );
 }
 
-// DELETE /admin/hospital/:id
-export function deleteHospital(id: string) {
-  return apiFetch<ApiEnvelope<null>>(`/admin/hospital/${id}`, {
-    method: "DELETE",
-  });
+// DELETE /admin/hospital/:id or /admin/hospitals/:id
+export async function deleteHospital(id: string) {
+  try {
+    return await apiFetch<ApiEnvelope<null>>(`/admin/hospital/${id}`, {
+      method: "DELETE",
+    });
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) {
+      // Fallback: try plural /admin/hospitals/:id
+      return await apiFetch<ApiEnvelope<null>>(`/admin/hospitals/${id}`, {
+        method: "DELETE",
+      });
+    }
+    throw err;
+  }
 }
 
