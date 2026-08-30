@@ -35,37 +35,37 @@
   --color-text-secondary: #6E5A4E;
   --color-text-muted: #8E7A6E;
 
-  /* Primary Brand: Warm Terracotta / Sandalwood (#B87D65) */
-  --primary: #B87D65;
-  --primary-hover: #9E6750;
+  /* Primary Brand: Sleek Slate Charcoal / Slate Gray (#475569) */
+  --primary: #475569;
+  --primary-hover: #334155;
   --primary-foreground: #FFFFFF;
-  --primary-light: #D49D87;
-  --primary-soft: rgba(184, 125, 101, 0.12);
-  --color-primary: #B87D65;
-  --color-primary-hover: #9E6750;
-  --color-primary-light: #D49D87;
-  --color-primary-soft: rgba(184, 125, 101, 0.12);
+  --primary-light: #64748B;
+  --primary-soft: rgba(71, 85, 105, 0.12);
+  --color-primary: #475569;
+  --color-primary-hover: #334155;
+  --color-primary-light: #64748B;
+  --color-primary-soft: rgba(71, 85, 105, 0.12);
   --color-primary-foreground: #FFFFFF;
 
-  /* Secondary Brand: Earth Sage Olive (#969A83) */
-  --secondary: #969A83;
-  --secondary-hover: #7E826B;
+  /* Secondary Brand: Neutral Cool Slate (#64748B) */
+  --secondary: #64748B;
+  --secondary-hover: #475569;
   --secondary-foreground: #FFFFFF;
-  --secondary-light: #B5B7A6;
-  --secondary-soft: rgba(150, 154, 131, 0.14);
-  --color-secondary: #969A83;
-  --color-secondary-hover: #7E826B;
+  --secondary-light: #94A3B8;
+  --secondary-soft: rgba(100, 116, 139, 0.12);
+  --color-secondary: #64748B;
+  --color-secondary-hover: #475569;
   --color-secondary-foreground: #FFFFFF;
-  --color-secondary-soft: rgba(150, 154, 131, 0.14);
+  --color-secondary-soft: rgba(100, 116, 139, 0.12);
 
-  /* Accent: Warm Nude Sand / Biscuit (#D6B59F) */
-  --accent: #D6B59F;
-  --accent-hover: #C5A088;
-  --accent-foreground: #2D231F;
-  --accent-soft: rgba(214, 181, 159, 0.20);
-  --color-accent: #B87D65;
-  --color-accent-hover: #9E6750;
-  --color-accent-soft: rgba(184, 125, 101, 0.12);
+  /* Accent: Platinum Silver Slate (#94A3B8) */
+  --accent: #94A3B8;
+  --accent-hover: #64748B;
+  --accent-foreground: #0F172A;
+  --accent-soft: rgba(148, 163, 184, 0.15);
+  --color-accent: #94A3B8;
+  --color-accent-hover: #64748B;
+  --color-accent-soft: rgba(148, 163, 184, 0.15);
 
   /* Muted */
   --muted: #BFDCCB;
@@ -95,13 +95,13 @@
   --warning: #D98E32;
   --color-warning: #D98E32;
 
-  /* Shadows — Soft Mint Green & Terracotta diffusion */
+  /* Shadows — Soft Mint Green & Neutral diffusion */
   --card-shadow: 0 10px 32px -4px rgba(70, 135, 98, 0.14), 0 2px 8px -2px rgba(45, 35, 31, 0.05);
   --shadow-sm: 0 1px 4px rgba(70, 135, 98, 0.08);
   --shadow-md: 0 4px 16px rgba(70, 135, 98, 0.12);
   --shadow-lg: 0 12px 32px rgba(70, 135, 98, 0.16);
-  --shadow-glow: 0 0 25px rgba(90, 165, 125, 0.30);
-  --color-glow-cyan: rgba(90, 165, 125, 0.26);
+  --shadow-glow: 0 0 25px rgba(100, 116, 139, 0.25);
+  --color-glow-cyan: rgba(100, 116, 139, 0.20);
   --color-glow-emerald: rgba(96, 128, 88, 0.20);
 
   /* Glassmorphism — Clear Soft Sage Mint */
@@ -110,9 +110,9 @@
   --glass-blur: 20px;
 
   /* Gradient Text Colors */
-  --gradient-text-start: #2D231F;
-  --gradient-text-mid: #B87D65;
-  --gradient-text-end: #969A83;
+  --gradient-text-start: #0F172A;
+  --gradient-text-mid: #475569;
+  --gradient-text-end: #64748B;
 
   color-scheme: light;
 }
@@ -143,17 +143,17 @@
   --color-text-secondary: #A6B2C3;
   --color-text-muted: #788599;
 
-  /* Primary Brand: Radiant Berry Rose (#BA2654) */
-  --primary: #BA2654;
-  --primary-hover: #D4366A;
-  --primary-foreground: #FFFFFF;
-  --primary-light: #E65586;
-  --primary-soft: rgba(186, 38, 84, 0.20);
-  --color-primary: #BA2654;
-  --color-primary-hover: #D4366A;
-  --color-primary-light: #E65586;
-  --color-primary-soft: rgba(186, 38, 84, 0.20);
-  --color-primary-foreground: #FFFFFF;
+  /* Primary Brand: Sleek Light Grey / Platinum Slate (#E2E8F0) */
+  --primary: #E2E8F0;
+  --primary-hover: #FFFFFF;
+  --primary-foreground: #0F172A;
+  --primary-light: #F8FAFC;
+  --primary-soft: rgba(226, 232, 240, 0.14);
+  --color-primary: #E2E8F0;
+  --color-primary-hover: #FFFFFF;
+  --color-primary-light: #F8FAFC;
+  --color-primary-soft: rgba(226, 232, 240, 0.14);
+  --color-primary-foreground: #0F172A;
 
   /* Secondary Brand: Slate Blue Gray (#475569) */
   --secondary: #475569;
@@ -166,14 +166,14 @@
   --color-secondary-foreground: #F1F4F8;
   --color-secondary-soft: rgba(71, 85, 105, 0.30);
 
-  /* Accent: Luminous Rose Berry (#E6396E) */
-  --accent: #E6396E;
-  --accent-hover: #F25788;
-  --accent-foreground: #FFFFFF;
-  --accent-soft: rgba(230, 57, 110, 0.20);
-  --color-accent: #BA2654;
-  --color-accent-hover: #D4366A;
-  --color-accent-soft: rgba(186, 38, 84, 0.20);
+  /* Accent: Platinum Silver Slate (#CBD5E1) */
+  --accent: #CBD5E1;
+  --accent-hover: #E2E8F0;
+  --accent-foreground: #0F172A;
+  --accent-soft: rgba(203, 213, 225, 0.14);
+  --color-accent: #CBD5E1;
+  --color-accent-hover: #E2E8F0;
+  --color-accent-soft: rgba(203, 213, 225, 0.14);
 
   /* Muted */
   --muted: #333C48;
@@ -208,8 +208,8 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.40);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.50);
   --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.65);
-  --shadow-glow: 0 0 35px rgba(186, 38, 84, 0.40);
-  --color-glow-cyan: rgba(100, 150, 220, 0.35);
+  --shadow-glow: 0 0 35px rgba(226, 232, 240, 0.25);
+  --color-glow-cyan: rgba(203, 213, 225, 0.25);
   --color-glow-emerald: rgba(78, 186, 135, 0.25);
 
   /* Glassmorphism — Medium Slate Gray */
@@ -218,9 +218,9 @@
   --glass-blur: 24px;
 
   /* Gradient Text Colors */
-  --gradient-text-start: #F1F4F8;
-  --gradient-text-mid: #E6396E;
-  --gradient-text-end: #BA2654;
+  --gradient-text-start: #FFFFFF;
+  --gradient-text-mid: #E2E8F0;
+  --gradient-text-end: #94A3B8;
 
   color-scheme: dark;
 }
@@ -344,4 +344,41 @@ div, svg {
 
 .animate-pulse-glow {
   animation: pulse-glow 5s ease-in-out infinite;
+}
+
+@keyframes smartAssistantBloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  70% {
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseTwice {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  35% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  85% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
 }

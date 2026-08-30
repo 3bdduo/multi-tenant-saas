@@ -8,7 +8,7 @@ import { Preloader } from "@/components/Preloader";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { HeartbeatLoader } from "@/components/ui/HeartbeatLoader";
-import { GlobalBackButton } from "@/components/GlobalBackButton";
+import { SmartAssistant } from "@/components/SmartAssistant";
 
 // Readex Pro: Modern, geometric, friendly Arabic body font (matching Tinta Arabic & Ramis Arabic style)
 const readexPro = Readex_Pro({
@@ -74,7 +74,7 @@ export default function RootLayout({
             <GlobalPreloader />
             <AmbientBackground />
             <HeartbeatLoader />
-            <GlobalBackButton />
+            <SmartAssistant />
             <Preloader>{children}</Preloader>
           </AuthProvider>
         </ThemeProvider>

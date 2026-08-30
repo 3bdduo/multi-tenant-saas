@@ -11,7 +11,7 @@ export default function LandingPage() {
       {/* Subtle Radial Gradient Depth behind Hero */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[560px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(184,125,101,0.08),transparent_75%)] dark:bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(71,85,105,0.20),transparent_75%)] -z-10"
+        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[560px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(100,116,139,0.08),transparent_75%)] dark:bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(71,85,105,0.20),transparent_75%)] -z-10"
       />
 
       {/* Navigation Header */}
@@ -49,12 +49,12 @@ export default function LandingPage() {
           </p>
 
           {/* Quick CTA banner — hidden on mobile (duplicate with patient card) */}
-          <div className="hidden sm:inline-flex mt-6 flex-wrap items-center justify-center gap-3 rounded-2xl bg-primary/10 border border-primary/30 p-2 sm:px-4 sm:py-2.5">
-            <span className="text-xs sm:text-sm font-bold text-text-primary">
+          <div className="hidden sm:inline-flex mt-6 flex-wrap items-center justify-center gap-3.5 rounded-2xl bg-surface-raised/60 border border-border p-2.5 sm:px-5 sm:py-3 shadow-sm backdrop-blur-sm">
+            <span className="text-sm font-bold text-text-primary">
               تريد حجز موعد كشف عند طبيب الآن؟
             </span>
             <Link href="/clinics">
-              <span className="inline-flex items-center gap-1 rounded-xl bg-primary px-3 py-1.5 text-xs font-black text-surface shadow-glow-cyan hover:opacity-90 transition-all">
+              <span className="inline-flex items-center justify-center rounded-xl bg-gradient-to-b from-[#FFFFFF] via-[#F8FAFC] to-[#E2E8F0] dark:from-[#374151] dark:via-[#2D3748] dark:to-[#242A33] border border-border px-5 py-2.5 min-h-[44px] text-sm font-extrabold text-text-primary shadow-[inset_0_1px_0_0_rgba(255,255,255,1),0_2px_6px_0_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15),0_2px_6px_0_rgba(0,0,0,0.4)] hover:brightness-105 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all cursor-pointer">
                 استعراض العيادات والمواعيد المتاحة
               </span>
             </Link>
@@ -68,7 +68,7 @@ export default function LandingPage() {
           <Card
             hover
             glass
-            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border-border/80 hover:border-destructive/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(184,125,101,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
+            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border-border/80 hover:border-destructive/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(100,116,139,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
           >
             <div className="flex flex-col items-center">
               <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive shadow-[0_4px_20px_rgba(200,75,49,0.15)] dark:shadow-[0_0_25px_rgba(230,57,70,0.30)] backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(200,75,49,0.25)]">
@@ -108,10 +108,10 @@ export default function LandingPage() {
           <Card
             hover
             glass
-            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border-border/80 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(184,125,101,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
+            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border-border/80 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(100,116,139,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
           >
             <div className="flex flex-col items-center">
-              <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-primary/10 border border-primary/20 text-primary shadow-[0_4px_20px_rgba(184,125,101,0.15)] dark:shadow-[0_0_25px_rgba(186,38,84,0.30)] dark:border-primary/30 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(184,125,101,0.25)]">
+              <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-primary/10 border border-primary/20 text-primary shadow-[0_4px_20px_rgba(100,116,139,0.15)] dark:shadow-[0_0_25px_rgba(226,232,240,0.18)] dark:border-primary/30 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(100,116,139,0.25)]">
                 <svg width="28" height="28" className="sm:w-[38px] sm:h-[38px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
                 </svg>
@@ -145,10 +145,10 @@ export default function LandingPage() {
           <Card
             hover
             glass
-            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border-border/80 hover:border-accent/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(184,125,101,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
+            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border-border/80 hover:border-accent/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(100,116,139,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
           >
             <div className="flex flex-col items-center">
-              <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-accent/15 border border-accent/25 text-primary-hover dark:text-[#F1F4F8] shadow-[0_4px_20px_rgba(184,125,101,0.15)] dark:shadow-[0_0_25px_rgba(100,150,220,0.25)] dark:border-border/40 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(184,125,101,0.25)]">
+              <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-accent/15 border border-accent/25 text-primary-hover dark:text-[#F1F4F8] shadow-[0_4px_20px_rgba(100,116,139,0.15)] dark:shadow-[0_0_25px_rgba(100,150,220,0.25)] dark:border-border/40 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(100,116,139,0.25)]">
                 <svg width="28" height="28" className="sm:w-[38px] sm:h-[38px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4.5 3h15" />
                   <path d="M6 3v6a6 6 0 0 0 12 0V3" />
@@ -184,7 +184,7 @@ export default function LandingPage() {
           <Card
             hover
             glass
-            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border-border/80 hover:border-secondary/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(184,125,101,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
+            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border-border/80 hover:border-secondary/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(100,116,139,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
           >
             <div className="flex flex-col items-center">
               <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-secondary/10 border border-secondary/20 text-secondary shadow-[0_4px_20px_rgba(150,154,131,0.15)] dark:shadow-[0_0_25px_rgba(100,150,220,0.25)] dark:border-border/40 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(150,154,131,0.25)]">
