@@ -93,8 +93,8 @@ export function HospitalRegisterForm() {
 
   if (success) {
     return (
-      <div className="relative flex min-h-screen items-center justify-center px-6 py-12">
-        <Card glass vibrant className="w-full max-w-md p-10 text-center border-violet-500/30 shadow-2xl animate-scale-in-slow">
+      <div className="relative flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 sm:py-12">
+        <Card glass vibrant className="w-full max-w-md p-6 sm:p-10 text-center border-violet-500/30 shadow-2xl animate-scale-in-slow">
           <div className="mb-4 flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-success/15 border border-success/30">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-success">
               <polyline points="20 6 9 17 4 12" />
@@ -120,11 +120,11 @@ export function HospitalRegisterForm() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-6 py-12">
-      <div className="absolute top-6 left-6 z-20">
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 sm:py-12">
+      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
         <ThemeToggle />
       </div>
-      <Card glass vibrant className="w-full max-w-xl animate-scale-in-slow p-8 border-violet-500/20 shadow-2xl">
+      <Card glass vibrant className="w-full max-w-xl animate-scale-in-slow p-5 sm:p-8 border-violet-500/20 shadow-2xl">
         <div className="flex flex-col items-center text-center">
           <div className="mb-4">
             <Logo size="lg" href={null} />

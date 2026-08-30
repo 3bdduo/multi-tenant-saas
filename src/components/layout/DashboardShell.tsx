@@ -156,7 +156,7 @@ export function DashboardShell({
             />
             {/* Drawer */}
             <div
-              className="fixed top-0 right-0 z-50 h-full w-72 max-w-[85vw] px-4 py-6 flex flex-col gap-4 md:hidden animate-slide-in-right shadow-2xl"
+              className="fixed top-0 right-0 z-50 h-full w-64 max-w-[80vw] px-3 py-5 sm:px-4 sm:py-6 flex flex-col gap-4 md:hidden animate-slide-in-right shadow-2xl"
               style={{
                 background: "var(--color-surface)",
                 borderLeft: "1px solid var(--color-header-border)",
@@ -207,26 +207,27 @@ export function DashboardShell({
         )}
 
         {/* Page Content */}
-        <main className="flex-1 px-3.5 py-4 sm:px-4 sm:py-4 md:px-6 md:py-6 pb-28 md:pb-6">
+        <main className="flex-1 px-3 py-3 sm:px-4 sm:py-4 md:px-6 md:py-6 pb-24 md:pb-6 min-w-0">
           {children}
         </main>
       </div>
 
       {/* ── Mobile Bottom Navigation Bar ── */}
       <nav
-        className="fixed bottom-0 inset-x-0 z-30 flex md:hidden backdrop-blur-xl border-t shadow-[0_-4px_16px_rgba(0,0,0,0.06)]"
+        className="fixed bottom-0 inset-x-0 z-30 flex md:hidden backdrop-blur-xl border-t shadow-[0_-4px_16px_rgba(0,0,0,0.06)] safe-area-pb"
         style={{
           background: "var(--color-header-bg)",
           borderTopColor: "var(--color-header-border)",
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
-        {navItems.slice(0, 4).map((item) => {
+        {navItems.slice(0, 5).map((item) => {
           const active = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] font-semibold transition-colors ${
+              className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[9px] sm:text-[10px] font-semibold transition-colors ${
                 active
                   ? "text-primary"
                   : "text-text-secondary hover:text-text-primary"
@@ -235,7 +236,7 @@ export function DashboardShell({
               <span className={`transition-transform duration-200 ${active ? "scale-110" : ""}`}>
                 {item.icon}
               </span>
-              <span className="truncate max-w-[70px] text-center">{item.label}</span>
+              <span className="truncate max-w-[60px] text-center leading-tight">{item.label}</span>
               {active && (
                 <span className="absolute bottom-0 h-0.5 w-8 rounded-full bg-primary" />
               )}

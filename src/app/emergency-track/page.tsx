@@ -89,13 +89,13 @@ export default function EmergencyTrackPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-4 py-14 md:px-8">
+      <main className="mx-auto max-w-2xl px-4 py-6 sm:py-14 md:px-8">
         {/* Title */}
-        <div className="text-center mb-10 animate-fade-in-slow">
+        <div className="text-center mb-6 sm:mb-10 animate-fade-in-slow">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary">
             متابعة حالة البلاغ
           </div>
-          <h1 className="font-display text-3xl font-extrabold text-text-primary md:text-4xl">
+          <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-text-primary md:text-4xl">
             متابعة بلاغ الطوارئ
           </h1>
           <p className="mt-3 text-sm text-text-secondary max-w-sm mx-auto">
@@ -103,7 +103,7 @@ export default function EmergencyTrackPage() {
           </p>
         </div>
 
-        <Card glass vibrant className="p-8 shadow-2xl border-primary/20">
+        <Card glass vibrant className="p-5 sm:p-8 shadow-2xl border-primary/20">
           <form onSubmit={handleTrack} className="flex gap-3 mb-6" noValidate>
             <input
               type="text"

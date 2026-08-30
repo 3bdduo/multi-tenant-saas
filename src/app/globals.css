@@ -244,6 +244,15 @@ body {
   overflow-x: hidden;
 }
 
+/* Prevent iOS Safari from zooming in on inputs with font-size < 16px */
+@media (max-width: 640px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 /* Global Silky Transitions: 450ms smooth bezier */
 body,
 header, footer, aside, nav, main,

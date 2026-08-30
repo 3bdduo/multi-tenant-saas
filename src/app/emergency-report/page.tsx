@@ -122,14 +122,14 @@ export default function EmergencyReportPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-12 md:px-8">
+      <main className="mx-auto max-w-3xl px-4 py-6 sm:py-12 md:px-8">
         {/* Title */}
-        <div className="text-center mb-10 animate-fade-in-slow">
+        <div className="text-center mb-6 sm:mb-10 animate-fade-in-slow">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-danger/30 bg-danger/10 px-4 py-1.5 text-xs font-bold text-danger">
             <span className="h-2 w-2 rounded-full bg-danger animate-pulse" />
             نظام الإبلاغ عن حالات الطوارئ
           </div>
-          <h1 className="font-display text-3xl font-extrabold text-text-primary md:text-4xl">
+          <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-text-primary md:text-4xl">
             إرسال تقرير طوارئ
           </h1>
           <p className="mt-3 text-sm text-text-secondary max-w-md mx-auto">
@@ -137,7 +137,7 @@ export default function EmergencyReportPage() {
           </p>
         </div>
 
-        <Card glass vibrant className="p-8 shadow-2xl border-danger/20">
+        <Card glass vibrant className="p-5 sm:p-8 shadow-2xl border-danger/20">
           {/* ── STAGE: form ──────────────────────────────────────────────────── */}
           {(stage === "form" || stage === "error") && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
