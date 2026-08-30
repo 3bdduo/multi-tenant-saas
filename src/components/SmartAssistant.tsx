@@ -71,7 +71,8 @@ const ACTIONS: AssistantAction[] = [
 ];
 
 const BTN_SIZE = 52;
-const RADIUS = 148; // Large enough so 7 labels never overlap
+const RADIUS_DESKTOP = 148;
+const RADIUS_MOBILE = 115;
 
 function SmartAssistantInner() {
   const router = useRouter();
@@ -85,6 +86,7 @@ function SmartAssistantInner() {
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showIntroBadge, setShowIntroBadge] = useState(true);
+  const [radius, setRadius] = useState(RADIUS_DESKTOP);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
@@ -94,8 +96,14 @@ function SmartAssistantInner() {
 
   const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
 
-  // Init position + intro badge timer
+  // Init position + intro badge timer + responsive radius
   useEffect(() => {
+    // Responsive radius
+    const updateRadius = () =>
+      setRadius(window.innerWidth < 640 ? RADIUS_MOBILE : RADIUS_DESKTOP);
+    updateRadius();
+    window.addEventListener("resize", updateRadius);
+
     // Disappear intro badge after 3s
     const timer = setTimeout(() => setShowIntroBadge(false), 3000);
 
@@ -107,12 +115,12 @@ function SmartAssistantInner() {
           x: clamp(p.x, 16, window.innerWidth - BTN_SIZE - 16),
           y: clamp(p.y, 16, window.innerHeight - BTN_SIZE - 16),
         });
-        return () => clearTimeout(timer);
+        return () => { clearTimeout(timer); window.removeEventListener("resize", updateRadius); };
       }
     } catch (_) {}
 
     setPos({ x: 24, y: Math.round(window.innerHeight * 0.75) });
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); window.removeEventListener("resize", updateRadius); };
   }, []);
 
   const savePos = useCallback((p: { x: number; y: number }) => {
@@ -199,8 +207,8 @@ function SmartAssistantInner() {
           {ACTIONS.map((item, i) => {
             const disabled = item.isDisabled(pathname, searchType, role);
             const angle = -Math.PI / 2 + (i * 2 * Math.PI) / ACTIONS.length;
-            const ox = Math.round(Math.cos(angle) * RADIUS);
-            const oy = Math.round(Math.sin(angle) * RADIUS);
+            const ox = Math.round(Math.cos(angle) * radius);
+            const oy = Math.round(Math.sin(angle) * radius);
 
             return (
               // ── OUTER: holds the position only (translate to center the button on the orbit point)
