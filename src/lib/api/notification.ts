@@ -6,10 +6,10 @@ import type {
   UpdateNotificationPayload,
 } from "@/types/api";
 
-// Doctor and patient each have their own mirrored set of routes.
-// Doctor routes have no /patient segment; patient routes do.
 
-// POST /notification  (doctor creates a notification for one of their patients)
+
+
+
 export function createNotification(payload: CreateNotificationPayload) {
   return apiFetch<ApiEnvelope<{ createdNotification: Notification }>>(
     "/notification",
@@ -17,7 +17,7 @@ export function createNotification(payload: CreateNotificationPayload) {
   );
 }
 
-// PUT /notification/:id  (doctor edits the message)
+
 export function updateNotification(id: string, payload: UpdateNotificationPayload) {
   return apiFetch<ApiEnvelope<{ updatedNotification: Notification }>>(
     `/notification/${id}`,

@@ -96,7 +96,7 @@ function SmartAssistantInner() {
 
   const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
 
-  // Init position + intro badge timer + responsive radius
+  
   useEffect(() => {
     // Responsive radius
     const updateRadius = () =>
@@ -104,7 +104,7 @@ function SmartAssistantInner() {
     updateRadius();
     window.addEventListener("resize", updateRadius);
 
-    // Disappear intro badge after 3s
+    
     const timer = setTimeout(() => setShowIntroBadge(false), 3000);
 
     try {
@@ -127,7 +127,7 @@ function SmartAssistantInner() {
     try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch (_) {}
   }, []);
 
-  // Close on route change or Escape
+  
   useEffect(() => { setIsOpen(false); }, [pathname]);
   useEffect(() => {
     if (!isOpen) return;
@@ -177,7 +177,7 @@ function SmartAssistantInner() {
 
   if (!pos) return null;
 
-  // Pixel-perfect center of the orb
+  
   const cx = pos.x + BTN_SIZE / 2;
   const cy = pos.y + BTN_SIZE / 2;
 
@@ -192,13 +192,7 @@ function SmartAssistantInner() {
         />
       )}
 
-      {/*
-        ── Satellite Ring ──
-        The container div is placed exactly at the orb center (cx, cy).
-        Each satellite is offset by RADIUS in the correct angle,
-        then centered on itself with translate(-50%, -50%).
-        This guarantees exact equidistance in all directions.
-      */}
+      {}
       {isOpen && (
         <div
           className="fixed z-[99996] pointer-events-none"
@@ -211,9 +205,9 @@ function SmartAssistantInner() {
             const oy = Math.round(Math.sin(angle) * radius);
 
             return (
-              // ── OUTER: holds the position only (translate to center the button on the orbit point)
-              // ── INNER: holds the bloom scale animation only
-              // Separating them prevents the animation from overriding translate(-50%,-50%)
+              
+              
+              
               <div
                 key={item.id}
                 className="absolute pointer-events-none"

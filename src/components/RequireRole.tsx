@@ -22,7 +22,7 @@ export function RequireRole({
     }
   }, [isLoading, isAuthenticated, currentRole, role, router]);
 
-  // Still checking auth — show a full-screen spinner so user never sees black
+  
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#090D12]">
@@ -34,7 +34,7 @@ export function RequireRole({
     );
   }
 
-  // Not authed — render nothing while redirect fires
+  
   if (!isAuthenticated || currentRole !== role) return null;
 
   return <>{children}</>;

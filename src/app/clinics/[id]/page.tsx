@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/http";
 
-/* ─── helpers ─────────────────────────────────────────────── */
+
 function tomorrow() {
   const d = new Date();
   d.setDate(d.getDate() + 1);
@@ -38,7 +38,7 @@ function formatTime(iso: string) {
   }
 }
 
-/* ─── Page ─────────────────────────────────────────────────── */
+
 export default function ClinicDetailsPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { isAuthenticated, role } = useAuth();
@@ -47,22 +47,22 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
   const [loading, setLoading] = useState(true);
   const [patientProfile, setPatientProfile] = useState<Patient | null>(null);
 
-  // Booking form state
+  
   const [date, setDate] = useState(tomorrow());
   const [selectedSlot, setSelectedSlot] = useState("");
   const [visitingType, setVisitingType] = useState<"NEW" | "FOLLOW_UP">("NEW");
   const [hasPreviousVisit, setHasPreviousVisit] = useState(false);
 
-  // Booking confirmation modal
+  
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [contactPhone, setContactPhone] = useState("");
 
-  // Slots state (only for time clinics)
+  
   const [slots, setSlots] = useState<string[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [slotsError, setSlotsError] = useState<string | null>(null);
 
-  // Booking feedback state
+  
   const [bookingLoading, setBookingLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error" | "warning";
@@ -71,7 +71,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     startTime?: string;
   } | null>(null);
 
-  /* ── Load clinic ──────────────────────────────────────── */
+  
   useEffect(() => {
     async function load() {
       try {
@@ -81,13 +81,13 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
           setClinic(loadedClinic);
 
           if (isAuthenticated && role === "Patient") {
-            // Load patient profile for modal pre-fill
+            
             try {
               const profileRes = await getMyProfile();
               setPatientProfile(profileRes.data.patient);
             } catch { /* ignore */ }
 
-            // Check previous visits
+            
             try {
               const apptsRes = await getMyAppointments();
               const myAppts = apptsRes.data.appointments ?? [];
@@ -118,7 +118,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     load();
   }, [params.id, isAuthenticated, role]);
 
-  /* ── Fetch slots ──────────────────────────────────────── */
+  
   const fetchSlots = useCallback(
     async (selectedDate: string) => {
       if (!clinic || clinic.bookingType !== "time" || !selectedDate) return;
@@ -142,7 +142,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     if (clinic?.bookingType === "time" && date) fetchSlots(date);
   }, [date, fetchSlots, clinic?.bookingType]);
 
-  /* ── Open confirmation modal ──────────────────────────── */
+  
   function handleOpenConfirmModal(e: React.FormEvent) {
     e.preventDefault();
     if (!date) return;
@@ -531,7 +531,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
         </Card>
       </div>
 
-      {/* ── Booking Confirmation Modal ─────────────────────── */}
+      {}
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <Card className="max-w-sm w-full shadow-2xl bg-surface p-5 sm:p-6">
@@ -570,7 +570,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
               </div>
             </div>
 
-            {/* Patient Info (pre-filled, read-only) */}
+            {}
             <div className="space-y-3 mb-4">
               <div>
                 <label className="block text-xs font-bold text-text-secondary mb-1">اسم المريض</label>

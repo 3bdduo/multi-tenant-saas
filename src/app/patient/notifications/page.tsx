@@ -33,21 +33,21 @@ export default function PatientNotificationsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterType>("all");
 
-  // Delete All state
+  
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
   const [deletingAll, setDeletingAll] = useState(false);
 
-  // Selected Notification modal state
+  
   const [selectedNotification, setSelectedNotification] = useState<UnifiedNotification | null>(null);
 
   async function loadData() {
     setLoading(true);
     try {
-      // 1. Direct Notifications
+      
       const directRes = await getAllNotificationsForPatient().catch(() => ({ data: { notification: [] } }));
       setDirectList(directRes.data.notification ?? []);
 
-      // 2. General Notifications (Announcements)
+      
       const generalRes = await getMyGeneralNotifications().catch(() => ({ data: { notifications: [] } }));
       setGeneralList(generalRes.data.notifications ?? []);
     } catch (err) {
@@ -61,11 +61,11 @@ export default function PatientNotificationsPage() {
     loadData();
   }, []);
 
-  // Merge and sort all notifications chronologically
+  
   const unifiedList = useMemo(() => {
     const list: UnifiedNotification[] = [];
 
-    // Map direct notifications
+    
     for (const d of directList) {
       let docName = "طبيبك المعالج";
       if (typeof d.doctorId === "object" && d.doctorId !== null) {

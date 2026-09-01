@@ -281,7 +281,7 @@ export const EGYPT_LOCATIONS: Record<string, string[]> = {
 
 export const GOVERNORATES = Object.keys(EGYPT_LOCATIONS);
 
-// قائمة القرى والأحياء لكل مدينة / مركز
+
 export const EGYPT_VILLAGES: Record<string, Record<string, string[]>> = {
   "بني سويف": {
     "بني سويف": ["بياض العرب", "بني هارون", "تزمنت الشرقية", "تزمنت الغربية", "الدواخلة", "شريف باشا", "ابشنا", "نعيم", "الحمرايا", "كوم أبو خلاد", "بني بخيت"],

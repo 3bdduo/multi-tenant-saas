@@ -40,7 +40,7 @@ export default function DoctorPatientDetailPage() {
   const [editSuccess, setEditSuccess] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
-  // Book appointment state
+  
   const [bookDate, setBookDate] = useState("");
   const [bookStartTime, setBookStartTime] = useState("");
   const [bookDoctorId, setBookDoctorId] = useState("");
@@ -175,7 +175,7 @@ export default function DoctorPatientDetailPage() {
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in pb-12">
-      {/* Patient Header Card */}
+      {}
       <Card glass vibrant className="p-5 sm:p-7">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 sm:gap-5 min-w-0">

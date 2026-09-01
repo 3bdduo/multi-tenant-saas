@@ -77,7 +77,7 @@ export function DoctorRegisterForm() {
     setLoading(true);
     try {
       await registerDoctor(form);
-      // Auto-login with the same credentials so user doesn't have to login again
+      
       const role = await login({ nationalId: form.nationalId, password: form.password });
       if (role === "Doctor") {
         router.push("/doctor");

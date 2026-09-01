@@ -40,12 +40,12 @@ export default function PatientAppointmentsPage() {
   async function loadData() {
     setLoading(true);
     try {
-      // 1. Fetch patient's appointments
+      
       const apptsRes = await getMyAppointments();
       const loadedAppts = apptsRes.data.appointments ?? [];
       setAppointments(loadedAppts);
 
-      // 2. Fetch doctors/clinics to populate dropdown options
+      
       try {
         const [docsRes, clinicsRes] = await Promise.allSettled([
           getDoctors(),

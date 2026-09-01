@@ -21,10 +21,10 @@ export default function DoctorAppointmentsPage() {
   const [activeTab, setActiveTab] = useState<TabFilter>("active");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Clinic state (for bookingType & prices)
+  
   const [clinic, setClinic] = useState<Clinic | null>(null);
 
-  // New Appointment Modal State
+  
   const [showNewModal, setShowNewModal] = useState(false);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loadingPatients, setLoadingPatients] = useState(false);
@@ -37,7 +37,7 @@ export default function DoctorAppointmentsPage() {
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  // Slots for time-type clinics
+  
   const [modalSlots, setModalSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
@@ -87,13 +87,13 @@ export default function DoctorAppointmentsPage() {
       }
     }
 
-    // Fetch clinic info to know bookingType
+    
     if (!clinic) {
       try {
         const res = await getMyClinic();
         setClinic(res.data as unknown as Clinic);
       } catch {
-        /* doctor may not have a clinic yet */
+        
       }
     }
   }

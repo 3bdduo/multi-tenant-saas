@@ -29,7 +29,7 @@ export function DashboardShell({
 
   return (
     <div className="flex min-h-screen">
-      {/* ── Desktop Sidebar ── */}
+      {}
       <aside
         className="hidden w-64 shrink-0 flex-col border-l px-4 py-6 md:flex"
         style={{

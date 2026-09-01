@@ -18,7 +18,7 @@ export function GlobalBackButton() {
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Load saved position or set default (bottom-right area for RTL)
+  
   useEffect(() => {
     try {
       const saved = sessionStorage.getItem(STORAGE_KEY);
@@ -28,7 +28,7 @@ export function GlobalBackButton() {
         return;
       }
     } catch (_) {}
-    // Default position: left side, vertically centered
+    
     setPos({ x: 16, y: Math.round(window.innerHeight * 0.45) });
   }, []);
 
@@ -76,12 +76,12 @@ export function GlobalBackButton() {
       setIsDragging(false);
 
       if (!didMove.current) {
-        // It was a tap/click — navigate back
+        
         router.back();
         return;
       }
 
-      // Snap to nearest horizontal edge (left or right)
+      
       if (!btnRef.current) return;
       const btnW = btnRef.current.offsetWidth;
       const btnH = btnRef.current.offsetHeight;
@@ -102,7 +102,7 @@ export function GlobalBackButton() {
     [pos, router, savePos]
   );
 
-  // Exclude root and dashboard pages
+  
   if (
     pathname === "/" ||
     pathname.startsWith("/doctor") ||

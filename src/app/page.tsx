@@ -8,7 +8,7 @@ import { PatientInfoButton } from "./PatientInfoButton";
 export default function LandingPage() {
   return (
     <div className="min-h-screen relative overflow-hidden transition-colors duration-500 ease-silky">
-      {/* Subtle Radial Gradient Depth behind Hero */}
+      {}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[560px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(100,116,139,0.08),transparent_75%)] dark:bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(71,85,105,0.20),transparent_75%)] -z-10"
@@ -26,7 +26,7 @@ export default function LandingPage() {
           <Logo size="md" />
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Hide clinics button on mobile — it's already in the patient card below */}
+            {}
             <Link href="/clinics" className="hidden sm:block">
               <Button variant="vibrant" size="sm" className="font-bold shadow-glow-cyan text-xs sm:text-sm">
                 تصفح العيادات واحجز كشفك
@@ -48,7 +48,7 @@ export default function LandingPage() {
             منصة سحابية متكاملة لربط المرضى، العيادات، والمستشفيات. اختر وجهتك للبدء أو احجز كشفك مباشرةً.
           </p>
 
-          {/* Quick CTA banner — hidden on mobile (duplicate with patient card) */}
+          {}
           <div className="hidden sm:inline-flex mt-6 flex-wrap items-center justify-center gap-3.5 rounded-2xl bg-surface-raised/60 border border-border p-2.5 sm:px-5 sm:py-3 shadow-sm backdrop-blur-sm">
             <span className="text-sm font-bold text-text-primary">
               تريد حجز موعد كشف عند طبيب الآن؟
@@ -61,10 +61,10 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* 4 PORTAL CARDS */}
+        {}
         <div className="grid gap-4 sm:gap-8 sm:grid-cols-2 animate-scale-in-slow max-w-5xl mx-auto">
 
-          {/* 1. EMERGENCY PORTAL CARD */}
+          {}
           <Card
             hover
             glass
@@ -104,7 +104,7 @@ export default function LandingPage() {
             </div>
           </Card>
 
-          {/* 2. PATIENTS PORTAL CARD */}
+          {}
           <Card
             hover
             glass
@@ -141,7 +141,7 @@ export default function LandingPage() {
             </div>
           </Card>
 
-          {/* 3. DOCTORS PORTAL CARD */}
+          {}
           <Card
             hover
             glass
@@ -180,7 +180,7 @@ export default function LandingPage() {
             </div>
           </Card>
 
-          {/* 4. HOSPITALS PORTAL CARD */}
+          {}
           <Card
             hover
             glass

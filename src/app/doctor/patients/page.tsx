@@ -16,7 +16,7 @@ export default function DoctorPatientsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Notification Modal State
+  
   const [showNotifModal, setShowNotifModal] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [notifTitle, setNotifTitle] = useState("");

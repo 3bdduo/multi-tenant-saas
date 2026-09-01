@@ -156,5 +156,5 @@ export const SPECIALTY_GROUPS: SpecialtyCategory[] = [
   },
 ];
 
-// Flattened list of all specialties for easy searching and fallback
+
 export const ALL_SPECIALTIES: string[] = SPECIALTY_GROUPS.flatMap((group) => group.specialties);

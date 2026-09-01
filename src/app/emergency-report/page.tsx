@@ -10,9 +10,9 @@ import { ApiError } from "@/lib/http";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
 
-// ─── Note: The backend has two separate endpoints (create + uploadReport).
-// We chain them automatically behind one submit button so the user never sees
-// the two-step complexity. The caseCode is only revealed after BOTH succeed.
+
+
+
 
 type Stage = "form" | "done" | "error";
 
@@ -24,7 +24,7 @@ export default function EmergencyReportPage() {
   const [notes, setNotes] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
-  // Loading / error
+  
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export default function EmergencyReportPage() {
   const [caseCode, setCaseCode] = useState("");
   const [copied, setCopied] = useState(false);
 
-  // ── Submit: create case THEN upload image (two API calls, one button) ──────
+  
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
@@ -50,7 +50,7 @@ export default function EmergencyReportPage() {
     setLoading(true);
 
     try {
-      // Step 1: create the emergency case → get caseCode
+      
       setLoadingMsg("جارٍ إنشاء البلاغ...");
       const createRes = await createEmergencyCase({
         phoneNumber: phoneNumber.trim(),
@@ -58,7 +58,7 @@ export default function EmergencyReportPage() {
       });
       const code = createRes.data.createdEmergency.caseCode;
 
-      // Step 2: upload the report image immediately
+      
       setLoadingMsg("جارٍ رفع التقرير وإشعار المستشفيات...");
       await uploadEmergencyReport(code, file);
 
@@ -91,7 +91,7 @@ export default function EmergencyReportPage() {
     setCopied(false);
   }
 
-  // ─── Render ────────────────────────────────────────────────────────────────
+  
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Header */}
@@ -138,7 +138,7 @@ export default function EmergencyReportPage() {
         </div>
 
         <Card glass vibrant className="p-5 sm:p-8 shadow-2xl border-danger/20">
-          {/* ── STAGE: form ──────────────────────────────────────────────────── */}
+          {}
           {(stage === "form" || stage === "error") && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
               <Field
@@ -165,7 +165,7 @@ export default function EmergencyReportPage() {
                 />
               </div>
 
-              {/* File upload area */}
+              {}
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-semibold text-text-primary">
                   صورة / ملف التقرير الطبي

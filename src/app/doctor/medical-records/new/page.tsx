@@ -19,7 +19,7 @@ export default function NewMedicalRecordPage() {
 
   const [step, setStep] = useState<Step>("upload");
 
-  // Step 1: Upload
+  
   const fileRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -27,7 +27,7 @@ export default function NewMedicalRecordPage() {
   const [extractError, setExtractError] = useState<string | null>(null);
   const [extractedImageUrl, setExtractedImageUrl] = useState<string>("");
 
-  // Step 2: Review & Edit
+  
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState("");
   const [diagnosis, setDiagnosis] = useState("");
@@ -41,11 +41,11 @@ export default function NewMedicalRecordPage() {
   const [skipImage, setSkipImage] = useState(false);
 
   useEffect(() => {
-    // Load appointments to choose from
+    
     getMyAppointments()
       .then((res) => {
         const all = res.data.appointments ?? [];
-        // Filter only appointments for the given patient if we have one
+        
         const relevant = prefilledPatientId
           ? all.filter((a) => {
               const pId = typeof a.patientId === "object" ? a.patientId._id : a.patientId;
@@ -145,7 +145,7 @@ export default function NewMedicalRecordPage() {
     }
   }
 
-  // ─── Step Indicator ────────────────────────────────────────────────────────
+  
   const STEPS = ["رفع الروشتة", "المراجعة والتعديل", "الحفظ"];
 
   return (

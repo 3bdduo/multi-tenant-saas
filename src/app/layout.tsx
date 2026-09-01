@@ -10,7 +10,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { HeartbeatLoader } from "@/components/ui/HeartbeatLoader";
 import { SmartAssistant } from "@/components/SmartAssistant";
 
-// Readex Pro: Modern, geometric, friendly Arabic body font (matching Tinta Arabic & Ramis Arabic style)
+
 const readexPro = Readex_Pro({
   subsets: ["arabic", "latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -18,7 +18,7 @@ const readexPro = Readex_Pro({
   display: "swap",
 });
 
-// Alexandria: Bold, distinctive modern Arabic display font for headings & branding
+
 const alexandria = Alexandria({
   subsets: ["arabic", "latin"],
   weight: ["500", "600", "700", "800", "900"],
@@ -26,7 +26,7 @@ const alexandria = Alexandria({
   display: "swap",
 });
 
-// Aref Ruqaa Ink: Authentic artistic Arabic brush / ink calligraphy font (matching Lemon Brush style)
+
 const arefRuqaaInk = Aref_Ruqaa_Ink({
   subsets: ["arabic", "latin"],
   weight: ["400", "700"],

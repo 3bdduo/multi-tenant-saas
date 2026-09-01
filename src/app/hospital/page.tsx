@@ -71,7 +71,7 @@ export default function HospitalDashboard() {
     }
   }
 
-  // Normalize statuses (case-insensitive)
+  
   const pendingCases = cases.filter((c) => (c.status || "").toLowerCase() === "open");
   const activeCases = cases.filter((c) => (c.status || "").toLowerCase() === "claimed");
   const resolvedCases = cases.filter((c) => (c.status || "").toLowerCase() === "resolved");

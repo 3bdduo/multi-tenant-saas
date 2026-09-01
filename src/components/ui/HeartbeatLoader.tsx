@@ -12,7 +12,7 @@ function LoaderInner() {
   const startTimeRef = useRef<number>(0);
   const minTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 1. Hide loader when route change completes
+  
   useEffect(() => {
     setProgress(100);
     const elapsed = Date.now() - startTimeRef.current;
@@ -28,7 +28,7 @@ function LoaderInner() {
     };
   }, [pathname, searchParams]);
 
-  // 2. Global event listener for manual API calls or custom triggers
+  
   useEffect(() => {
     function handleGlobalLoading(e: Event) {
       const customEv = e as CustomEvent<{ isLoading: boolean }>;
@@ -57,7 +57,7 @@ function LoaderInner() {
   }, []);
 
 
-  // Progress bar animation tick
+  
   useEffect(() => {
     if (!isLoading) return;
     const interval = setInterval(() => {
@@ -73,7 +73,7 @@ function LoaderInner() {
 
   return (
     <>
-      {/* Top Instant Progress Bar */}
+      {}
       <div className="fixed top-0 left-0 right-0 z-[10000] pointer-events-none">
         <div
           className="h-1 bg-gradient-to-r from-primary via-accent to-emerald-400 shadow-[0_0_15px_rgba(0,229,255,0.9)] transition-all duration-150 ease-out"

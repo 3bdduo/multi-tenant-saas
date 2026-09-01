@@ -1,12 +1,12 @@
 import { apiFetch } from "@/lib/http";
 import type { ApiEnvelope, Patient } from "@/types/api";
 
-// GET /patient  (patient's own profile)
+
 export function getMyProfile() {
   return apiFetch<ApiEnvelope<{ patient: Patient }>>("/patient");
 }
 
-// GET /patient/lookup/:nationalId  (doctor checks if a patient already exists)
+
 export function lookupPatientByNationalId(nationalId: string) {
   return apiFetch<ApiEnvelope<{ patient: Patient | null }>>(
     `/patient/lookup/${nationalId}`

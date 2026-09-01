@@ -60,12 +60,12 @@ export default function RegisterPatientPage() {
         setFoundPatient(p);
         setStep("found");
       } else {
-        // Not found — prefill nationalId in register form
+        
         setForm((f) => ({ ...f, nationalId: lookupId.trim() }));
         setStep("register");
       }
     } catch (err) {
-      // 404 = patient not found in system → proceed to register
+      
       if (err instanceof ApiError && err.status === 404) {
         setForm((f) => ({ ...f, nationalId: lookupId.trim() }));
         setStep("register");

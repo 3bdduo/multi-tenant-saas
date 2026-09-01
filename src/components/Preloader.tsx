@@ -41,7 +41,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
 
     let cancelled = false;
     
-    // Start progress bar animation (0 to 100 over 5 seconds)
+    
     const startTime = Date.now();
     const interval = setInterval(() => {
       if (cancelled) return;
@@ -50,14 +50,14 @@ export function Preloader({ children }: { children: React.ReactNode }) {
       setProgress(newProgress);
     }, 50);
 
-    // Preload assets in the background
+    
     const tasks = [...IMAGE_MANIFEST.map((src) => preloadImage(src))];
     const routeTasks = ROUTES_TO_PREFETCH.map(
       () => new Promise<void>((resolve) => setTimeout(resolve, 40))
     );
     Promise.all([...tasks, ...routeTasks]).catch(() => {});
 
-    // Force 5 seconds duration
+    
     setTimeout(() => {
       if (cancelled) return;
       clearInterval(interval);
@@ -65,7 +65,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
       sessionStorage.setItem("clinic-preloaded", "1");
       setTimeout(() => {
         if (!cancelled) setDone(true);
-      }, 400); // Wait for progress bar to hit 100% smoothly
+      }, 400); 
     }, SPLASH_MS);
 
     return () => {

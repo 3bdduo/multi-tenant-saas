@@ -1,5 +1,5 @@
-// Types derived from the clinic-saas Postman collection
-// Groups: auth, doctor, admin, appointment, patient, medical-record, hospital, general-notification
+
+
 
 export type Role = "Admin" | "Doctor" | "Patient" | "Hospital";
 
@@ -18,8 +18,8 @@ export interface WorkingDay {
     | "Wednesday"
     | "Thursday"
     | "Friday";
-  from: string; // ISO datetime (only HH:mm is used)
-  to: string; // ISO datetime (only HH:mm is used)
+  from: string; 
+  to: string; 
 }
 
 export interface Clinic {
@@ -162,7 +162,7 @@ export interface JwtPayload {
   exp: number;
 }
 
-// ---- Request payload shapes ----
+
 
 export interface RegisterDoctorPayload {
   nationalId: string;
@@ -212,7 +212,7 @@ export interface CreateClinicPayload {
   workingDays: WorkingDay[];
   bookingType?: "time" | "queue";
   maxPatientsPerDay?: number;
-  slotDuration?: number; // minutes per appointment slot, e.g. 30
+  slotDuration?: number; 
   _id?: string;
   isActive?: boolean;
 }
@@ -224,14 +224,14 @@ export interface CreateAppointmentByPatientPayloadV2 extends CreateAppointmentBy
 export interface CreateAppointmentByPatientPayload {
   doctorId: string;
   date: string; // YYYY-MM-DD
-  startTime?: string; // HH:mm if bookingType is time
+  startTime?: string; 
   notes?: string;
   visitingType?: "NEW" | "FOLLOW_UP";
   contactPhone?: string;
 }
 
-// Path is /appointment/doctor/:patientId — the patient is identified in the
-// URL; the body only carries date (doctor creates appt for a specific patient).
+
+
 export interface CreateAppointmentByDoctorPayload {
   date: string;
   startTime?: string;
@@ -239,14 +239,14 @@ export interface CreateAppointmentByDoctorPayload {
   visitingType?: "NEW" | "FOLLOW_UP";
 }
 
-// DELETE /appointment/:id body
+
 export interface DeleteAppointmentPayload {
   doctorId: string;
   clinicId: string;
   date: string; // YYYY-MM-DD
 }
 
-// Only `status` confirmed in the collection example body.
+
 export interface UpdateAppointmentPayload {
   status: AppointmentStatus;
 }
@@ -264,9 +264,9 @@ export interface RenewDoctorSubscriptionPayload {
   monthNumber: number;
 }
 
-// ---- notification ----
-// Doctor-created, patient-facing notifications. Doctor and patient each have
-// their own mirrored set of endpoints (get/delete by id, get/delete all).
+
+
+
 
 export interface Notification {
   _id: string;
@@ -290,7 +290,7 @@ export interface UpdateNotificationPayload {
   message: string;
 }
 
-// ---- Hospital ----
+
 export interface Hospital {
   _id: string;
   hospitalName: string;
@@ -322,7 +322,7 @@ export interface RenewHospitalSubscriptionPayload {
   monthNumber: number;
 }
 
-// ---- General Notification ----
+
 export interface GeneralNotification {
   _id: string;
   title: string;
@@ -339,9 +339,9 @@ export interface CreateGeneralNotificationPayload {
   message: string;
 }
 
-// ---- Emergency Case ----
-// Status values as defined in the backend EmergencyStatus enum:
-// open (waiting) → claimed (hospital responded) → resolved (done) | expired (cancelled/timed-out)
+
+
+
 export type EmergencyStatus = "open" | "claimed" | "resolved" | "expired";
 
 export interface ClaimedHospital {
@@ -365,7 +365,7 @@ export interface EmergencyCase {
   createdAt: string;
 }
 
-// trackByCaseCode returns ONLY these 2 fields (reportImageUrl is excluded on purpose)
+
 export interface TrackEmergencyCaseResponse {
   status: EmergencyStatus;
   interestedHospitalsCount: number;

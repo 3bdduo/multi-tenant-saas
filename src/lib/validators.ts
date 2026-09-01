@@ -1,23 +1,23 @@
-// Egyptian National ID Validator
+
 export function validateEgyptianNationalId(id: string): string | null {
   const clean = id.trim();
   if (!clean) return "الرقم القومي مطلوب";
   if (!/^\d+$/.test(clean)) return "الرقم القومي يجب أن يتكون من أرقام فقط";
   if (clean.length !== 14) return "الرقم القومي يجب أن يتكون من 14 رقمًا بالضبط";
   
-  // First digit: 2 for 1900-1999, 3 for 2000-2099
+  
   const firstDigit = clean[0];
   if (firstDigit !== "2" && firstDigit !== "3") {
     return "الرقم القومي غير صحيح (يجب أن يبدأ بـ 2 أو 3)";
   }
 
-  // Month and Day validation
+  
   const month = parseInt(clean.substring(3, 5), 10);
   const day = parseInt(clean.substring(5, 7), 10);
   if (month < 1 || month > 12) return "تاريخ الميلاد في الرقم القومي غير صحيح (الشهر غير صائب)";
   if (day < 1 || day > 31) return "تاريخ الميلاد في الرقم القومي غير صحيح (اليوم غير صائب)";
 
-  // Governorate code validation (01 to 35, or 88)
+  
   const govCode = parseInt(clean.substring(7, 9), 10);
   const validGovs = [1, 2, 3, 4, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 88];
   if (!validGovs.includes(govCode)) {
@@ -27,12 +27,12 @@ export function validateEgyptianNationalId(id: string): string | null {
   return null;
 }
 
-// Egyptian Phone Number Validator
+
 export function validateEgyptianPhone(phone: string): string | null {
   const clean = phone.trim();
   if (!clean) return "رقم الهاتف مطلوب";
   
-  // Normalizes 010... or +2010... or 2010...
+  
   const egyptPhoneRegex = /^(01[0125]\d{8}|\+?201[0125]\d{8})$/;
   if (!egyptPhoneRegex.test(clean)) {
     return "يرجى إدخال رقم هاتف مصري صحيح (مثال: 01000000000 أو 011/012/015)";
@@ -40,7 +40,7 @@ export function validateEgyptianPhone(phone: string): string | null {
   return null;
 }
 
-// Name Validator (Arabic & English letters only, 2-30 chars)
+
 export function validateName(name: string, fieldLabel = "الاسم"): string | null {
   const clean = name.trim();
   if (!clean) return `${fieldLabel} مطلوب`;

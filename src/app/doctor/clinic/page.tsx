@@ -28,7 +28,7 @@ const EMPTY: CreateClinicPayload = {
   maxPatientsPerDay: 20,
 };
 
-/* ─── Read-only info row ─────────────────────────────────────────────────── */
+
 function InfoRow({
   label,
   value,

@@ -1,5 +1,5 @@
-// Central HTTP client for the clinic-saas backend.
-// Base URL points at the deployed API (Vercel-hosted multi-tenant backend).
+
+
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
@@ -43,8 +43,8 @@ export class ApiError extends Error {
 }
 
 interface RequestOptions extends RequestInit {
-  auth?: boolean; // attach Authorization header (default: true)
-  retry?: boolean; // internal flag to prevent infinite refresh loops
+  auth?: boolean; 
+  retry?: boolean; 
 }
 
 let refreshPromise: Promise<boolean> | null = null;

@@ -8,8 +8,8 @@ import type {
 } from "@/types/api";
 
 // POST /medical-record/extract
-// Sends a prescription image (multipart) to the AI extractor; returns a
-// structured draft the doctor reviews before saving via createMedicalRecord.
+
+
 export async function extractFromPrescriptionImage(file: File) {
   const form = new FormData();
   form.append("image", file);
@@ -19,12 +19,12 @@ export async function extractFromPrescriptionImage(file: File) {
   >("/medical-record/extract", {
     method: "POST",
     body: form,
-    headers: {}, // let the browser set multipart boundary; apiFetch adds Authorization
+    headers: {}, 
   });
 }
 
 // POST /medical-record
-// visibility: "private" (doctor-only) | "shared" (visible to the patient)
+
 export function createMedicalRecord(payload: CreateMedicalRecordPayload) {
   return apiFetch<ApiEnvelope<MedicalRecord>>(
     "/medical-record",
@@ -32,7 +32,7 @@ export function createMedicalRecord(payload: CreateMedicalRecordPayload) {
   );
 }
 
-// GET /medical-record/patient/:patientId  (doctor viewing a patient's records)
+
 export function getMedicalRecordsForPatient(patientId: string) {
   return apiFetch<ApiEnvelope<{ medicalRecords: MedicalRecord[] }>>(
     `/medical-record/patient/${patientId}`

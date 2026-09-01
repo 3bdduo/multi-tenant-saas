@@ -36,7 +36,7 @@ function DoctorNotificationsContent() {
   const [generalNotifications, setGeneralNotifications] = useState<GeneralNotification[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Direct notification form state
+  
   const [patientId, setPatientId] = useState(initialPatientId);
   const [directTitle, setDirectTitle] = useState("");
   const [directMessage, setDirectMessage] = useState("");
@@ -44,27 +44,27 @@ function DoctorNotificationsContent() {
   const [directError, setDirectError] = useState<string | null>(null);
   const [directSuccess, setDirectSuccess] = useState<string | null>(null);
 
-  // General notification form state
+  
   const [generalTitle, setGeneralTitle] = useState("");
   const [generalMessage, setGeneralMessage] = useState("");
   const [generalSending, setGeneralSending] = useState(false);
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [generalSuccess, setGeneralSuccess] = useState<string | null>(null);
 
-  // Patient search filter inside dropdown
+  
   const [patientSearch, setPatientSearch] = useState("");
 
-  // Edit Direct Notification state
+  
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editMessage, setEditMessage] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
-  // Delete All modal state
+  
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
   const [deletingAll, setDeletingAll] = useState(false);
 
-  // Load all initial data
+  
   async function loadData() {
     setLoading(true);
     try {
@@ -75,11 +75,11 @@ function DoctorNotificationsContent() {
         .catch(() => setPatients([]))
         .finally(() => setPatientsLoading(false));
 
-      // 2. Direct notifications sent by doctor
+      
       const directRes = await getAllNotificationsForDoctor().catch(() => ({ data: { notifications: [] } }));
       setDirectNotifications(directRes.data.notifications ?? []);
 
-      // 3. General notifications sent by doctor
+      
       const generalRes = await getMyGeneralNotifications().catch(() => ({ data: { notifications: [] } }));
       setGeneralNotifications(generalRes.data.notifications ?? []);
     } catch (err) {
@@ -93,7 +93,7 @@ function DoctorNotificationsContent() {
     loadData();
   }, []);
 
-  // Filtered patients for dropdown
+  
   const filteredPatients = useMemo(() => {
     if (!patientSearch.trim()) return patients;
     const q = patientSearch.toLowerCase();

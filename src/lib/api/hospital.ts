@@ -5,12 +5,12 @@ import type {
   EmergencyCase,
 } from "@/types/api";
 
-// GET /hospital  (hospital gets their own profile)
+
 export function getMyHospital() {
   return apiFetch<ApiEnvelope<{ hospital: Hospital }>>("/hospital");
 }
 
-// PUT /hospital  (hospital updates their own profile)
+
 export function updateMyHospital(payload: Partial<Hospital>) {
   return apiFetch<ApiEnvelope<{ updatedHospital: Hospital }>>("/hospital", {
     method: "PUT",
@@ -18,7 +18,7 @@ export function updateMyHospital(payload: Partial<Hospital>) {
   });
 }
 
-// GET /emergency-case  (all open cases — Hospital only)
+
 export function getEmergencyCases() {
   return apiFetch<ApiEnvelope<{ emergencies: EmergencyCase[] }>>("/emergency-case");
 }

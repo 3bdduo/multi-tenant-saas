@@ -32,7 +32,7 @@ export default function DoctorAccountSettingsPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
 
-  // Delete Account State
+  
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const router = useRouter();
@@ -106,7 +106,7 @@ export default function DoctorAccountSettingsPage() {
     setSavingPassword(true);
     try {
       await updateMe({
-        // Payload for password change
+        
         ...(oldPassword ? { oldPassword } : {}),
         password: newPassword,
       } as any);
@@ -126,7 +126,7 @@ export default function DoctorAccountSettingsPage() {
     setDeleting(true);
     try {
       await deleteMyAccount();
-      // Clear all auth tokens properly and redirect
+      
       clearTokens();
       router.push("/login");
     } catch (err) {
@@ -153,7 +153,7 @@ export default function DoctorAccountSettingsPage() {
         </p>
       </div>
 
-      {/* Card 1: Personal Info & Login Details */}
+      {}
       <Card glass vibrant className="p-6 md:p-8 shadow-2xl">
         <h2 className="font-display text-lg font-bold text-text-primary mb-5 flex items-center gap-2 border-b border-border/50 pb-3">
           <span></span>
@@ -225,7 +225,7 @@ export default function DoctorAccountSettingsPage() {
         </form>
       </Card>
 
-      {/* Card 2: Password Change */}
+      {}
       <Card glass vibrant className="p-6 md:p-8 shadow-2xl">
         <h2 className="font-display text-lg font-bold text-text-primary mb-5 flex items-center gap-2 border-b border-border/50 pb-3">
           <span></span>
@@ -282,7 +282,7 @@ export default function DoctorAccountSettingsPage() {
         </form>
       </Card>
 
-      {/* Card 3: Danger Zone */}
+      {}
       <Card className="p-6 md:p-8 border-danger/30 bg-danger/5 shadow-2xl">
         <h2 className="font-display text-lg font-bold text-danger mb-2">
           منطقة الخطر (حذف الحساب)
@@ -299,7 +299,7 @@ export default function DoctorAccountSettingsPage() {
         </Button>
       </Card>
 
-      {/* Delete Confirmation Modal */}
+      {}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <Card className="max-w-md w-full shadow-2xl border-danger/50 bg-surface">

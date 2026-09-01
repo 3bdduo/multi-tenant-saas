@@ -17,17 +17,17 @@ export default function DoctorDashboardPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [needsClinic, setNeedsClinic] = useState(false);
-  // isPaid: null = loading, true = active, false = not activated/expired
+  
   const [isPaid, setIsPaid] = useState<boolean | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
-        // ─── 1. Check activation status directly from API ───────────────
-        // GET /doctor returns 403 if account is not paid/activated.
-        // This is the authoritative source — the JWT alone is not enough
-        // because it was signed before the admin activated the account.
+        
+        
+        
+        
         let doctorActive = false;
         try {
           await getMe();
@@ -39,9 +39,9 @@ export default function DoctorDashboardPage() {
         if (cancelled) return;
         setIsPaid(doctorActive);
 
-        if (!doctorActive) return; // Show activation screen — no need to load more
+        if (!doctorActive) return; 
 
-        // ─── 2. Load dashboard data ──────────────────────────────────────
+        
         const [clinicRes, apptRes, patientRes] = await Promise.allSettled([
           getMyClinic(),
           getMyAppointments(),
@@ -71,7 +71,7 @@ export default function DoctorDashboardPage() {
     return <DashboardSkeleton />;
   }
 
-  // ── Account NOT activated / subscription expired ──────────────────────
+  
   if (isPaid === false) {
     return (
       <Card className="mx-auto max-w-xl text-center animate-fade-in p-8 border-warning/30 bg-surface">
@@ -100,7 +100,7 @@ export default function DoctorDashboardPage() {
     );
   }
 
-  // ── No clinic yet ─────────────────────────────────────────────────────
+  
   if (needsClinic) {
     return (
       <Card className="mx-auto max-w-xl text-center animate-fade-in p-6 sm:p-8 border-warning/30">

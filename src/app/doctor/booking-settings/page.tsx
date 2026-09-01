@@ -170,14 +170,14 @@ export default function BookingSettingsPage() {
         </div>
       )}
 
-      {/* ── Section 1: General Booking Rules ── */}
+      {}
       <Card glass vibrant className="border-primary/20 p-6 md:p-8 shadow-xl">
         <h2 className="font-display text-lg font-extrabold text-text-primary mb-6">
           نظام الحجز والقدرة الاستيعابية
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Booking System Selector */}
+          {}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-bold text-text-primary">
               طريقة ونظام الحجز للمرضى *

@@ -8,7 +8,7 @@ import type {
   UpdateAppointmentPayload,
 } from "@/types/api";
 
-// POST /appointment/patient  (patient books with a doctor)
+
 export function createAppointmentByPatient(
   payload: CreateAppointmentByPatientPayload
 ) {
@@ -18,7 +18,7 @@ export function createAppointmentByPatient(
   );
 }
 
-// POST /appointment/doctor/:patientId  (doctor books on behalf of a patient)
+
 export function createAppointmentByDoctor(
   patientId: string,
   payload: CreateAppointmentByDoctorPayload

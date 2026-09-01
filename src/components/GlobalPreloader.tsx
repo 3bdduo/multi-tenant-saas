@@ -55,7 +55,7 @@ export function GlobalPreloader() {
   const { isAuthenticated, role } = useAuth();
 
   useEffect(() => {
-    // 1. Prefetch Next.js page bundles in the background
+    
     const routesToPrefetch = [...COMMON_ROUTES];
     if (isAuthenticated) {
       if (role === "Doctor") routesToPrefetch.push(...DOCTOR_ROUTES);
@@ -64,17 +64,17 @@ export function GlobalPreloader() {
       else if (role === "Hospital") routesToPrefetch.push(...HOSPITAL_ROUTES);
     }
 
-    // Staggered prefetch to keep main thread smooth
+    
     const timer = setTimeout(() => {
       routesToPrefetch.forEach((route) => {
         try {
           router.prefetch(route);
         } catch {
-          // ignore prefetch errors
+          
         }
       });
 
-      // 2. Prefetch API Data into in-memory cache
+      
       prefetchApi("/clinic/paid", { auth: false });
 
       if (isAuthenticated) {

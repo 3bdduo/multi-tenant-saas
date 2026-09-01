@@ -1,7 +1,7 @@
 import { apiFetch } from "@/lib/http";
 import type { ApiEnvelope, EmergencyCase, CreateEmergencyCasePayload, TrackEmergencyCaseResponse } from "@/types/api";
 
-// POST /emergency-case  (Public — anyone can create)
+
 export function createEmergencyCase(payload: CreateEmergencyCasePayload) {
   return apiFetch<ApiEnvelope<{ createdEmergency: EmergencyCase }>>("/emergency-case", {
     method: "POST",
@@ -10,7 +10,7 @@ export function createEmergencyCase(payload: CreateEmergencyCasePayload) {
   });
 }
 
-// PUT /emergency-case/report/:caseCode  (Public — upload report image)
+
 export function uploadEmergencyReport(caseCode: string, file: File) {
   const formData = new FormData();
   formData.append("image", file);

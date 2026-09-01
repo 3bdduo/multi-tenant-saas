@@ -26,7 +26,7 @@ export function registerHospital(payload: RegisterHospitalPayload) {
   );
 }
 
-// POST /auth/register/patient (requires doctor's token — a doctor is registering a patient)
+
 export function registerPatient(payload: RegisterPatientPayload) {
   return apiFetch<ApiEnvelope<{ createdPatient: Record<string, unknown> }>>(
     "/auth/register/patient",
@@ -34,7 +34,7 @@ export function registerPatient(payload: RegisterPatientPayload) {
   );
 }
 
-// POST /auth/login  (nationalId + password, used by every role)
+
 export function login(payload: LoginPayload) {
   return apiFetch<ApiEnvelope<AuthTokens>>("/auth/login", {
     method: "POST",

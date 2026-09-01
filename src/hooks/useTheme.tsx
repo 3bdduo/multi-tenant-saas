@@ -15,7 +15,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
-    // Reconcile with whatever the blocking inline script already applied.
+    
     const isDark = document.documentElement.classList.contains("dark");
     setTheme(isDark ? "dark" : "light");
   }, []);

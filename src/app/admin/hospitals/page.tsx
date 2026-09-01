@@ -17,7 +17,7 @@ export default function AdminHospitalsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Delete modal state
+  
   const [hospitalToDelete, setHospitalToDelete] = useState<Hospital | null>(null);
   const [deleting, setDeleting] = useState(false);
 

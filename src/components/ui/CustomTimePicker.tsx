@@ -2,11 +2,11 @@
 
 interface CustomTimePickerProps {
   label: string;
-  value: string; // always "HH:MM" 24-hour format
+  value: string; 
   onChange: (val: string) => void;
 }
 
-/** Convert 24h "HH:MM" → readable Arabic label */
+
 function formatDisplay(val: string): string {
   if (!val || !val.includes(":")) return "-- : --";
   const [hStr, mStr] = val.split(":");

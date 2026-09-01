@@ -27,7 +27,7 @@ export function PatientInfoButton() {
 
           <Card glass vibrant className="relative z-10 w-full max-w-md p-8 border-accent/40 shadow-2xl animate-scale-in-slow">
             <div className="flex flex-col items-center text-center">
-              {/* Luxury Icon Container */}
+              {}
               <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-accent/20 to-accent/5 border border-accent/30 text-accent shadow-glow-emerald">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />

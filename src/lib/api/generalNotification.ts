@@ -5,7 +5,7 @@ import type {
   GeneralNotification,
 } from "@/types/api";
 
-// POST /general-notification/doctor  (doctor sends a general notification)
+
 export function createGeneralNotificationByDoctor(
   payload: CreateGeneralNotificationPayload
 ) {
@@ -15,7 +15,7 @@ export function createGeneralNotificationByDoctor(
   );
 }
 
-// POST /general-notification/admin  (admin sends a general notification)
+
 export function createGeneralNotificationByAdmin(
   payload: CreateGeneralNotificationPayload
 ) {
@@ -25,7 +25,7 @@ export function createGeneralNotificationByAdmin(
   );
 }
 
-// GET /general-notification  (get notifications for current user — any role)
+
 export function getMyGeneralNotifications() {
   return apiFetch<ApiEnvelope<{ notifications: GeneralNotification[] }>>(
     "/general-notification"

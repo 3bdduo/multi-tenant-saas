@@ -11,11 +11,7 @@ interface LogoProps {
   href?: string | null;
 }
 
-/**
- * NabdLogoIcon — Exact vector representation of the luxury Nabd pulse icon:
- * Gradient squircle (crimson-rose top-left to deep teal-cyan bottom-right)
- * with a crisp white EKG heartbeat waveform and stethoscope sensor accent.
- */
+
 export function NabdLogoIcon({
   size = "md",
   className = "",
