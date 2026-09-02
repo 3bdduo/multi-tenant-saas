@@ -82,6 +82,8 @@ export interface Patient {
   lastName: string;
   phoneNumber: string;
   createdBy?: string;
+  isFamily?: boolean;
+  familyMembers?: { name: string; phoneNumber: string }[];
   createdAt: string;
   updatedAt: string;
 }
@@ -135,9 +137,13 @@ export interface MedicalRecord {
 export interface PatientDocument {
   _id: string;
   patientId: string;
-  fileUrl: string;
-  publicId: string;
+  fileUrl?: string;
+  publicId?: string;
   fileName?: string;
+  targetDoctorId?: string | { _id: string; firstName: string; lastName: string };
+  patientNotes?: string;
+  aiAnalysis?: string;
+  familyMemberName?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -180,6 +186,13 @@ export interface RegisterPatientPayload {
   lastName: string;
   phoneNumber: string;
   email: string;
+}
+
+export interface RegisterFamilyPatientPayload {
+  nationalId: string;
+  password: string;
+  email: string;
+  familyMembers: { name: string; phoneNumber: string }[];
 }
 
 export interface LoginPayload {

@@ -10,9 +10,14 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
 
+import { PatientRegisterForm } from "./PatientRegisterForm";
+import { FamilyRegisterForm } from "./FamilyRegisterForm";
+
 function RegisterContent() {
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
+  const redirect = searchParams.get("redirect");
+  const redirectSuffix = redirect ? `&redirect=${encodeURIComponent(redirect)}` : "";
 
   if (type === "doctor") {
     return <DoctorRegisterForm />;
@@ -20,6 +25,14 @@ function RegisterContent() {
 
   if (type === "hospital") {
     return <HospitalRegisterForm />;
+  }
+
+  if (type === "patient") {
+    return <PatientRegisterForm />;
+  }
+
+  if (type === "family") {
+    return <FamilyRegisterForm />;
   }
 
   return (
@@ -41,13 +54,23 @@ function RegisterContent() {
         </div>
 
         <div className="mt-8 flex flex-col gap-4">
-          <Link href="/register?type=doctor" className="w-full">
+          <Link href={`/register?type=patient${redirectSuffix}`} className="w-full">
             <Button variant="vibrant" size="lg" className="w-full justify-center text-base font-bold shadow-glow-cyan">
+              إنشاء حساب مريض (فردي)
+            </Button>
+          </Link>
+          <Link href={`/register?type=family${redirectSuffix}`} className="w-full">
+            <Button variant="outline" size="lg" className="w-full justify-center text-base font-bold border-primary/40 hover:bg-primary/10">
+              إنشاء حساب أسرة (عائلي)
+            </Button>
+          </Link>
+          <Link href="/register?type=doctor" className="w-full">
+            <Button variant="secondary" size="lg" className="w-full justify-center text-base font-medium text-text-secondary hover:text-text-primary">
               إنشاء حساب عيادة طبية (طبيب)
             </Button>
           </Link>
           <Link href="/register?type=hospital" className="w-full">
-            <Button variant="secondary" size="lg" className="w-full justify-center text-base font-semibold shadow-glow-purple bg-violet-500 hover:bg-violet-600 border-violet-500">
+            <Button variant="ghost" size="lg" className="w-full justify-center text-base font-medium text-text-secondary hover:text-text-primary">
               إنشاء حساب مستشفى
             </Button>
           </Link>

@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
-import { PatientInfoButton } from "./PatientInfoButton";
 
 export default function LandingPage() {
   return (
@@ -137,7 +136,16 @@ export default function LandingPage() {
                   تسجيل الدخول لمتابعة مواعيدي
                 </Button>
               </Link>
-              <PatientInfoButton />
+              <Link href="/register?type=patient" className="w-full">
+                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold">
+                  إنشاء حساب مريض جديد
+                </Button>
+              </Link>
+              <Link href="/register?type=family" className="w-full">
+                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold">
+                  تسجيل حساب عائلي
+                </Button>
+              </Link>
             </div>
           </Card>
 

@@ -338,11 +338,12 @@ export default function DoctorPatientDetailPage() {
                 });
 
                 const isImage =
-                  doc.fileUrl.endsWith(".jpg") ||
-                  doc.fileUrl.endsWith(".jpeg") ||
-                  doc.fileUrl.endsWith(".png") ||
-                  doc.fileUrl.endsWith(".webp") ||
-                  doc.fileUrl.includes("image");
+                  doc.fileUrl &&
+                  (doc.fileUrl.endsWith(".jpg") ||
+                    doc.fileUrl.endsWith(".jpeg") ||
+                    doc.fileUrl.endsWith(".png") ||
+                    doc.fileUrl.endsWith(".webp") ||
+                    doc.fileUrl.includes("image"));
 
                 return (
                   <Card key={doc._id} hover className="flex flex-col justify-between gap-3 p-4 sm:p-5 border-border/60">
@@ -350,7 +351,7 @@ export default function DoctorPatientDetailPage() {
                       <div className="flex items-center gap-3">
                         <div className="min-w-0 flex-1">
                           <p className="font-bold text-sm text-text-primary truncate">
-                            {doc.fileName || "مستند مرفق"}
+                            {doc.fileName || (doc.fileUrl ? "مستند مرفق" : "ملاحظة صحية")}
                           </p>
                           <div className="flex flex-wrap gap-x-2 text-[11px] text-text-secondary mt-0.5">
                             <span>تاريخ الرفع: {dateStr}</span>
@@ -359,18 +360,51 @@ export default function DoctorPatientDetailPage() {
                         </div>
                       </div>
 
-                      {isImage && (
+                      {isImage && doc.fileUrl && (
                         <div className="mt-3 rounded-xl overflow-hidden border border-border/50 bg-bg max-h-36 flex items-center justify-center">
                           <img src={doc.fileUrl} alt="doc" className="max-h-36 object-contain" />
                         </div>
                       )}
+
+                      {/* Display new fields if present */}
+                      {(doc.familyMemberName || doc.patientNotes || doc.aiAnalysis) && (
+                        <div className="mt-3 flex flex-col gap-2 p-3 rounded-xl bg-surface-raised border border-border/40 text-xs">
+                          {doc.familyMemberName && (
+                            <div>
+                              <span className="font-bold text-text-secondary">اسم الفرد: </span>
+                              <span className="text-text-primary">{doc.familyMemberName}</span>
+                            </div>
+                          )}
+                          {doc.patientNotes && (
+                            <div>
+                              <span className="font-bold text-text-secondary">ملاحظات المريض: </span>
+                              <span className="text-text-primary whitespace-pre-wrap">{doc.patientNotes}</span>
+                            </div>
+                          )}
+                          {doc.aiAnalysis && (
+                            <div className="pt-2 border-t border-border/50 mt-1">
+                              <span className="font-bold text-primary flex items-center gap-1 mb-1">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                                تحليل الذكاء الاصطناعي:
+                              </span>
+                              <span className="text-text-primary whitespace-pre-wrap leading-relaxed block">{doc.aiAnalysis}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
-                    <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="mt-2">
-                      <Button variant="outline" size="sm" className="w-full font-bold justify-center">
-                        عرض / تحميل المستند
-                      </Button>
-                    </a>
+                    {doc.fileUrl ? (
+                      <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="mt-2">
+                        <Button variant="outline" size="sm" className="w-full font-bold justify-center">
+                          عرض / تحميل المستند
+                        </Button>
+                      </a>
+                    ) : (
+                      <div className="mt-2 text-center text-xs text-text-secondary italic">
+                        (ملاحظة نصية بدون ملف مرفق)
+                      </div>
+                    )}
                   </Card>
                 );
               })}

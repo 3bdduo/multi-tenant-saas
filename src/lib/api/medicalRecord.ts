@@ -53,13 +53,44 @@ export function getMyMedicalRecords() {
   );
 }
 
-// POST /medical-record/patient/upload  (patient uploads a document file)
-export function uploadPatientDocument(file: File) {
+// POST /medical-record/patient/upload  (patient uploads document or notes)
+export function uploadPatientDocument(
+  file?: File | null,
+  options?: { targetDoctorId?: string; patientNotes?: string; familyMemberName?: string }
+) {
   const form = new FormData();
-  form.append("file", file);
+  if (file) form.append("file", file);
+  if (options?.targetDoctorId) form.append("targetDoctorId", options.targetDoctorId);
+  if (options?.patientNotes) form.append("patientNotes", options.patientNotes);
+  if (options?.familyMemberName) form.append("familyMemberName", options.familyMemberName);
   return apiFetch<ApiEnvelope<{ document: PatientDocument }>>(
     "/medical-record/patient/upload",
     { method: "POST", body: form }
+  );
+}
+
+// PUT /medical-record/patient/document/:id  (patient updates document/notes)
+export function updatePatientDocument(
+  id: string,
+  file?: File | null,
+  options?: { targetDoctorId?: string; patientNotes?: string; familyMemberName?: string }
+) {
+  const form = new FormData();
+  if (file) form.append("file", file);
+  if (options?.targetDoctorId !== undefined) form.append("targetDoctorId", options.targetDoctorId);
+  if (options?.patientNotes !== undefined) form.append("patientNotes", options.patientNotes);
+  if (options?.familyMemberName !== undefined) form.append("familyMemberName", options.familyMemberName);
+  return apiFetch<ApiEnvelope<{ document: PatientDocument }>>(
+    `/medical-record/patient/document/${id}`,
+    { method: "PUT", body: form }
+  );
+}
+
+// DELETE /medical-record/patient/document/:id  (patient deletes document/notes permanently)
+export function deletePatientDocument(id: string) {
+  return apiFetch<ApiEnvelope<null>>(
+    `/medical-record/patient/document/${id}`,
+    { method: "DELETE" }
   );
 }
 

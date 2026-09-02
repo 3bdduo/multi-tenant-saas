@@ -1,10 +1,9 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { lookupPatientByNationalId } from "@/lib/api/patient";
+import { lookupPatientByNationalId, getNonClinicPatients } from "@/lib/api/patient";
 import { registerPatient } from "@/lib/api/auth";
-import { createAppointmentByDoctor } from "@/lib/api/appointment";
 import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -76,6 +75,28 @@ export default function RegisterPatientPage() {
       setLookupLoading(false);
     }
   }
+
+  // Non-clinic patients
+  const [nonClinicPatients, setNonClinicPatients] = useState<Patient[]>([]);
+  const [nonClinicSearch, setNonClinicSearch] = useState("");
+  const [loadingNonClinic, setLoadingNonClinic] = useState(false);
+
+  // Fetch non-clinic patients on load or search change
+  useEffect(() => {
+    async function fetchNonClinic() {
+      setLoadingNonClinic(true);
+      try {
+        const res = await getNonClinicPatients(nonClinicSearch);
+        setNonClinicPatients(res.data.patients);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingNonClinic(false);
+      }
+    }
+    const t = setTimeout(fetchNonClinic, 300);
+    return () => clearTimeout(t);
+  }, [nonClinicSearch]);
 
   function validateRegisterForm(): boolean {
     const errs: Record<string, string> = {};
@@ -159,25 +180,75 @@ export default function RegisterPatientPage() {
 
       {/* Step 1: Lookup */}
       {step === "lookup" && (
-        <Card glass vibrant className="border-primary/20">
-          <h2 className="font-display text-lg font-bold text-text-primary mb-4">
-             البحث بالرقم القومي
-          </h2>
-          <form onSubmit={handleLookup} className="flex flex-col gap-4">
-            <Field
-              label="الرقم القومي للمريض (14 رقمًا)"
-              inputMode="numeric"
-              required
-              value={lookupId}
-              onChange={(e) => { setLookupId(e.target.value); setLookupError(null); }}
-              error={lookupError ?? undefined}
-              placeholder="مثال: 30005141501234"
+        <div className="flex flex-col gap-6">
+          <Card glass vibrant className="border-primary/20">
+            <h2 className="font-display text-lg font-bold text-text-primary mb-4">
+               البحث بالرقم القومي
+            </h2>
+            <form onSubmit={handleLookup} className="flex flex-col gap-4">
+              <Field
+                label="الرقم القومي للمريض (14 رقمًا)"
+                inputMode="numeric"
+                required
+                value={lookupId}
+                onChange={(e) => { setLookupId(e.target.value); setLookupError(null); }}
+                error={lookupError ?? undefined}
+                placeholder="مثال: 30005141501234"
+              />
+              <Button type="submit" variant="vibrant" disabled={lookupLoading} className="shadow-glow-cyan">
+                {lookupLoading ? "جارٍ البحث..." : "بحث في النظام"}
+              </Button>
+            </form>
+          </Card>
+
+          {/* List of non-clinic patients */}
+          <Card className="border-border/60">
+            <h2 className="font-display text-lg font-bold text-text-primary mb-2">
+              مرضى مسجلين بالنظام
+            </h2>
+            <p className="text-xs text-text-secondary mb-4">
+              هؤلاء المرضى مسجلين مسبقاً في المنصة أو في عيادات أخرى. يمكنك البحث عنهم واختيارهم مباشرة.
+            </p>
+            <input
+              type="text"
+              placeholder="ابحث بالاسم أو الرقم القومي..."
+              value={nonClinicSearch}
+              onChange={(e) => setNonClinicSearch(e.target.value)}
+              className="mb-4 w-full rounded-xl border border-border/80 bg-surface px-4 py-2.5 text-sm outline-none transition-all focus:border-primary focus:shadow-[0_0_0_3px_rgba(var(--color-primary-rgb),0.1)]"
             />
-            <Button type="submit" variant="vibrant" disabled={lookupLoading} className="shadow-glow-cyan">
-              {lookupLoading ? "جارٍ البحث..." : "بحث في النظام"}
-            </Button>
-          </form>
-        </Card>
+            
+            {loadingNonClinic ? (
+              <div className="flex justify-center py-4">
+                <span className="h-6 w-6 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+              </div>
+            ) : nonClinicPatients.length > 0 ? (
+              <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
+                {nonClinicPatients.map(p => (
+                  <div key={p._id} className="flex items-center justify-between rounded-xl bg-surface-raised p-3 border border-border/40 hover:border-primary/30 transition-colors">
+                    <div>
+                      <p className="font-bold text-sm text-text-primary">{p.firstName} {p.lastName}</p>
+                      <p className="text-xs text-text-secondary">{p.nationalId} • {p.phoneNumber}</p>
+                    </div>
+                    <Button 
+                      variant="secondary" 
+                      size="sm" 
+                      onClick={() => {
+                        setFoundPatient(p);
+                        setStep("found");
+                      }}
+                    >
+                      اختيار
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-text-secondary text-center py-4">
+                لا يوجد مرضى مسجلين يطابقون بحثك.
+              </p>
+            )}
+          </Card>
+        </div>
       )}
 
       {/* Step 2: Found */}
@@ -185,7 +256,7 @@ export default function RegisterPatientPage() {
         <Card glass vibrant className="border-success/30">
           <div className="flex items-center gap-3 mb-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-success/20 text-success text-xl">
-              
+              ✓
             </div>
             <div>
               <p className="font-bold text-text-primary">المريض موجود في النظام!</p>
@@ -198,7 +269,7 @@ export default function RegisterPatientPage() {
               {foundPatient.firstName} {foundPatient.lastName}
             </p>
             <p className="text-sm text-text-secondary"> {foundPatient.phoneNumber}</p>
-            <p className="text-sm text-text-secondary"> {foundPatient.email}</p>
+            <p className="text-sm text-text-secondary"> {foundPatient.nationalId}</p>
           </div>
 
           <div className="mt-4 flex flex-wrap gap-3">
@@ -207,7 +278,7 @@ export default function RegisterPatientPage() {
               className="shadow-glow-cyan"
               onClick={() => router.push(`/doctor/patients/${foundPatient._id}`)}
             >
-              عرض ملفه الكامل
+              الذهاب لملف المريض
             </Button>
             <Button
               variant="secondary"

@@ -72,6 +72,9 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
   } | null>(null);
 
   
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [selectedFamilyMember, setSelectedFamilyMember] = useState<string>("");
+
   useEffect(() => {
     async function load() {
       try {
@@ -81,13 +84,15 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
           setClinic(loadedClinic);
 
           if (isAuthenticated && role === "Patient") {
-            
             try {
               const profileRes = await getMyProfile();
-              setPatientProfile(profileRes.data.patient);
+              const p = profileRes.data.patient;
+              setPatientProfile(p);
+              if (p.isFamily && p.familyMembers && p.familyMembers.length > 0) {
+                setSelectedFamilyMember(p.familyMembers[0].name);
+              }
             } catch { /* ignore */ }
 
-            
             try {
               const apptsRes = await getMyAppointments();
               const myAppts = apptsRes.data.appointments ?? [];
@@ -110,7 +115,6 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
           }
         }
       } catch {
-        /* not found */
       } finally {
         setLoading(false);
       }
@@ -118,7 +122,6 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     load();
   }, [params.id, isAuthenticated, role]);
 
-  
   const fetchSlots = useCallback(
     async (selectedDate: string) => {
       if (!clinic || clinic.bookingType !== "time" || !selectedDate) return;
@@ -142,22 +145,16 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     if (clinic?.bookingType === "time" && date) fetchSlots(date);
   }, [date, fetchSlots, clinic?.bookingType]);
 
-  
   function handleOpenConfirmModal(e: React.FormEvent) {
     e.preventDefault();
     if (!date) return;
-    if (!isAuthenticated) {
-      router.push(`/login?redirect=/clinics/${params.id}`);
-      return;
-    }
-    if (role !== "Patient") {
-      setMessage({ type: "error", text: "فقط المرضى يمكنهم الحجز. يرجى تسجيل الدخول كـ مريض." });
+    if (!isAuthenticated || role !== "Patient") {
+      // Handled inline in the UI — nothing to do here
       return;
     }
     setShowConfirmModal(true);
   }
 
-  /* ── Confirm booking ──────────────────────────────────── */
   async function handleConfirmBook() {
     if (!date || !clinic) return;
 
@@ -174,17 +171,24 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     setShowConfirmModal(false);
 
     try {
+      let finalNotes = "";
+      if (patientProfile?.isFamily && selectedFamilyMember) {
+        finalNotes = `[حجز للفرد: ${selectedFamilyMember}]`;
+      }
+
       const payload: {
         doctorId: string;
         date: string;
         startTime?: string;
         visitingType?: "NEW" | "FOLLOW_UP";
         contactPhone?: string;
+        notes?: string;
       } = {
         doctorId,
         date,
         visitingType,
         contactPhone: contactPhone || undefined,
+        notes: finalNotes || undefined,
       };
 
       if (clinic.bookingType === "time") {
@@ -231,7 +235,6 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     }
   }
 
-  /* ── Guards ─────────────────────────────────────────── */
   if (loading) {
     return (
       <div className="mx-auto max-w-4xl px-6 py-12 md:px-12">
@@ -439,9 +442,9 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                       جارٍ تحميل الأوقات المتاحة...
                     </div>
                   ) : slotsError ? (
-                    <div className="rounded-xl bg-danger/10 border border-danger/20 p-3 text-sm text-danger text-center">
-                      {slotsError}
-                    </div>
+                     <div className="rounded-xl bg-danger/10 border border-danger/20 p-3 text-sm text-danger text-center">
+                       {slotsError}
+                     </div>
                   ) : slots.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                       {slots.map((slot) => (
@@ -498,17 +501,49 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                 </div>
               )}
 
-              {/* Submit */}
-              <div className="mt-auto pt-4">
-                {!isAuthenticated ? (
+              {/* Auth CTA — shown inline when not logged in OR wrong role */}
+              {(!isAuthenticated || role !== "Patient") ? (
+                <div className="mt-auto pt-4 flex flex-col gap-3">
+                  <div className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-center">
+                    <p className="text-sm font-bold text-text-primary mb-0.5">
+                      {!isAuthenticated ? "سجّل دخولك لإتمام الحجز" : "الحجز متاح للمرضى فقط"}
+                    </p>
+                    <p className="text-xs text-text-secondary">
+                      {!isAuthenticated
+                        ? "يلزم تسجيل الدخول أو إنشاء حساب مريض للحجز"
+                        : "يرجى تسجيل الدخول بحساب مريض للحجز"}
+                    </p>
+                  </div>
                   <Button
-                    type="submit"
+                    type="button"
                     variant="vibrant"
-                    className="w-full font-bold shadow-glow-cyan"
+                    className="w-full shadow-glow-cyan font-bold py-3"
+                    onClick={() => router.push(`/login?redirect=/clinics/${params.id}`)}
                   >
-                    سجّل دخولك للحجز
+                    تسجيل الدخول بحساب مريض
                   </Button>
-                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="w-full font-bold text-sm py-4"
+                      onClick={() => router.push(`/register?type=patient&redirect=${encodeURIComponent(`/clinics/${params.id}`)}`)}
+                    >
+                      إنشاء حساب مريض 
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="w-full font-bold text-sm py-2.5"
+                      onClick={() => router.push(`/register?type=family&redirect=${encodeURIComponent(`/clinics/${params.id}`)}`)}
+                    >
+                      إنشاء حساب أسرة
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                /* Submit */
+                <div className="mt-auto pt-4">
                   <Button
                     type="submit"
                     variant="vibrant"
@@ -517,42 +552,58 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                     disabled={!canSubmit || bookingLoading}
                   >
                     {bookingLoading
-                      ? "جارٍ تأكيد الحجز..."
+                      ? "جارٍ الحجز..."
                       : isQueue
                       ? `متابعة الحجز (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`
                       : selectedSlot
                       ? `متابعة الحجز — ${selectedSlot} (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`
                       : "اختر وقتاً أولاً"}
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
             </form>
           )}
         </Card>
       </div>
 
-      {}
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <Card className="max-w-sm w-full shadow-2xl bg-surface p-5 sm:p-6 text-center">
+            <h3 className="font-display text-lg font-bold text-text-primary mb-2">تسجيل الدخول مطلوب</h3>
+            <p className="text-text-secondary text-sm mb-6">يرجى تسجيل الدخول أو إنشاء حساب جديد لإتمام الحجز.</p>
+            <div className="flex flex-col gap-3">
+              <Button onClick={() => router.push(`/login?redirect=/clinics/${params.id}`)} variant="vibrant" className="w-full justify-center">
+                تسجيل الدخول
+              </Button>
+              <Button onClick={() => router.push(`/register?type=patient&redirect=${encodeURIComponent(`/clinics/${params.id}`)}`)} variant="secondary" className="w-full justify-center">
+                إنشاء حساب مريض فردي
+              </Button>
+              <Button onClick={() => router.push(`/register?type=family&redirect=${encodeURIComponent(`/clinics/${params.id}`)}`)} variant="secondary" className="w-full justify-center">
+                إنشاء حساب أسرة
+              </Button>
+            </div>
+            <button onClick={() => setShowAuthModal(false)} className="mt-5 text-sm text-text-secondary hover:text-text-primary underline">
+              إلغاء
+            </button>
+          </Card>
+        </div>
+      )}
+
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <Card className="max-w-sm w-full shadow-2xl bg-surface p-5 sm:p-6">
-            {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-border/50">
               <h3 className="font-display text-lg font-bold text-text-primary">تأكيد بيانات الحجز</h3>
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className="text-text-secondary hover:text-text-primary text-xl leading-none"
-              >
+              <button onClick={() => setShowConfirmModal(false)} className="text-text-secondary hover:text-text-primary text-xl leading-none">
                 ✕
               </button>
             </div>
 
-            {/* Booking Summary */}
             <div className="rounded-xl bg-primary/5 border border-primary/20 p-3.5 mb-4 text-sm space-y-1.5">
               <div className="flex justify-between">
                 <span className="text-text-secondary">نوع الكشف</span>
-                <span className="font-bold text-text-primary">
-                  {visitingType === "FOLLOW_UP" ? "إعادة كشف" : "كشف جديد"}
-                </span>
+                <span className="font-bold text-text-primary">{visitingType === "FOLLOW_UP" ? "إعادة كشف" : "كشف جديد"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-text-secondary">التاريخ</span>
@@ -570,20 +621,35 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
               </div>
             </div>
 
-            {}
             <div className="space-y-3 mb-4">
-              <div>
-                <label className="block text-xs font-bold text-text-secondary mb-1">اسم المريض</label>
-                <div className="w-full rounded-xl border border-border/60 bg-surface-raised px-4 py-2.5 text-sm text-text-primary font-semibold">
-                  {patientProfile
-                    ? `${patientProfile.firstName} ${patientProfile.lastName}`
-                    : "—"}
+              {patientProfile?.isFamily && patientProfile?.familyMembers && patientProfile.familyMembers.length > 0 && (
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1">اسم الفرد من الأسرة</label>
+                  <select
+                    className="w-full rounded-xl border border-border/80 bg-surface px-4 py-2.5 text-sm outline-none transition-all focus:border-primary"
+                    value={selectedFamilyMember}
+                    onChange={(e) => setSelectedFamilyMember(e.target.value)}
+                  >
+                    {patientProfile.familyMembers.map(m => (
+                      <option key={m.name} value={m.name}>{m.name}</option>
+                    ))}
+                  </select>
                 </div>
-              </div>
+              )}
+              {!patientProfile?.isFamily && (
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1">اسم المريض</label>
+                  <div className="w-full rounded-xl border border-border/60 bg-surface-raised px-4 py-2.5 text-sm text-text-primary font-semibold">
+                    {patientProfile ? `${patientProfile.firstName} ${patientProfile.lastName}` : "—"}
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="block text-xs font-bold text-text-secondary mb-1">رقم الهاتف</label>
                 <div className="w-full rounded-xl border border-border/60 bg-surface-raised px-4 py-2.5 text-sm text-text-primary font-semibold" dir="ltr">
-                  {patientProfile?.phoneNumber || "—"}
+                  {patientProfile?.isFamily && selectedFamilyMember
+                    ? patientProfile.familyMembers?.find(m => m.name === selectedFamilyMember)?.phoneNumber || patientProfile?.phoneNumber
+                    : patientProfile?.phoneNumber || "—"}
                 </div>
               </div>
               <div>
@@ -601,23 +667,11 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex gap-3">
-              <Button
-                variant="ghost"
-                className="flex-1"
-                onClick={() => setShowConfirmModal(false)}
-                disabled={bookingLoading}
-              >
+              <Button variant="ghost" className="flex-1" onClick={() => setShowConfirmModal(false)} disabled={bookingLoading}>
                 رجوع
               </Button>
-              <Button
-                variant="vibrant"
-                className="flex-1 shadow-glow-cyan font-bold"
-                onClick={handleConfirmBook}
-                loading={bookingLoading}
-                disabled={bookingLoading}
-              >
+              <Button variant="vibrant" className="flex-1 shadow-glow-cyan font-bold" onClick={handleConfirmBook} loading={bookingLoading} disabled={bookingLoading}>
                 {bookingLoading ? "جارٍ الحجز..." : "تأكيد الحجز"}
               </Button>
             </div>

@@ -18,6 +18,12 @@ export function getMyPatients() {
   return apiFetch<ApiEnvelope<{ patients: Patient[] }>>("/patient/my-patients");
 }
 
+// GET /patient/non-clinic-patients
+export function getNonClinicPatients(search?: string) {
+  const query = search ? `?search=${encodeURIComponent(search)}` : "";
+  return apiFetch<ApiEnvelope<{ patients: Patient[] }>>(`/patient/non-clinic-patients${query}`);
+}
+
 // GET /patient/my-patient/:id  (doctor viewing one of their patients)
 export function getMyPatientById(id: string) {
   return apiFetch<ApiEnvelope<{ result: Patient }>>(`/patient/my-patient/${id}`);
