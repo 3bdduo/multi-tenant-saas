@@ -138,7 +138,7 @@ export default function PatientAppointmentsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-border/50">
           <div>
             <h2 className="font-display text-lg font-bold text-text-primary flex items-center gap-2">
-              <span>👨‍⚕️</span> قائمة الأطباء والعيادات المتاحة للحجز
+              <span>‍️</span> قائمة الأطباء والعيادات المتاحة للحجز
             </h2>
             <p className="text-xs text-text-secondary mt-0.5">
               ابحث عن طبيبك أو تخصصك واحجز موعدك فوراً مع اختيار الموعد المناسب

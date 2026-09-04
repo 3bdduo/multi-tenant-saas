@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { deletePatient } from "@/lib/api/admin";
-import { lookupPatientByNationalId } from "@/lib/api/patient";
+import { useEffect, useState, useMemo } from "react";
+import { getPatients, deletePatient } from "@/lib/api/admin";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Input";
@@ -10,144 +9,154 @@ import { ApiError } from "@/lib/http";
 import type { Patient } from "@/types/api";
 
 export default function AdminPatientsPage() {
-  const [nationalId, setNationalId] = useState("");
-  const [searching, setSearching] = useState(false);
-  const [patient, setPatient] = useState<Patient | null>(null);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!nationalId.trim()) return;
-    
-    setSearching(true);
+  // Filters and Sorting
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("date_desc");
+
+  async function load() {
+    setLoading(true);
     setError(null);
-    setPatient(null);
-    setSuccessMsg(null);
+    try {
+      const res = await getPatients();
+      setPatients(res.data.patients ?? []);
+    } catch (err) {
+      console.error("Failed to load patients:", err);
+      setError(err instanceof ApiError ? err.message : "تعذر تحميل قائمة المرضى");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function handleRemove(id: string, name: string) {
+    if (!confirm(`هل أنت متأكد من حذف حساب المريض ${name} نهائياً؟`)) return;
     
     try {
-      const res = await lookupPatientByNationalId(nationalId);
-      if (res.data.patient) {
-        setPatient(res.data.patient);
-      } else {
-        setError("لم يتم العثور على مريض بهذا الرقم القومي.");
+      await deletePatient(id);
+      load();
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "حدث خطأ أثناء حذف المريض.");
+    }
+  }
+
+  const filteredAndSortedPatients = useMemo(() => {
+    const filtered = patients.filter((p) => {
+      if (!searchQuery) return true;
+      const term = searchQuery.toLowerCase();
+      const fullName = `${p.firstName} ${p.lastName}`.toLowerCase();
+      return (
+        fullName.includes(term) ||
+        (p.nationalId || "").includes(term) ||
+        (p.phoneNumber || "").includes(term)
+      );
+    });
+
+    return filtered.sort((a, b) => {
+      if (sortBy === "name") {
+        return `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`);
+      } else if (sortBy === "date_desc") {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      } else if (sortBy === "date_asc") {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       }
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "حدث خطأ أثناء البحث.");
-    } finally {
-      setSearching(false);
-    }
-  }
-
-  async function handleRemove() {
-    if (!patient) return;
-    if (!confirm(`هل أنت متأكد من حذف حساب المريض ${patient.firstName} ${patient.lastName} نهائياً؟`)) return;
-    
-    setDeleting(true);
-    setError(null);
-    
-    try {
-      await deletePatient(patient._id);
-      setSuccessMsg("تم حذف حساب المريض بنجاح.");
-      setPatient(null);
-      setNationalId("");
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "حدث خطأ أثناء حذف المريض.");
-    } finally {
-      setDeleting(false);
-    }
-  }
+      return 0;
+    });
+  }, [patients, searchQuery, sortBy]);
 
   return (
-    <div className="flex flex-col gap-6 animate-fade-in max-w-3xl">
-      <div>
-        <h1 className="font-display text-2xl font-extrabold text-text-primary">
-          إدارة حسابات المرضى
-        </h1>
-        <p className="text-sm text-text-secondary mt-1">
-          البحث عن مريض باستخدام الرقم القومي وحذف حسابه إذا لزم الأمر
-        </p>
+    <div className="flex flex-col gap-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-extrabold text-text-primary">
+            إدارة حسابات المرضى
+          </h1>
+          <p className="text-sm text-text-secondary mt-1">
+            عرض جميع المرضى، البحث، وتصفية البيانات
+          </p>
+        </div>
+        <Button 
+          variant="outline" 
+          onClick={load}
+          disabled={loading}
+          className="font-bold"
+        >
+          {loading ? "جارٍ التحديث..." : "تحديث البيانات"}
+        </Button>
       </div>
 
       <Card className="shadow-xl border-primary/20">
-        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4 items-end">
+        <div className="flex flex-col sm:flex-row gap-4 items-end mb-6">
           <div className="flex-1 w-full">
             <Field
-              label="الرقم القومي للمريض"
-              required
-              inputMode="numeric"
-              value={nationalId}
-              onChange={(e) => setNationalId(e.target.value)}
-              placeholder="أدخل الـ 14 رقم..."
+              label="بحث"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="ابحث بالاسم، الرقم القومي، أو الهاتف..."
             />
           </div>
-          <Button 
-            type="submit" 
-            variant="vibrant" 
-            className="w-full sm:w-auto font-bold shadow-glow-cyan h-[42px]"
-            disabled={searching}
-          >
-            {searching ? "جارٍ البحث..." : "بحث"}
-          </Button>
-        </form>
+          <div className="w-full sm:w-64">
+            <label className="block text-sm font-bold text-text-secondary mb-2">ترتيب حسب</label>
+            <select 
+              className="w-full h-[42px] px-4 rounded-xl bg-surface-raised border border-border text-text-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="date_desc">الأحدث أولاً</option>
+              <option value="date_asc">الأقدم أولاً</option>
+              <option value="name">الاسم (أبجدي)</option>
+            </select>
+          </div>
+        </div>
 
         {error && (
-          <div className="mt-6 rounded-xl bg-danger/10 border border-danger/20 p-4 text-sm font-bold text-danger">
+          <div className="mb-6 rounded-xl bg-danger/10 border border-danger/20 p-4 text-sm font-bold text-danger">
             {error}
           </div>
         )}
-        
-        {successMsg && (
-          <div className="mt-6 rounded-xl bg-success/10 border border-success/20 p-4 text-sm font-bold text-success">
-            {successMsg}
-          </div>
-        )}
 
-        {patient && (
-          <div className="mt-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <h3 className="font-display text-lg font-bold text-text-primary mb-4 border-b border-border/50 pb-2">
-              نتيجة البحث
-            </h3>
-            
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-raised border border-border p-5 rounded-2xl">
-              <div>
-                <p className="font-display font-bold text-text-primary text-xl">
-                  {patient.firstName} {patient.lastName}
-                </p>
-                <div className="flex flex-col gap-1 mt-3">
-                  <p className="text-sm text-text-secondary flex items-center gap-2">
-                    <span className="font-semibold text-text-primary">الهاتف:</span> 
-                    <span dir="ltr">{patient.phoneNumber}</span>
-                  </p>
-                  <p className="text-sm text-text-secondary flex items-center gap-2">
-                    <span className="font-semibold text-text-primary">الرقم القومي:</span> 
-                    <span>{patient.nationalId}</span>
-                  </p>
-                  {patient.email && (
-                    <p className="text-sm text-text-secondary flex items-center gap-2">
-                      <span className="font-semibold text-text-primary">البريد:</span> 
-                      <span>{patient.email}</span>
-                    </p>
-                  )}
-                  <p className="text-xs text-text-secondary flex items-center gap-2 mt-2 opacity-70">
-                    تاريخ التسجيل: {new Date(patient.createdAt).toLocaleDateString('ar-EG')}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex sm:flex-col gap-3 mt-4 sm:mt-0 min-w-[140px]">
-                <Button 
-                  variant="danger" 
-                  onClick={handleRemove}
-                  disabled={deleting}
-                  className="flex-1 w-full font-bold"
-                >
-                  {deleting ? "جارٍ الحذف..." : "حذف المريض"}
-                </Button>
-              </div>
-            </div>
-          </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-right">
+            <thead>
+              <tr className="border-b border-border bg-surface-raised text-text-secondary">
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">الاسم</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">الرقم القومي</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">الهاتف</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">تاريخ التسجيل</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-left">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {filteredAndSortedPatients.map((p) => (
+                <tr key={p._id} className="hover:bg-surface-raised/40 transition-colors">
+                  <td className="px-6 py-4 font-medium text-text-primary">
+                    {p.firstName} {p.lastName}
+                  </td>
+                  <td className="px-6 py-4 text-text-secondary">{p.nationalId || "-"}</td>
+                  <td className="px-6 py-4 text-text-secondary" dir="ltr">{p.phoneNumber}</td>
+                  <td className="px-6 py-4 text-text-secondary">
+                    {new Date(p.createdAt).toLocaleDateString('ar-EG')}
+                  </td>
+                  <td className="px-6 py-4 text-left">
+                    <Button size="sm" variant="danger" onClick={() => handleRemove(p._id, `${p.firstName} ${p.lastName}`)}>
+                      حذف
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {!loading && filteredAndSortedPatients.length === 0 && (
+          <p className="py-12 text-center text-sm text-text-secondary">
+            {patients.length === 0 ? "لا يوجد مرضى مسجلين بعد" : "لم يتم العثور على نتائج مطابقة للبحث"}
+          </p>
         )}
       </Card>
     </div>

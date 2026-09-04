@@ -137,7 +137,7 @@ export default function PatientHomePage() {
           <div className="flex items-center justify-between mb-3.5 pb-2.5 border-b border-border/50">
             <div>
               <h2 className="font-display text-base sm:text-lg font-bold text-text-primary flex items-center gap-2">
-                <span>🩺</span> أطباؤك السابقون — حجز إعادة كشف / متابعة
+                <span></span> أطباؤك السابقون — حجز إعادة كشف / متابعة
               </h2>
               <p className="text-xs text-text-secondary mt-0.5">
                 يمكنك إعادة الكشف مع أطبائك السابقين بسعر المتابعة المخفض مباشرة

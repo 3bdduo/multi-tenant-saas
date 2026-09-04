@@ -6,6 +6,7 @@ import type {
   DashboardStats,
   Doctor,
   Hospital,
+  Patient,
   RenewDoctorSubscriptionPayload,
   RenewHospitalSubscriptionPayload,
 } from "@/types/api";
@@ -75,6 +76,11 @@ export function deleteDoctor(id: string) {
   return apiFetch<ApiEnvelope<null>>(`/admin/doctors/${id}`, {
     method: "DELETE",
   });
+}
+
+// GET /admin/patients
+export function getPatients() {
+  return apiFetch<ApiEnvelope<{ patients: Patient[] }>>("/admin/patients", { noCache: true });
 }
 
 // DELETE /admin/patients/:id

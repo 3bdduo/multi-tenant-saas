@@ -10,6 +10,7 @@ import { createNotification } from "@/lib/api/notification";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Input";
+import { FileViewerModal } from "@/components/FileViewerModal";
 import { ApiError } from "@/lib/http";
 import type { Appointment, MedicalRecord, Patient, PatientDocument } from "@/types/api";
 
@@ -33,6 +34,12 @@ export default function DoctorPatientDetailPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("records");
+  const [viewingFile, setViewingFile] = useState<{
+    url: string;
+    name?: string;
+    date?: string;
+    subtitle?: string;
+  } | null>(null);
 
   // Edit state
   const [editForm, setEditForm] = useState({ firstName: "", lastName: "", phoneNumber: "", email: "" });
@@ -345,11 +352,27 @@ export default function DoctorPatientDetailPage() {
                     doc.fileUrl.endsWith(".webp") ||
                     doc.fileUrl.includes("image"));
 
+                const targetDocName =
+                  doc.targetDoctorId && typeof doc.targetDoctorId === "object"
+                    ? `د. ${(doc.targetDoctorId as any).firstName} ${(doc.targetDoctorId as any).lastName}`
+                    : null;
+
                 return (
-                  <Card key={doc._id} hover className="flex flex-col justify-between gap-3 p-4 sm:p-5 border-border/60">
+                  <Card key={doc._id} hover className="flex flex-col justify-between gap-3 p-4 sm:p-5 border-border/70 shadow-sm">
                     <div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-border/40">
                         <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            {targetDocName ? (
+                              <span className="rounded-full bg-primary/15 text-primary border border-primary/30 px-2 py-0.5 text-[10px] font-bold">
+                                موجه إلى: {targetDocName}
+                              </span>
+                            ) : (
+                              <span className="rounded-full bg-accent/15 text-accent border border-accent/30 px-2 py-0.5 text-[10px] font-bold">
+                                سجل صحي عام
+                              </span>
+                            )}
+                          </div>
                           <p className="font-bold text-sm text-text-primary truncate">
                             {doc.fileName || (doc.fileUrl ? "مستند مرفق" : "ملاحظة صحية")}
                           </p>
@@ -361,9 +384,27 @@ export default function DoctorPatientDetailPage() {
                       </div>
 
                       {isImage && doc.fileUrl && (
-                        <div className="mt-3 rounded-xl overflow-hidden border border-border/50 bg-bg max-h-36 flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setViewingFile({
+                              url: doc.fileUrl!,
+                              name: doc.fileName || "مستند مرفق",
+                              date: dateStr,
+                              subtitle: targetDocName ? `موجه إلى: ${targetDocName}` : "سجل صحي عام",
+                            })
+                          }
+                          className="mt-3 rounded-xl overflow-hidden border border-border/60 bg-bg max-h-36 w-full flex items-center justify-center group cursor-pointer relative hover:opacity-90 transition-opacity"
+                          title="انقر للمعاينة داخل فريم ARC ونبض"
+                        >
                           <img src={doc.fileUrl} alt="doc" className="max-h-36 object-contain" />
-                        </div>
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                          </div>
+                        </button>
                       )}
 
                       {/* Display new fields if present */}
@@ -395,11 +436,26 @@ export default function DoctorPatientDetailPage() {
                     </div>
 
                     {doc.fileUrl ? (
-                      <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="mt-2">
-                        <Button variant="outline" size="sm" className="w-full font-bold justify-center">
-                          عرض / تحميل المستند
-                        </Button>
-                      </a>
+                      <Button
+                        type="button"
+                        variant="vibrant"
+                        size="sm"
+                        onClick={() =>
+                          setViewingFile({
+                            url: doc.fileUrl!,
+                            name: doc.fileName || "مستند مرفق",
+                            date: dateStr,
+                            subtitle: targetDocName ? `موجه إلى: ${targetDocName}` : "سجل صحي عام",
+                          })
+                        }
+                        className="w-full font-bold justify-center shadow-glow-cyan mt-2"
+                      >
+                        <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>عرض المستند / الصورة</span>
+                      </Button>
                     ) : (
                       <div className="mt-2 text-center text-xs text-text-secondary italic">
                         (ملاحظة نصية بدون ملف مرفق)
@@ -544,13 +600,16 @@ export default function DoctorPatientDetailPage() {
               placeholder="مثال: موعدك غداً الساعة 5 مساءً..."
             />
             {notifError && <p className="text-sm text-danger">{notifError}</p>}
-            {notifSuccess && <p className="text-sm text-success font-bold"> تم إرسال الإشعار بنجاح!</p>}
+            {notifSuccess && <p className="text-sm text-success font-bold">تم إرسال الإشعار بنجاح!</p>}
             <Button type="submit" variant="vibrant" disabled={notifSending} className="shadow-glow-cyan font-bold">
               {notifSending ? "جارٍ الإرسال..." : "إرسال الإشعار"}
             </Button>
           </form>
         </Card>
       )}
+
+      {/* File Viewer Modal with ARC & Nabd Frame */}
+      <FileViewerModal file={viewingFile} onClose={() => setViewingFile(null)} />
     </div>
   );
 }

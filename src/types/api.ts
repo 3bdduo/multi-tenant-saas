@@ -153,7 +153,9 @@ export interface DashboardStats {
   activeDoctors: number;
   expiredSubscriptions: number;
   totalPatients: number;
-  totalClinics: number;
+  totalHospitals?: number;
+  emergencyCompleted?: number;
+  emergencyNotCompleted?: number;
 }
 
 export interface AuthTokens {

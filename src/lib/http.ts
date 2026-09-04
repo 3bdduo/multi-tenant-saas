@@ -159,16 +159,33 @@ export function formatArabicErrorMessage(
     return "هذه البيانات مسجّلة بالفعل في النظام. يرجى التأكد من الرقم القومي والبريد الإلكتروني.";
   }
 
-  // 5. Invalid credentials / Auth errors
+  // 5. User not found (Wrong National ID usually)
+  if (rawMsg.includes("user not found")) {
+    return "الرقم القومي غير صحيح أو الحساب غير مسجل في النظام.";
+  }
+  if (rawMsg.includes("patient not found")) {
+    return "لم يتم العثور على حساب المريض. يرجى التأكد من الرقم القومي أو البيانات.";
+  }
+  if (rawMsg.includes("doctor not found")) {
+    return "لم يتم العثور على حساب الطبيب المطلوب.";
+  }
+  if (rawMsg.includes("hospital not found")) {
+    return "لم يتم العثور على حساب المستشفى المطلوب.";
+  }
+  if (rawMsg.includes("clinic not found")) {
+    return "لم يتم العثور على العيادة المطلوبة.";
+  }
+
+  // 6. Invalid credentials (Wrong Password)
   if (
-    rawMsg.includes("invalid credentials") ||
+    rawMsg.includes("invalid credential") ||
     rawMsg.includes("wrong password") ||
     rawMsg.includes("incorrect")
   ) {
-    return "الرقم القومي أو كلمة المرور غير صحيحة. يرجى التأكد من البيانات وإعادة المحاولة.";
+    return "كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.";
   }
 
-  // 6. Status code fallbacks
+  // 7. Status code fallbacks
   if (status === 401) {
     return "الرقم القومي أو كلمة المرور غير صحيحة، أو انتهت جلسة العمل.";
   }

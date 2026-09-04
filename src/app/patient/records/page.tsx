@@ -14,6 +14,7 @@ import { getMyAppointmentsForPatient } from "@/lib/api/appointment";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Input";
+import { FileViewerModal } from "@/components/FileViewerModal";
 import type { MedicalRecord, PatientDocument, Patient } from "@/types/api";
 import { ApiError } from "@/lib/http";
 
@@ -58,6 +59,12 @@ export default function PatientRecordsPage() {
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [viewingFile, setViewingFile] = useState<{
+    url: string;
+    name?: string;
+    date?: string;
+    subtitle?: string;
+  } | null>(null);
 
   useEffect(() => {
     loadData();
@@ -103,9 +110,13 @@ export default function PatientRecordsPage() {
 
       if (recordsRes.status === "fulfilled") {
         setRecords(recordsRes.value.data.medicalRecords ?? []);
+      } else {
+        console.error("Failed to load medical records:", recordsRes.reason);
       }
       if (docsRes.status === "fulfilled") {
         setDocuments(docsRes.value.data.documents ?? []);
+      } else {
+        console.error("Failed to load documents:", docsRes.reason);
       }
     } finally {
       setLoading(false);
@@ -129,7 +140,7 @@ export default function PatientRecordsPage() {
     setDocSuccess(null);
 
     try {
-      await uploadPatientDocument(docFile, {
+      const response = await uploadPatientDocument(docFile, {
         targetDoctorId: docTargetDoctorId,
         patientNotes: docNotes.trim() || undefined,
         familyMemberName: docFamilyMember || undefined,
@@ -140,8 +151,10 @@ export default function PatientRecordsPage() {
       setDocTargetDoctorId("");
       setDocFamilyMember("");
       if (docFileInputRef.current) docFileInputRef.current.value = "";
-      const docsRes = await getMyDocuments();
-      setDocuments(docsRes.data.documents ?? []);
+      
+      if (response?.data?.document) {
+        setDocuments(prev => [response.data.document, ...prev]);
+      }
     } catch (err: any) {
       setDocError(err instanceof ApiError ? err.message : "تعذّر إرسال المستند للطبيب");
     } finally {
@@ -162,7 +175,7 @@ export default function PatientRecordsPage() {
     setGeneralSuccess(null);
 
     try {
-      await uploadPatientDocument(generalFile, {
+      const response = await uploadPatientDocument(generalFile, {
         patientNotes: generalNotes.trim() || undefined,
         familyMemberName: generalFamilyMember || undefined,
       });
@@ -171,8 +184,10 @@ export default function PatientRecordsPage() {
       setGeneralNotes("");
       setGeneralFamilyMember("");
       if (generalFileInputRef.current) generalFileInputRef.current.value = "";
-      const docsRes = await getMyDocuments();
-      setDocuments(docsRes.data.documents ?? []);
+      
+      if (response?.data?.document) {
+        setDocuments(prev => [response.data.document, ...prev]);
+      }
     } catch (err: any) {
       setGeneralError(err instanceof ApiError ? err.message : "تعذّر حفظ البيانات");
     } finally {
@@ -203,14 +218,16 @@ export default function PatientRecordsPage() {
     setEditError(null);
 
     try {
-      await updatePatientDocument(editingDoc._id, editFile, {
+      const response = await updatePatientDocument(editingDoc._id, editFile, {
         patientNotes: editNotes.trim(),
         familyMemberName: editFamilyMember || undefined,
         targetDoctorId: editTargetDoctorId || undefined,
       });
       setEditingDoc(null);
-      const docsRes = await getMyDocuments();
-      setDocuments(docsRes.data.documents ?? []);
+      
+      if (response?.data?.document) {
+        setDocuments(prev => prev.map(d => d._id === editingDoc._id ? response.data.document : d));
+      }
     } catch (err: any) {
       setEditError(err instanceof ApiError ? err.message : "تعذّر حفظ التعديلات");
     } finally {
@@ -301,7 +318,7 @@ export default function PatientRecordsPage() {
                 : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
             }`}
           >
-            <span>📁 مستنداتي وأرشيفي الصحي</span>
+            <span> مستنداتي وأرشيفي الصحي</span>
             <span className="rounded-full bg-surface/20 px-2 py-0.5 text-[10px]">
               {documents.length}
             </span>
@@ -316,7 +333,7 @@ export default function PatientRecordsPage() {
                 : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
             }`}
           >
-            <span>🩺 الروشتات والسجلات الصادرة من الأطباء</span>
+            <span> الروشتات والسجلات الصادرة من الأطباء</span>
             <span className="rounded-full bg-surface/20 px-2 py-0.5 text-[10px]">
               {records.length}
             </span>
@@ -350,7 +367,7 @@ export default function PatientRecordsPage() {
             {myDoctors.length === 0 ? (
               <div className="mt-4 p-4 rounded-2xl bg-warning/10 border border-warning/20 text-text-primary text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <p>
-                  ⚠️ لم تقم بحجز موعد مع أي طبيب بعد. يمكنك إرسال المستندات لطبيبك المعالج بمجرد حجز موعد كشف لديه.
+                  ️ لم تقم بحجز موعد مع أي طبيب بعد. يمكنك إرسال المستندات لطبيبك المعالج بمجرد حجز موعد كشف لديه.
                 </p>
                 <Link href="/patient/appointments">
                   <Button size="sm" variant="vibrant" className="whitespace-nowrap font-bold">
@@ -625,31 +642,31 @@ export default function PatientRecordsPage() {
                     <Card
                       key={doc._id}
                       hover
-                      className="flex flex-col gap-3 p-4 sm:p-5 border-border/80 relative transition-all"
+                      className="flex flex-col gap-3.5 p-4 sm:p-5 border-border/80 relative transition-all shadow-sm"
                     >
                       {/* Top Row: Meta badges & Time */}
                       <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-border/40">
                         <div className="flex flex-wrap items-center gap-2">
                           {targetDocName ? (
                             <span className="rounded-full bg-primary/15 text-primary border border-primary/30 px-2.5 py-0.5 text-xs font-bold flex items-center gap-1">
-                              <span>👨‍⚕️ موجه إلى:</span> {targetDocName}
+                              <span>موجه إلى:</span> {targetDocName}
                             </span>
                           ) : (
                             <span className="rounded-full bg-accent/15 text-accent border border-accent/30 px-2.5 py-0.5 text-xs font-bold">
-                              📋 سجل صحي عام
+                              سجل صحي عام
                             </span>
                           )}
 
                           {doc.familyMemberName && (
                             <span className="rounded-full bg-surface-raised text-text-secondary border border-border px-2.5 py-0.5 text-xs font-medium">
-                              👤 الفرد: {doc.familyMemberName}
+                              الفرد: {doc.familyMemberName}
                             </span>
                           )}
                         </div>
 
                         <div className="flex items-center gap-2 text-xs text-text-secondary font-medium">
-                          <span>📅 {dateStr}</span>
-                          <span>⏰ {timeStr}</span>
+                          <span>{dateStr}</span>
+                          <span>{timeStr}</span>
                         </div>
                       </div>
 
@@ -667,7 +684,7 @@ export default function PatientRecordsPage() {
                       {doc.aiAnalysis && (
                         <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs">
                           <p className="font-bold text-primary flex items-center gap-1 mb-1">
-                            ✨ تحليل الذكاء الاصطناعي المستخرج من الروشتة:
+                            تحليل الذكاء الاصطناعي المستخرج من الروشتة:
                           </p>
                           <p className="text-text-primary whitespace-pre-wrap leading-relaxed">
                             {doc.aiAnalysis}
@@ -675,45 +692,86 @@ export default function PatientRecordsPage() {
                         </div>
                       )}
 
-                      {/* File Link + Actions */}
-                      <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                        <div>
-                          {doc.fileUrl ? (
-                            <a
-                              href={doc.fileUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline bg-primary/10 px-3 py-1.5 rounded-xl transition-colors"
-                            >
-                              <span>📎 {doc.fileName || "عرض / تحميل الملف المرفق"}</span>
-                            </a>
-                          ) : (
-                            <span className="text-xs text-text-secondary italic">
-                              (ملاحظة نصية بدون ملف مرفق)
-                            </span>
-                          )}
-                        </div>
+                      {/* Attached File Preview Card */}
+                      {doc.fileUrl ? (
+                        <div className="p-3 rounded-2xl bg-surface-raised/80 border border-border/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            {doc.fileUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp)(\?.*)?$/i) ? (
+                              <button
+                                type="button"
+                                onClick={() => setViewingFile({ url: doc.fileUrl!, name: doc.fileName || "مستند مرفق", date: dateStr })}
+                                className="relative h-14 w-14 rounded-xl overflow-hidden border border-border bg-bg shrink-0 hover:opacity-85 transition-opacity cursor-pointer group shadow-sm"
+                                title="انقر للمعاينة"
+                              >
+                                <img
+                                  src={doc.fileUrl}
+                                  alt="معاينة المستند"
+                                  className="h-full w-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  </svg>
+                                </div>
+                              </button>
+                            ) : (
+                              <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center shrink-0 text-primary">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                              </div>
+                            )}
 
-                        {/* Action Buttons: Edit & Delete */}
-                        <div className="flex items-center gap-2">
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-text-primary truncate max-w-xs">
+                                {doc.fileName || "مستند مرفق"}
+                              </p>
+                              <p className="text-[11px] text-text-secondary mt-0.5">
+                                معاينة الملف داخل فريم ARC ونبض
+                              </p>
+                            </div>
+                          </div>
+
                           <Button
-                            variant="secondary"
+                            type="button"
+                            variant="vibrant"
                             size="sm"
-                            className="text-xs font-bold px-3"
-                            onClick={() => openEditModal(doc)}
+                            onClick={() => setViewingFile({ url: doc.fileUrl!, name: doc.fileName || "مستند طبي", date: dateStr })}
+                            className="shadow-glow-cyan shrink-0"
                           >
-                            ✏️ تعديل
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={deletingId === doc._id}
-                            className="text-xs font-bold text-danger hover:bg-danger/10 px-3"
-                            onClick={() => handleDelete(doc._id)}
-                          >
-                            {deletingId === doc._id ? "جارٍ الحذف..." : "🗑️ حذف نهائي"}
+                            <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <span>عرض المستند / الصورة</span>
                           </Button>
                         </div>
+                      ) : (
+                        <div className="text-xs text-text-secondary italic pt-1">
+                          (ملاحظة صحية مسجلة بدون ملف مرفق)
+                        </div>
+                      )}
+
+                      {/* Action Buttons: Edit & Delete */}
+                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/40">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="text-xs font-bold px-3"
+                          onClick={() => openEditModal(doc)}
+                        >
+                          تعديل
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={deletingId === doc._id}
+                          className="text-xs font-bold text-danger hover:bg-danger/10 px-3"
+                          onClick={() => handleDelete(doc._id)}
+                        >
+                          {deletingId === doc._id ? "جارٍ الحذف..." : "حذف نهائي"}
+                        </Button>
                       </div>
                     </Card>
                   );
@@ -758,15 +816,59 @@ export default function PatientRecordsPage() {
 
                 {/* Prescription Image */}
                 {r.prescriptionImageUrl && (
-                  <div className="mt-4">
-                    <p className="text-xs font-extrabold text-text-secondary mb-2">صورة الروشتة المرفقة:</p>
-                    <a href={r.prescriptionImageUrl} target="_blank" rel="noreferrer">
-                      <img
-                        src={r.prescriptionImageUrl}
-                        alt="prescription"
-                        className="rounded-xl max-h-48 object-contain border border-border/50 bg-bg hover:opacity-90 transition-opacity"
-                      />
-                    </a>
+                  <div className="mt-4 p-3 rounded-2xl bg-surface-raised/70 border border-border/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setViewingFile({
+                            url: r.prescriptionImageUrl!,
+                            name: "روشتة صادرة من طبيب",
+                            date: new Date(r.createdAt).toLocaleDateString("ar-EG"),
+                          })
+                        }
+                        className="relative h-14 w-14 rounded-xl overflow-hidden border border-border/80 bg-bg shrink-0 hover:opacity-85 transition-opacity cursor-pointer group shadow-sm"
+                        title="انقر للمعاينة"
+                      >
+                        <img
+                          src={r.prescriptionImageUrl}
+                          alt="روشتة"
+                          className="h-full w-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        </div>
+                      </button>
+                      <div>
+                        <p className="text-xs font-bold text-text-primary">صورة الروشتة المرفقة</p>
+                        <p className="text-[11px] text-text-secondary mt-0.5">
+                          معاينة الروشتة داخل فريم ARC ونبض
+                        </p>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="vibrant"
+                      size="sm"
+                      onClick={() =>
+                        setViewingFile({
+                          url: r.prescriptionImageUrl!,
+                          name: "روشتة صادرة من طبيب",
+                          date: new Date(r.createdAt).toLocaleDateString("ar-EG"),
+                        })
+                      }
+                      className="shadow-glow-cyan shrink-0"
+                    >
+                      <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <span>عرض الروشتة</span>
+                    </Button>
                   </div>
                 )}
 
@@ -916,6 +1018,8 @@ export default function PatientRecordsPage() {
           </div>
         </div>
       )}
+      {/* Reusable File Viewer Modal with ARC & Nabd Frame */}
+      <FileViewerModal file={viewingFile} onClose={() => setViewingFile(null)} />
     </div>
   );
 }

@@ -8,7 +8,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── ☀️ 1. Light Mode (Warm Linen Background with Clear Soft Sage/Mint Cards) ── */
+  /* ── ️ 1. Light Mode (Warm Linen Background with Clear Soft Sage/Mint Cards) ── */
   --radius: 1rem;
 
   /* Backgrounds & Surfaces
@@ -118,7 +118,7 @@
 }
 
 .dark {
-  /* ── 🌙 2. Dark Mode (Sleek Slate Charcoal & Mid-Tone Gray Palette) ── */
+  /* ──  2. Dark Mode (Sleek Slate Charcoal & Mid-Tone Gray Palette) ── */
   --radius: 1rem;
 
   /* Backgrounds & Surfaces (Balanced between dark and light: Slate Graphite & Mid-Gray) */
