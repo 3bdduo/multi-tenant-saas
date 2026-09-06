@@ -371,23 +371,31 @@ export function DashboardShell({
 
       {/* ── Main Content Area (Topbar header removed for full spacious desktop view) ── */}
       <div className="flex flex-1 flex-col min-w-0">
-        {/* Mobile-only Top Bar (Clean & minimalist, without the removed elements) */}
+        {/* Mobile-only Top Bar — RTL: Logo left of hamburger, theme toggle far right */}
         <div
-          className="flex items-center justify-between px-4 py-3 md:hidden border-b shrink-0"
+          className="flex items-center justify-between px-3 py-2.5 md:hidden border-b shrink-0"
           style={{
             background: "var(--color-header-bg)",
             borderBottomColor: "var(--color-header-border)",
           }}
         >
-          <button
-            className="flex items-center justify-center h-9 w-9 shrink-0 rounded-xl text-text-secondary hover:bg-primary-soft/50 hover:text-primary transition-colors"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="فتح القائمة"
-          >
-            <MenuIcon />
-          </button>
-          <Logo size="sm" />
-          <div className="w-9" />
+          {/* Right side: Hamburger + Logo together */}
+          <div className="flex items-center gap-2.5 min-w-0">
+            <button
+              className="flex items-center justify-center h-9 w-9 shrink-0 rounded-xl text-text-secondary hover:bg-primary-soft/50 hover:text-primary transition-colors"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="فتح القائمة"
+            >
+              <MenuIcon />
+            </button>
+            {/* Subtle divider */}
+            <span className="h-5 w-px bg-border/60 shrink-0" />
+            <div className="min-w-0 overflow-hidden">
+              <Logo size="sm" />
+            </div>
+          </div>
+          {/* Left side: compact theme toggle */}
+          <ThemeToggle compact />
         </div>
 
         {/* Mobile Drawer Overlay */}
@@ -493,49 +501,11 @@ export function DashboardShell({
         )}
 
         {/* Page Content */}
-        <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8 pb-24 md:pb-8 min-w-0">
+        <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8 min-w-0 overflow-x-hidden">
           {children}
         </main>
       </div>
 
-      {/* ── Mobile Bottom Navigation Bar ── */}
-      <nav
-        className="fixed bottom-0 inset-x-0 z-30 flex md:hidden backdrop-blur-xl border-t shadow-[0_-4px_16px_rgba(0,0,0,0.06)] safe-area-pb"
-        style={{
-          background: "var(--color-header-bg)",
-          borderTopColor: "var(--color-header-border)",
-          paddingBottom: "env(safe-area-inset-bottom, 0px)",
-        }}
-      >
-        {navItems.slice(0, 5).map((item) => {
-          const active = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[9px] sm:text-[10px] font-semibold transition-colors ${
-                active
-                  ? "text-primary"
-                  : "text-text-secondary hover:text-text-primary"
-              }`}
-            >
-              <span
-                className={`transition-transform duration-200 ${
-                  active ? "scale-110" : ""
-                }`}
-              >
-                {item.icon}
-              </span>
-              <span className="truncate max-w-[60px] text-center leading-tight">
-                {item.label}
-              </span>
-              {active && (
-                <span className="absolute bottom-0 h-0.5 w-8 rounded-full bg-primary" />
-              )}
-            </Link>
-          );
-        })}
-      </nav>
     </div>
   );
 }

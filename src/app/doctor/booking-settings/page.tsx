@@ -353,7 +353,7 @@ export default function BookingSettingsPage() {
       </div>
 
       {/* Bottom Save All Button - elevated above mobile bottom nav */}
-      <div className="sticky bottom-20 sm:bottom-6 z-20 rounded-2xl bg-surface/95 backdrop-blur-md p-3.5 sm:p-4 border border-border/60 shadow-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="sticky bottom-6 z-20 rounded-2xl bg-surface/95 backdrop-blur-md p-3.5 sm:p-4 border border-border/60 shadow-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-text-primary">
           <span>تأكد من حفظ التعديلات لتطبيقها فوراً على نظام الحجز.</span>
         </div>

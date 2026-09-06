@@ -169,52 +169,117 @@ export default function DoctorPatientsPage() {
               <p className="text-base font-semibold text-text-secondary">لا يوجد مرضى مطابقين للبحث</p>
             </div>
           ) : (
-            <div className="w-full overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-gradient-to-r from-primary/10 via-surface-raised to-surface-raised border-b border-border/60">
-                    <th className="py-3.5 px-5 text-right font-extrabold text-text-primary text-xs">#</th>
-                    <th className="py-3.5 px-5 text-right font-extrabold text-text-primary text-xs">اسم المريض</th>
-                    <th className="py-3.5 px-5 text-right font-extrabold text-text-primary text-xs">رقم الهاتف</th>
-                    <th className="py-3.5 px-5 text-right font-extrabold text-text-primary text-xs">الرقم القومي</th>
-                    <th className="py-3.5 px-5 text-center font-extrabold text-text-primary text-xs">التواصل</th>
-                    <th className="py-3.5 px-5 text-center font-extrabold text-text-primary text-xs">الملف الطبي</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/30">
-                  {filteredPatients.map((p, i) => (
-                    <tr key={p._id} className="group hover:bg-primary/5 transition-colors duration-150">
-                      <td className="py-4 px-5 text-xs font-bold text-text-secondary">{i + 1}</td>
-                      <td className="py-4 px-5 font-bold text-text-primary group-hover:text-primary transition-colors">{p.firstName} {p.lastName}</td>
-                      <td className="py-4 px-5"><span dir="ltr" className="font-semibold text-text-primary">{p.phoneNumber}</span></td>
-                      <td className="py-4 px-5">
-                        {p.nationalId
-                          ? <span dir="ltr" className="font-semibold text-text-primary">{p.nationalId}</span>
-                          : <span className="text-text-secondary">—</span>}
-                      </td>
-                      <td className="py-4 px-5">
-                        <div className="flex items-center justify-center gap-2">
-                          <a href={`https://wa.me/2${p.phoneNumber.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer"
-                            className="px-3 py-1.5 rounded-lg bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/25 transition-colors text-xs font-bold whitespace-nowrap">
-                            مراسلة واتساب
-                          </a>
-                          <a href={`tel:${p.phoneNumber}`}
-                            className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-bold whitespace-nowrap">
-                            إجراء مكالمة
-                          </a>
-                        </div>
-                      </td>
-                      <td className="py-4 px-5 text-center">
-                        <Link href={`/doctor/patients/${p._id}`}
-                          className="px-4 py-1.5 rounded-lg border border-primary/30 text-primary hover:bg-primary/10 transition-colors text-xs font-bold whitespace-nowrap">
-                          عرض الملف الطبي
-                        </Link>
-                      </td>
+            <>
+              {/* ── Desktop Table (md+) ── */}
+              <div className="hidden md:block w-full overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-primary/10 via-surface-raised to-surface-raised border-b border-border/60">
+                      <th className="py-3.5 px-5 text-right font-extrabold text-text-primary text-xs">#</th>
+                      <th className="py-3.5 px-5 text-right font-extrabold text-text-primary text-xs">اسم المريض</th>
+                      <th className="py-3.5 px-5 text-right font-extrabold text-text-primary text-xs">رقم الهاتف</th>
+                      <th className="py-3.5 px-5 text-right font-extrabold text-text-primary text-xs">الرقم القومي</th>
+                      <th className="py-3.5 px-5 text-center font-extrabold text-text-primary text-xs">التواصل</th>
+                      <th className="py-3.5 px-5 text-center font-extrabold text-text-primary text-xs">الملف الطبي</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-border/30">
+                    {filteredPatients.map((p, i) => (
+                      <tr key={p._id} className="group hover:bg-primary/5 transition-colors duration-150">
+                        <td className="py-4 px-5 text-xs font-bold text-text-secondary">{i + 1}</td>
+                        <td className="py-4 px-5 font-bold text-text-primary group-hover:text-primary transition-colors">{p.firstName} {p.lastName}</td>
+                        <td className="py-4 px-5"><span dir="ltr" className="font-semibold text-text-primary">{p.phoneNumber}</span></td>
+                        <td className="py-4 px-5">
+                          {p.nationalId
+                            ? <span dir="ltr" className="font-semibold text-text-primary">{p.nationalId}</span>
+                            : <span className="text-text-secondary">—</span>}
+                        </td>
+                        <td className="py-4 px-5">
+                          <div className="flex items-center justify-center gap-2">
+                            <a href={`https://wa.me/2${p.phoneNumber.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer"
+                              className="px-3 py-1.5 rounded-lg bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/25 transition-colors text-xs font-bold whitespace-nowrap">
+                              مراسلة واتساب
+                            </a>
+                            <a href={`tel:${p.phoneNumber}`}
+                              className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-bold whitespace-nowrap">
+                              إجراء مكالمة
+                            </a>
+                          </div>
+                        </td>
+                        <td className="py-4 px-5 text-center">
+                          <Link href={`/doctor/patients/${p._id}`}
+                            className="px-4 py-1.5 rounded-lg border border-primary/30 text-primary hover:bg-primary/10 transition-colors text-xs font-bold whitespace-nowrap">
+                            عرض الملف الطبي
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* ── Mobile Card List (< md) ── */}
+              <div className="md:hidden flex flex-col divide-y divide-border/30">
+                {filteredPatients.map((p, i) => (
+                  <div key={p._id} className="flex flex-col gap-3 px-4 py-4">
+                    {/* Header row: index + name */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary text-xs font-black">
+                        {i + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <Link href={`/doctor/patients/${p._id}`}>
+                          <p className="font-bold text-sm text-text-primary truncate hover:text-primary transition-colors">
+                            {p.firstName} {p.lastName}
+                          </p>
+                        </Link>
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
+                          <span dir="ltr" className="text-xs text-text-secondary font-medium">{p.phoneNumber}</span>
+                          {p.nationalId && (
+                            <span dir="ltr" className="text-xs text-text-secondary">ل{p.nationalId}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <a
+                        href={`https://wa.me/2${p.phoneNumber.replace(/\D/g, "")}`}
+                        target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 transition-colors text-xs font-bold"
+                      >
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 shrink-0">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                        </svg>
+                        واتساب
+                      </a>
+                      <a
+                        href={`tel:${p.phoneNumber}`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-bold"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 shrink-0">
+                          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72c.127 1.007.36 2 .7 2.95a2 2 0 01-.45 2.11L6.5 7.5a16 16 0 006.29 6.29l.72-.77a2 2 0 012.11-.45c.95.34 1.943.573 2.95.7A2 2 0 0122 16.92z" />
+                        </svg>
+                        اتصال
+                      </a>
+                      <Link
+                        href={`/doctor/patients/${p._id}`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-primary/30 text-primary hover:bg-primary/10 transition-colors text-xs font-bold"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 shrink-0">
+                          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                          <polyline points="10 9 9 9 8 9" />
+                        </svg>
+                        الملف الطبي
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </Card>
       </div>

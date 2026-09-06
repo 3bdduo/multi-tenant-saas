@@ -355,13 +355,31 @@ export default function DoctorClinicPage() {
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-extrabold transition-all duration-300 ${
+              className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold transition-all duration-300 ${
                 activeTab === tab
                   ? "bg-primary text-surface shadow-glow-cyan"
                   : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
               }`}
             >
-              <span>{tab === "private" ? "بيانات العيادة الأساسية" : "معاينة بطاقة المريض"}</span>
+              {tab === "private" ? (
+                <>
+                  {/* Icon */}
+                  <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3" />
+                  </svg>
+                  <span className="hidden sm:inline">بيانات العيادة الأساسية</span>
+                  <span className="sm:hidden">بيانات العيادة</span>
+                </>
+              ) : (
+                <>
+                  <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span className="hidden sm:inline">معاينة بطاقة المريض</span>
+                  <span className="sm:hidden whitespace-nowrap">معاينة حية</span>
+                </>
+              )}
             </button>
           ))}
         </div>
@@ -758,7 +776,7 @@ export default function DoctorClinicPage() {
                 هكذا تظهر بيانات عيادتك تماماً للمرضى عند تصفح العيادات على المنصة.
               </p>
             </div>
-            <span className="rounded-full bg-success/20 border border-success/30 px-3 py-1 text-xs font-extrabold text-success">
+            <span className="whitespace-nowrap rounded-full bg-success/20 border border-success/30 px-3 py-1 text-xs font-extrabold text-success shrink-0">
               معاينة حية
             </span>
           </div>
@@ -777,16 +795,16 @@ export default function DoctorClinicPage() {
                   {form.street ? ` — ${form.street}` : ""}
                 </p>
               </div>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="flex flex-col items-start sm:items-end bg-surface px-4 py-2 rounded-2xl border border-border/50">
+              <div className="grid grid-cols-2 md:flex md:flex-row items-start md:items-center gap-3">
+                <div className="flex flex-col bg-surface px-4 py-2.5 rounded-2xl border border-border/50">
                   <span className="text-[11px] font-bold text-text-secondary">كشف جديد</span>
-                  <span className="font-display text-xl font-black text-accent">
+                  <span className="font-display text-xl font-black text-accent mt-0.5">
                     {form.consultationPrice ? `${form.consultationPrice} ج.م` : "—"}
                   </span>
                 </div>
-                <div className="flex flex-col items-start sm:items-end bg-surface px-4 py-2 rounded-2xl border border-border/50">
-                  <span className="text-[11px] font-bold text-text-secondary">إعادة كشف / متابعة</span>
-                  <span className="font-display text-xl font-black text-primary">
+                <div className="flex flex-col bg-surface px-4 py-2.5 rounded-2xl border border-border/50">
+                  <span className="text-[11px] font-bold text-text-secondary whitespace-nowrap">إعادة كشف / متابعة</span>
+                  <span className="font-display text-xl font-black text-primary mt-0.5">
                     {form.followUpPrice ? `${form.followUpPrice} ج.م` : form.consultationPrice ? `${form.consultationPrice} ج.م` : "—"}
                   </span>
                 </div>

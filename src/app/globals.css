@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ════════════════════════════════════════════════════════════════
+/* 
    Design Tokens — Deep Nordic Teal & Sunlit Amber Palette
    Philosophy: Modern Warm Clinical (Trust, Serenity & Human Warmth)
-   ════════════════════════════════════════════════════════════════ */
+   */
 
 :root {
   /* ── ️ 1. Light Mode (Warm Linen Background with Clear Soft Sage/Mint Cards) ── */
@@ -236,12 +236,14 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 body {
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Prevent iOS Safari from zooming in on inputs with font-size < 16px */
@@ -381,4 +383,49 @@ div, svg {
     transform: scale(1);
     opacity: 0;
   }
+}
+
+/* ═══════════════════════════════════════════════
+   Mobile-First Responsive Utilities
+   ═══════════════════════════════════════════════ */
+
+/* Scrollbar hidden utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Prevent table overflow on mobile */
+@media (max-width: 767px) {
+  .mobile-card-list table {
+    display: none;
+  }
+}
+
+/* Mobile slide-in animation for drawer */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }

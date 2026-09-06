@@ -480,39 +480,41 @@ export default function DoctorPatientDetailPage() {
               لا توجد مواعيد مسجّلة مع هذا المريض
             </Card>
           ) : (
-            appointments.map((a) => (
-              <Card key={a._id} className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-medium text-text-primary">
-                    {new Date(a.date).toLocaleDateString("ar-EG")}
-                  </p>
-                  {a.startTime && (
-                    <p className="text-xs text-text-secondary mt-0.5">
-                      {a.startTime} — {a.endTime}
+            <div className="flex flex-col gap-3">
+              {appointments.map((a) => (
+                <Card key={a._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
+                  <div>
+                    <p className="font-bold text-sm text-text-primary">
+                      {new Date(a.date).toLocaleDateString("ar-EG", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
                     </p>
-                  )}
-                </div>
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-bold ${
-                    a.status === "completed"
-                      ? "bg-success/15 text-success"
-                      : a.status === "cancelled"
-                      ? "bg-danger/15 text-danger"
+                    {a.startTime && (
+                      <p className="text-xs text-text-secondary mt-0.5">
+                        وقت الكشف: {a.startTime} {a.endTime ? `— ${a.endTime}` : ""}
+                      </p>
+                    )}
+                  </div>
+                  <span
+                    className={`self-start sm:self-auto rounded-full px-3 py-1 text-xs font-bold ${
+                      a.status === "completed"
+                        ? "bg-success/15 text-success"
+                        : a.status === "cancelled"
+                        ? "bg-danger/15 text-danger"
+                        : a.status === "confirmed"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-warning/15 text-warning"
+                    }`}
+                  >
+                    {a.status === "pending"
+                      ? "قيد الانتظار"
                       : a.status === "confirmed"
-                      ? "bg-primary/15 text-primary"
-                      : "bg-warning/15 text-warning"
-                  }`}
-                >
-                  {a.status === "pending"
-                    ? "قيد الانتظار"
-                    : a.status === "confirmed"
-                    ? "مؤكد"
-                    : a.status === "completed"
-                    ? "مكتمل"
-                    : "ملغى"}
-                </span>
-              </Card>
-            ))
+                      ? "مؤكد"
+                      : a.status === "completed"
+                      ? "مكتمل"
+                      : "ملغى"}
+                  </span>
+                </Card>
+              ))}
+            </div>
           )}
         </div>
       )}
