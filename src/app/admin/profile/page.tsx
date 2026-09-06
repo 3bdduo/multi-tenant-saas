@@ -70,8 +70,8 @@ export default function AdminProfilePage() {
   return (
     <div className="flex flex-col gap-6 animate-fade-in max-w-2xl">
       <div>
-        <h1 className="font-display text-2xl font-extrabold text-text-primary">بروفايل المشرف</h1>
-        <p className="mt-1 text-sm text-text-secondary">إدارة بيانات حساب المشرف الإداري</p>
+        <h1 className="font-display text-2xl font-extrabold text-text-primary">بوابة الإدارة</h1>
+        <p className="mt-1 text-sm text-text-secondary">إدارة بيانات حساب المشرف الإداري في بوابة الإدارة</p>
       </div>
 
       {/* Profile Card */}

@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { href: "/admin/patients", label: "المرضى", icon: <IconUsers /> },
   { href: "/admin/clinics", label: "العيادات", icon: <IconBuilding /> },
   { href: "/admin/hospitals", label: "المستشفيات", icon: <IconBuilding /> },
-  { href: "/admin/profile", label: "البروفايل الشخصي", icon: <IconUsers /> },
+  { href: "/admin/profile", label: "ملفي الشخصي", icon: <IconUsers /> },
 ];
 
 

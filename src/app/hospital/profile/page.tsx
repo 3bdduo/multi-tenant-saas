@@ -81,8 +81,8 @@ export default function HospitalProfilePage() {
   return (
     <div className="flex flex-col gap-8 max-w-2xl animate-fade-in">
       <div>
-        <h1 className="font-display text-2xl font-extrabold text-text-primary">بيانات المستشفى</h1>
-        <p className="mt-1 text-sm text-text-secondary">يمكنك تعديل بيانات المستشفى وحفظها</p>
+        <h1 className="font-display text-2xl font-extrabold text-text-primary">بوابة المستشفى</h1>
+        <p className="mt-1 text-sm text-text-secondary">عرض وتعديل بيانات المستشفى في بوابة المستشفى</p>
       </div>
 
       {hospital && (

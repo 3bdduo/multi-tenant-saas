@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { IMAGE_MANIFEST } from "@/lib/assetManifest";
-import { NabdLogoIcon } from "@/components/ui/Logo";
 
 const ROUTES_TO_PREFETCH = [
   "/",
@@ -92,9 +91,19 @@ export function Preloader({ children }: { children: React.ReactNode }) {
           {/* Logos Section */}
           <div className="flex items-center gap-6 sm:gap-12 md:gap-16 mb-12 animate-fade-in-slow">
             
-            {/* Nabd Logo */}
+            {/* Nabd Logo - New Premium Metallic Logo */}
             <div className="flex flex-col items-center gap-4">
-              <NabdLogoIcon size="xl" className="motion-safe:animate-float-slow shadow-[0_0_40px_rgba(225,29,72,0.3)]" />
+              <div
+                className="relative flex h-28 w-28 sm:h-36 sm:w-36 items-center justify-center rounded-full overflow-hidden border border-white/20 bg-[#0c1017] shadow-[0_0_50px_rgba(0,229,255,0.4),0_0_100px_rgba(13,148,136,0.15)] motion-safe:animate-float-slow"
+              >
+                <img
+                  src="/images/nabd-logo.jpeg"
+                  alt="شعار نبض"
+                  className="w-full h-full object-cover rounded-full select-none drop-shadow-[0_0_20px_rgba(0,229,255,0.5)]"
+                />
+                {/* Glow overlay */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-500/10 via-transparent to-white/5 pointer-events-none" />
+              </div>
               <div className="text-center">
                 <h2 className="font-display text-2xl font-black text-white">نبض</h2>
                 <p className="text-xs font-bold tracking-[0.2em] text-primary uppercase">Nabd SaaS</p>
@@ -110,12 +119,17 @@ export function Preloader({ children }: { children: React.ReactNode }) {
 
             {/* ARC Logo */}
             <div className="flex flex-col items-center gap-4">
-              <div className="relative flex h-28 w-28 sm:h-36 sm:w-36 items-center justify-center rounded-full border border-primary/20 bg-surface/5 shadow-[0_0_40px_rgba(0,229,255,0.15)] motion-safe:animate-float-slow" style={{ animationDelay: "1s" }}>
+              <div
+                className="relative flex h-28 w-28 sm:h-36 sm:w-36 items-center justify-center rounded-full overflow-hidden border border-white/20 bg-[#0c1017] shadow-[0_0_50px_rgba(0,229,255,0.4),0_0_100px_rgba(0,229,255,0.15)] motion-safe:animate-float-slow"
+                style={{ animationDelay: "1s" }}
+              >
                 <img
                   src="/logo/arc-logo.jpg"
                   alt="ARC"
-                  className="w-20 sm:w-28 h-auto rounded-full object-cover mix-blend-screen drop-shadow-[0_0_15px_rgba(0,229,255,0.6)]"
+                  className="w-full h-full object-cover rounded-full select-none drop-shadow-[0_0_20px_rgba(0,229,255,0.5)]"
                 />
+                {/* Glow overlay */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-500/10 via-transparent to-white/5 pointer-events-none" />
               </div>
               <div className="text-center">
                 <h2 className="font-display text-xl font-bold text-primary">ARC</h2>

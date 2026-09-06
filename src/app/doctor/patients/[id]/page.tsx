@@ -10,7 +10,6 @@ import { createNotification } from "@/lib/api/notification";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Input";
-import { FileViewerModal } from "@/components/FileViewerModal";
 import { ApiError } from "@/lib/http";
 import type { Appointment, MedicalRecord, Patient, PatientDocument } from "@/types/api";
 
@@ -34,12 +33,6 @@ export default function DoctorPatientDetailPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("records");
-  const [viewingFile, setViewingFile] = useState<{
-    url: string;
-    name?: string;
-    date?: string;
-    subtitle?: string;
-  } | null>(null);
 
   // Edit state
   const [editForm, setEditForm] = useState({ firstName: "", lastName: "", phoneNumber: "", email: "" });
@@ -182,7 +175,6 @@ export default function DoctorPatientDetailPage() {
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in pb-12">
-      {}
       <Card glass vibrant className="p-5 sm:p-7">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 sm:gap-5 min-w-0">
@@ -384,27 +376,20 @@ export default function DoctorPatientDetailPage() {
                       </div>
 
                       {isImage && doc.fileUrl && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setViewingFile({
-                              url: doc.fileUrl!,
-                              name: doc.fileName || "مستند مرفق",
-                              date: dateStr,
-                              subtitle: targetDocName ? `موجه إلى: ${targetDocName}` : "سجل صحي عام",
-                            })
-                          }
+                        <a
+                          href={doc.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="mt-3 rounded-xl overflow-hidden border border-border/60 bg-bg max-h-36 w-full flex items-center justify-center group cursor-pointer relative hover:opacity-90 transition-opacity"
-                          title="انقر للمعاينة داخل فريم ARC ونبض"
+                          title="عرض الصورة في صفحة جديدة"
                         >
                           <img src={doc.fileUrl} alt="doc" className="max-h-36 object-contain" />
                           <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
                           </div>
-                        </button>
+                        </a>
                       )}
 
                       {/* Display new fields if present */}
@@ -436,26 +421,17 @@ export default function DoctorPatientDetailPage() {
                     </div>
 
                     {doc.fileUrl ? (
-                      <Button
-                        type="button"
-                        variant="vibrant"
-                        size="sm"
-                        onClick={() =>
-                          setViewingFile({
-                            url: doc.fileUrl!,
-                            name: doc.fileName || "مستند مرفق",
-                            date: dateStr,
-                            subtitle: targetDocName ? `موجه إلى: ${targetDocName}` : "سجل صحي عام",
-                          })
-                        }
-                        className="w-full font-bold justify-center shadow-glow-cyan mt-2"
+                      <a
+                        href={doc.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary text-surface px-4 py-2 text-sm font-bold shadow-glow-cyan hover:bg-primary/90 transition-colors w-full mt-2"
                       >
-                        <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
-                        <span>عرض المستند / الصورة</span>
-                      </Button>
+                        <span>عرض المستند</span>
+                      </a>
                     ) : (
                       <div className="mt-2 text-center text-xs text-text-secondary italic">
                         (ملاحظة نصية بدون ملف مرفق)
@@ -607,9 +583,6 @@ export default function DoctorPatientDetailPage() {
           </form>
         </Card>
       )}
-
-      {/* File Viewer Modal with ARC & Nabd Frame */}
-      <FileViewerModal file={viewingFile} onClose={() => setViewingFile(null)} />
     </div>
   );
 }

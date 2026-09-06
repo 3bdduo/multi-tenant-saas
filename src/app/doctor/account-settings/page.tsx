@@ -146,10 +146,10 @@ export default function DoctorAccountSettingsPage() {
       {/* Header */}
       <div>
         <h1 className="font-display text-2xl font-extrabold text-text-primary md:text-3xl">
-          إعدادات الحساب والبيانات الشخصية
+          بوابة الطبيب
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          تعديل بيانات الحساب، البريد الإلكتروني، اسم المستخدم، وبيانات تسجيل الدخول عبر الـ API
+          إعدادات الحساب، البريد الإلكتروني، اسم المستخدم، وبيانات تسجيل الدخول في بوابة الطبيب
         </p>
       </div>
 

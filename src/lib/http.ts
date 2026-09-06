@@ -180,17 +180,37 @@ export function formatArabicErrorMessage(
   if (
     rawMsg.includes("invalid credential") ||
     rawMsg.includes("wrong password") ||
-    rawMsg.includes("incorrect")
+    rawMsg.includes("incorrect password")
   ) {
     return "كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.";
   }
 
-  // 7. Status code fallbacks
+  // 7. Role & Subscription specific errors
+  if (rawMsg.includes("subscription expired") || rawMsg.includes("ispaid")) {
+    return "انتهت صلاحية اشتراك حساب الطبيب أو العيادة — يرجى تجديد الاشتراك لتفعيل هذه الميزة.";
+  }
+
+  if (rawMsg.includes("must be a doctor") || rawMsg.includes("doctors only")) {
+    return "هذا الإجراء مخصص لحسابات الأطباء المشتركين فقط.";
+  }
+
+  // 8. Status code fallbacks
   if (status === 401) {
-    return "الرقم القومي أو كلمة المرور غير صحيحة، أو انتهت جلسة العمل.";
+    if (
+      rawMsg.includes("login") ||
+      rawMsg.includes("credential") ||
+      rawMsg.includes("password") ||
+      rawMsg.includes("unauthorized") && !rawMsg.includes("token")
+    ) {
+      return "الرقم القومي أو كلمة المرور غير صحيحة.";
+    }
+    return "انتهت جلسة تسجيل الدخول — يرجى تسجيل الدخول مرة أخرى للمتابعة.";
   }
 
   if (status === 403) {
+    if (rawMsg.includes("subscription") || rawMsg.includes("paid")) {
+      return "انتهت صلاحية اشتراك حساب الطبيب أو العيادة — يرجى تجديد الاشتراك.";
+    }
     return "ليس لديك الصلاحية الكافية لإجراء هذه العملية.";
   }
 
@@ -199,7 +219,10 @@ export function formatArabicErrorMessage(
   }
 
   if (status === 400 || status === 422) {
-    return "البيانات المدخلة غير صالحة أو مكررة. يرجى التأكد من صحة الرقم القومي والبريد وكلمة المرور.";
+    if (rawMsg.includes("jwt expired") || rawMsg.includes("token expired")) {
+      return "انتهت جلسة تسجيل الدخول — يرجى تسجيل الدخول مرة أخرى.";
+    }
+    return "البيانات المدخلة غير صالحة أو مكررة. يرجى التأكد من صحة البيانات.";
   }
 
   if (status >= 500) {
@@ -261,8 +284,9 @@ export async function apiFetch<T>(
   const token = auth ? getAccessToken() : null;
   const cacheKey = `${method}:${path}:${token || "public"}`;
 
-  // If GET and cached within TTL, return cached value instantly!
-  if (isGet && !noCache && !retry && typeof window !== "undefined") {
+  // If GET and cached within TTL, return cached value instantly! (Exclude dynamic notification endpoints)
+  const isExcludedFromCache = path.includes("notification");
+  if (isGet && !noCache && !retry && !isExcludedFromCache && typeof window !== "undefined") {
     const cached = apiCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
       return cached.data as T;
@@ -331,8 +355,8 @@ export async function apiFetch<T>(
       throw new ApiError(friendlyArabicMessage, res.status, body);
     }
 
-    // Save successful GET response to in-memory cache
-    if (isGet && typeof window !== "undefined") {
+    // Save successful GET response to in-memory cache (unless excluded)
+    if (isGet && !isExcludedFromCache && typeof window !== "undefined") {
       apiCache.set(cacheKey, { data: body, timestamp: Date.now() });
     }
 

@@ -83,8 +83,8 @@ export default function PatientProfilePage() {
   return (
     <div className="flex flex-col gap-6 animate-fade-in max-w-2xl">
       <div>
-        <h1 className="font-display text-2xl font-extrabold text-text-primary">بروفايلي</h1>
-        <p className="mt-1 text-sm text-text-secondary">عرض وتعديل بياناتك الشخصية</p>
+        <h1 className="font-display text-2xl font-extrabold text-text-primary">بوابة المريض</h1>
+        <p className="mt-1 text-sm text-text-secondary">عرض وتعديل بياناتك الشخصية في بوابة المريض</p>
       </div>
 
       {/* Profile Card */}
@@ -101,7 +101,7 @@ export default function PatientProfilePage() {
               <p className="text-sm text-text-secondary mt-0.5">@{profile.userName}</p>
             )}
             <span className="mt-2 inline-block rounded-full bg-primary/15 px-3 py-1 text-xs font-bold text-primary border border-primary/30">
-              مريض
+              بوابة المريض
             </span>
           </div>
         </div>

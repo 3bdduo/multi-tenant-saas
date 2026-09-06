@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { DoctorActivationBanner } from "@/components/DoctorActivationBanner";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -16,15 +17,14 @@ import { ApiError } from "@/lib/http";
 type TabFilter = "active" | "completed" | "cancelled" | "past";
 
 export default function DoctorAppointmentsPage() {
+  const router = useRouter();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabFilter>("active");
   const [searchQuery, setSearchQuery] = useState("");
 
-  
   const [clinic, setClinic] = useState<Clinic | null>(null);
 
-  
   const [showNewModal, setShowNewModal] = useState(false);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loadingPatients, setLoadingPatients] = useState(false);
@@ -37,7 +37,6 @@ export default function DoctorAppointmentsPage() {
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  
   const [modalSlots, setModalSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
@@ -56,12 +55,18 @@ export default function DoctorAppointmentsPage() {
     }
   }
 
+  // ── Optimistic status update — no full reload needed ──────────────────
   async function handleStatusUpdate(id: string, status: AppointmentStatus) {
+    // Optimistic update: change state locally immediately
+    setAppointments((prev) =>
+      prev.map((a) => (a._id === id ? { ...a, status } : a))
+    );
     try {
       await updateAppointment(id, { status });
-      fetchAppointments();
     } catch (err) {
       console.error("Failed to update appointment:", err);
+      // Rollback on failure by re-fetching
+      fetchAppointments();
     }
   }
 
@@ -87,13 +92,12 @@ export default function DoctorAppointmentsPage() {
       }
     }
 
-    
     if (!clinic) {
       try {
         const res = await getMyClinic();
         setClinic(res.data as unknown as Clinic);
       } catch {
-        
+        /* ignore */
       }
     }
   }
@@ -138,21 +142,26 @@ export default function DoctorAppointmentsPage() {
 
   const todayStr = new Date().toISOString().split("T")[0];
 
-  // Filter appointments
+  // ── Filter logic ──────────────────────────────────────────────────────
+  // active   → pending أو confirmed AND يومهم >= اليوم
+  // completed→ status === completed (بغض النظر عن التاريخ)
+  // cancelled→ status === cancelled (بغض النظر عن التاريخ)
+  // past     → يومهم < اليوم AND status ليس completed ولا cancelled
   const filteredAppointments = useMemo(() => {
     return appointments
       .filter((appt) => {
         const apptDate = appt.date ? appt.date.split("T")[0] : "";
-        if (activeTab === "active" && (appt.status === "pending" || appt.status === "confirmed")) {
-          return apptDate >= todayStr;
-        }
-        if (activeTab === "completed" && appt.status === "completed") return true;
-        if (activeTab === "cancelled" && appt.status === "cancelled") return true;
-        if (activeTab === "past" && apptDate < todayStr) return true;
+        const isPending = appt.status === "pending" || appt.status === "confirmed" || appt.status === "waitlisted";
+        const isCompleted = appt.status === "completed";
+        const isCancelled = appt.status === "cancelled";
+        const isFutureOrToday = apptDate >= todayStr;
+        const isPast = apptDate < todayStr;
 
-        if (activeTab === "active" && apptDate < todayStr) return false;
-
-        return true;
+        if (activeTab === "active") return isPending && isFutureOrToday;
+        if (activeTab === "completed") return isCompleted;
+        if (activeTab === "cancelled") return isCancelled;
+        if (activeTab === "past") return isPending && isPast;
+        return false;
       })
       .filter((appt) => {
         if (!searchQuery.trim()) return true;
@@ -171,28 +180,30 @@ export default function DoctorAppointmentsPage() {
       });
   }, [appointments, activeTab, todayStr, searchQuery]);
 
-  // Group appointments by day
+  // Group by day
   const groupedAppointments = useMemo(() => {
     const groups: { [dateKey: string]: Appointment[] } = {};
-
     filteredAppointments.forEach((appt) => {
       const d = appt.date ? appt.date.split("T")[0] : "غير محدد";
       if (!groups[d]) groups[d] = [];
       groups[d].push(appt);
     });
-
     const sortedDates = Object.keys(groups).sort((a, b) => {
       if (activeTab === "past" || activeTab === "completed" || activeTab === "cancelled") {
-        return b.localeCompare(a); // recent first
+        return b.localeCompare(a);
       }
-      return a.localeCompare(b); // upcoming chronological
+      return a.localeCompare(b);
     });
-
-    return sortedDates.map((dateKey) => ({
-      dateKey,
-      items: groups[dateKey],
-    }));
+    return sortedDates.map((dateKey) => ({ dateKey, items: groups[dateKey] }));
   }, [filteredAppointments, activeTab]);
+
+  // Tab label descriptions
+  const tabDescriptions: Record<TabFilter, string> = {
+    active: "حجوزات لم يُكشف عنها بعد ويومها لم ينتهِ",
+    completed: "جميع الحجوزات التي تم الكشف عنها",
+    cancelled: "جميع الحجوزات التي تم إلغاؤها",
+    past: "حجوزات انتهى يومها دون كشف أو إلغاء",
+  };
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in pb-12">
@@ -217,33 +228,45 @@ export default function DoctorAppointmentsPage() {
         </Button>
       </div>
 
-      {/* Main Status Tabs */}
+      {/* ── Tabs ─────────────────────────────────────────────────────── */}
       <Card glass vibrant className="p-1.5 sm:p-2">
         <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-hide py-1 px-1 -mx-1">
           <TabButton
             active={activeTab === "active"}
             onClick={() => setActiveTab("active")}
-            label="الحالية (قيد الانتظار)"
+            label="الحالية"
+            description="قيد الانتظار — يومها لم ينتهِ"
+            color="primary"
           />
           <TabButton
             active={activeTab === "completed"}
             onClick={() => setActiveTab("completed")}
-            label="السجل (المكتملة)"
+            label="السجل"
+            description="تم الكشف"
+            color="success"
           />
           <TabButton
             active={activeTab === "cancelled"}
             onClick={() => setActiveTab("cancelled")}
             label="الملغاة"
+            description="تم الإلغاء"
+            color="danger"
           />
           <TabButton
             active={activeTab === "past"}
             onClick={() => setActiveTab("past")}
             label="الأيام السابقة"
+            description="انتهى يومها — بدون كشف أو إلغاء"
+            color="warning"
           />
         </div>
+        {/* Active tab description */}
+        <p className="text-[11px] text-text-secondary px-2 pt-1 pb-0.5 font-medium">
+          {tabDescriptions[activeTab]}
+        </p>
       </Card>
 
-      {/* Search Input */}
+      {/* Search */}
       <div className="relative">
         <input
           type="text"
@@ -267,7 +290,7 @@ export default function DoctorAppointmentsPage() {
         </svg>
       </div>
 
-      {/* Total count bar */}
+      {/* Total count */}
       <div className="flex items-center justify-between rounded-2xl bg-surface-raised px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-text-primary border border-border/50">
         <span>إجمالي المواعيد في هذه القائمة</span>
         <span className="rounded-lg bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-black">
@@ -275,7 +298,7 @@ export default function DoctorAppointmentsPage() {
         </span>
       </div>
 
-      {/* Appointments List Container Grouped By Day */}
+      {/* ── Appointments List ─────────────────────────────────────────── */}
       {loading ? (
         <div className="flex flex-col gap-3">
           {[1, 2, 3].map((i) => (
@@ -325,25 +348,34 @@ export default function DoctorAppointmentsPage() {
                 {/* Day's appointments */}
                 <div className="flex flex-col gap-3 sm:gap-3.5 pr-1 sm:pr-2">
                   {items.map((appt, index) => {
-                    const patientName =
-                      typeof appt.patientId === "object"
-                        ? `${appt.patientId.firstName} ${appt.patientId.lastName}`
-                        : appt.patientId;
-                    const patientPhone =
-                      typeof appt.patientId === "object" ? appt.patientId.phoneNumber : "—";
+                    const patientObj = typeof appt.patientId === "object" ? appt.patientId : null;
+                    const patientId = patientObj?._id ?? (typeof appt.patientId === "string" ? appt.patientId : null);
+                    const patientName = patientObj
+                      ? `${patientObj.firstName} ${patientObj.lastName}`
+                      : (typeof appt.patientId === "string" ? appt.patientId : "—");
+                    const patientPhone = patientObj?.phoneNumber ?? "—";
+                    const contactPhone = appt.contactPhone;
                     const isFollowUp = appt.visitingType === "FOLLOW_UP";
+
+                    // Whatsapp / call phone: prefer contactPhone, fallback to patient phone
+                    const dialPhone = contactPhone || patientPhone;
+                    const whatsappPhone = dialPhone.replace(/\D/g, "");
 
                     return (
                       <Card
                         key={appt._id}
                         hover
-                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-4 sm:p-5 border-border/60 hover:border-primary/40 transition-all"
+                        className="flex flex-col gap-3 p-4 sm:p-5 border-border/60 hover:border-primary/40 transition-all"
                       >
-                        <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                          <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary font-black text-base sm:text-lg">
-                            #{index + 1}
+                        {/* ── Top row: number + name + type + profile link ── */}
+                        <div className="flex items-start gap-3 sm:gap-4 min-w-0">
+                          {/* Queue / index badge */}
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary font-black text-base">
+                            #{appt.queueNumber ?? index + 1}
                           </div>
+
                           <div className="min-w-0 flex-1">
+                            {/* Name row */}
                             <div className="flex items-center gap-2 flex-wrap">
                               <h3 className="font-display text-base sm:text-lg font-bold text-text-primary truncate">
                                 {patientName}
@@ -357,63 +389,134 @@ export default function DoctorAppointmentsPage() {
                               >
                                 {isFollowUp ? "إعادة كشف" : "كشف جديد"}
                               </span>
+
+                              {/* ── Profile link icon ── */}
+                              {patientId && (
+                                <button
+                                  title="فتح ملف المريض"
+                                  onClick={() => router.push(`/doctor/patients/${patientId}`)}
+                                  className="flex items-center justify-center h-7 w-7 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0"
+                                >
+                                  {/* Person icon */}
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                                    <circle cx="12" cy="8" r="4" />
+                                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                                  </svg>
+                                </button>
+                              )}
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1.5 text-xs text-text-secondary">
-                              <span dir="ltr" className="font-semibold text-text-primary">
-                                الهاتف: {patientPhone}
-                              </span>
-                              {appt.contactPhone && (
-                                <span dir="ltr" className="rounded-md bg-accent/10 text-accent font-bold px-2 py-0.5 border border-accent/20">
-                                  هاتف بديل: {appt.contactPhone}
+                            {/* ── Phone row with action icons ── */}
+                            <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                              {/* Primary phone */}
+                              <div className="flex items-center gap-1.5">
+                                <span dir="ltr" className="text-xs font-semibold text-text-primary">
+                                  {patientPhone}
                                 </span>
+                                {/* WhatsApp */}
+                                <a
+                                  href={`https://wa.me/2${whatsappPhone}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title="واتساب"
+                                  className="flex items-center justify-center h-6 w-6 rounded-lg bg-[#25D366]/15 hover:bg-[#25D366]/30 transition-colors text-[#25D366]"
+                                >
+                                  {/* WhatsApp SVG */}
+                                  <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                                  </svg>
+                                </a>
+                                {/* Call */}
+                                <a
+                                  href={`tel:${dialPhone}`}
+                                  title="اتصال"
+                                  className="flex items-center justify-center h-6 w-6 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors text-primary"
+                                >
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+                                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72c.127 1.007.36 2 .7 2.95a2 2 0 01-.45 2.11L6.5 7.5a16 16 0 006.29 6.29l.72-.77a2 2 0 012.11-.45c.95.34 1.943.573 2.95.7A2 2 0 0122 16.92z" />
+                                  </svg>
+                                </a>
+                              </div>
+
+                              {/* Contact phone (alternative) */}
+                              {contactPhone && (
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[10px] font-bold text-accent bg-accent/10 border border-accent/20 rounded px-1.5 py-0.5">
+                                    بديل
+                                  </span>
+                                  <span dir="ltr" className="text-xs font-semibold text-text-primary">
+                                    {contactPhone}
+                                  </span>
+                                  <a
+                                    href={`https://wa.me/2${contactPhone.replace(/\D/g, "")}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="واتساب الهاتف البديل"
+                                    className="flex items-center justify-center h-6 w-6 rounded-lg bg-[#25D366]/15 hover:bg-[#25D366]/30 transition-colors text-[#25D366]"
+                                  >
+                                    <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+                                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                                    </svg>
+                                  </a>
+                                  <a
+                                    href={`tel:${contactPhone}`}
+                                    title="اتصال بالهاتف البديل"
+                                    className="flex items-center justify-center h-6 w-6 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors text-primary"
+                                  >
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+                                      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 0h3a2 2 0 012 1.72c.127 1.007.36 2 .7 2.95a2 2 0 01-.45 2.11L6.5 7.5a16 16 0 006.29 6.29l.72-.77a2 2 0 012.11-.45c.95.34 1.943.573 2.95.7A2 2 0 0122 16.92z" />
+                                    </svg>
+                                  </a>
+                                </div>
                               )}
+
+                              {/* Time or queue */}
                               {appt.startTime ? (
-                                <span className="font-semibold text-primary">
-                                  الساعة: {appt.startTime.slice(11, 16)}
+                                <span className="text-xs font-semibold text-primary bg-primary/10 rounded-lg px-2 py-0.5">
+                                  ⏰ {appt.startTime.slice(11, 16)}
                                 </span>
                               ) : appt.queueNumber != null ? (
-                                <span className="font-semibold text-accent">
-                                  رقم الدور: #{appt.queueNumber}
+                                <span className="text-xs font-semibold text-accent bg-accent/10 rounded-lg px-2 py-0.5">
+                                  دور #{appt.queueNumber}
                                 </span>
                               ) : null}
                             </div>
                           </div>
                         </div>
 
-                        {/* Action buttons */}
-                        <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0 border-t border-border/40 sm:border-0 justify-end shrink-0">
+                        {/* ── Action buttons row ── */}
+                        <div className="flex flex-wrap items-center gap-2 pt-2.5 border-t border-border/40 justify-between">
                           <StatusBadge status={appt.status} />
 
-                          {appt.status === "pending" && (
-                            <Button
-                              size="sm"
-                              variant="vibrant"
-                              onClick={() => handleStatusUpdate(appt._id, "confirmed")}
-                            >
-                              تأكيد الحجز
-                            </Button>
-                          )}
-
-                          {appt.status === "confirmed" && (
-                            <Button
-                              size="sm"
-                              variant="vibrant"
-                              onClick={() => handleStatusUpdate(appt._id, "completed")}
-                            >
-                              تم الكشف
-                            </Button>
-                          )}
-
-                          {appt.status !== "cancelled" && appt.status !== "completed" && (
-                            <Button
-                              size="sm"
-                              variant="danger"
-                              onClick={() => handleStatusUpdate(appt._id, "cancelled")}
-                            >
-                              إلغاء
-                            </Button>
-                          )}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {appt.status === "pending" && (
+                              <Button
+                                size="sm"
+                                variant="vibrant"
+                                onClick={() => handleStatusUpdate(appt._id, "confirmed")}
+                              >
+                                تأكيد الحجز
+                              </Button>
+                            )}
+                            {appt.status === "confirmed" && (
+                              <Button
+                                size="sm"
+                                variant="vibrant"
+                                onClick={() => handleStatusUpdate(appt._id, "completed")}
+                              >
+                                تم الكشف ✓
+                              </Button>
+                            )}
+                            {appt.status !== "cancelled" && appt.status !== "completed" && (
+                              <Button
+                                size="sm"
+                                variant="danger"
+                                onClick={() => handleStatusUpdate(appt._id, "cancelled")}
+                              >
+                                إلغاء
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </Card>
                     );
@@ -425,7 +528,7 @@ export default function DoctorAppointmentsPage() {
         </div>
       )}
 
-      {/* New Appointment Modal */}
+      {/* ── New Appointment Modal ─────────────────────────────────────── */}
       {showNewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200 overflow-y-auto">
           <Card className="max-w-md w-full shadow-2xl bg-surface max-h-[90vh] overflow-y-auto p-4 sm:p-6 my-auto">
@@ -460,11 +563,8 @@ export default function DoctorAppointmentsPage() {
                 />
               )}
 
-              {/* Visit Type selector */}
               <div>
-                <label className="mb-1.5 block text-sm font-bold text-text-primary">
-                  نوع الكشف *
-                </label>
+                <label className="mb-1.5 block text-sm font-bold text-text-primary">نوع الكشف *</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -503,12 +603,9 @@ export default function DoctorAppointmentsPage() {
                 }}
               />
 
-              {/* Slot picker — only for time clinics */}
               {clinic?.bookingType === "time" && newDate && (
                 <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-text-primary">
-                    وقت الكشف *
-                  </label>
+                  <label className="mb-1.5 block text-sm font-semibold text-text-primary">وقت الكشف *</label>
                   {loadingSlots ? (
                     <div className="flex items-center gap-2 text-sm text-text-secondary py-2">
                       <span className="h-4 w-4 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
@@ -539,7 +636,6 @@ export default function DoctorAppointmentsPage() {
                 </div>
               )}
 
-              {/* Queue notice */}
               {clinic && clinic.bookingType !== "time" && newDate && (
                 <div className="rounded-xl bg-accent/10 border border-accent/20 px-3 py-2 text-xs text-text-primary">
                   العيادة تعمل بنظام الطابور — سيتم تعيين رقم الدور تلقائياً.
@@ -590,22 +686,35 @@ export default function DoctorAppointmentsPage() {
   );
 }
 
+// ── Tab Button ────────────────────────────────────────────────────────────
 function TabButton({
   active,
   onClick,
   label,
+  description,
+  color,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
+  description: string;
+  color: "primary" | "success" | "danger" | "warning";
 }) {
+  const colorMap = {
+    primary: "shadow-glow-cyan",
+    success: "shadow-[0_0_12px_rgba(34,197,94,0.3)]",
+    danger: "shadow-[0_0_12px_rgba(239,68,68,0.3)]",
+    warning: "shadow-[0_0_12px_rgba(234,179,8,0.3)]",
+  };
+
   return (
     <button
       type="button"
       onClick={onClick}
+      title={description}
       className={`min-h-[40px] sm:min-h-[42px] rounded-xl px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold transition-all duration-200 whitespace-nowrap shrink-0 flex items-center justify-center ${
         active
-          ? "bg-primary text-surface shadow-glow-cyan font-extrabold"
+          ? `bg-primary text-surface ${colorMap[color]} font-extrabold`
           : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
       }`}
     >

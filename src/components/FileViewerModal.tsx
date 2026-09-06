@@ -71,14 +71,9 @@ export function FileViewerModal({ file, onClose }: FileViewerModalProps) {
             {/* Nabd Logo */}
             <div className="flex items-center gap-2">
               <img
-                src="/logo/nabd-logo-light.png"
+                src="/images/nabd-logo.jpeg"
                 alt="شعار نبض"
-                className="h-8 sm:h-9 object-contain dark:hidden"
-              />
-              <img
-                src="/logo/nabd-logo-dark.png"
-                alt="شعار نبض"
-                className="h-8 sm:h-9 object-contain hidden dark:block"
+                className="h-8 sm:h-9 w-auto rounded-lg object-cover shadow-sm border border-border/40"
               />
             </div>
           </div>

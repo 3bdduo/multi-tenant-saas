@@ -27,7 +27,8 @@ export function createGeneralNotificationByAdmin(
 
 
 export function getMyGeneralNotifications() {
-  return apiFetch<ApiEnvelope<{ notifications: GeneralNotification[] }>>(
-    "/general-notification"
+  return apiFetch<ApiEnvelope<{ notifications?: GeneralNotification[]; notification?: GeneralNotification[] }>>(
+    "/general-notification",
+    { noCache: true }
   );
 }

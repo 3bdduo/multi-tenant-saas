@@ -46,6 +46,8 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
   const [clinic, setClinic] = useState<Clinic | null>(null);
   const [loading, setLoading] = useState(true);
   const [patientProfile, setPatientProfile] = useState<Patient | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState(false);
 
   
   const [date, setDate] = useState(tomorrow());
@@ -85,13 +87,19 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
 
           if (isAuthenticated && role === "Patient") {
             try {
+              setProfileLoading(true);
               const profileRes = await getMyProfile();
               const p = profileRes.data.patient;
               setPatientProfile(p);
+              setProfileError(false);
               if (p.isFamily && p.familyMembers && p.familyMembers.length > 0) {
                 setSelectedFamilyMember(p.familyMembers[0].name);
               }
-            } catch { /* ignore */ }
+            } catch {
+              setProfileError(true);
+            } finally {
+              setProfileLoading(false);
+            }
 
             try {
               const apptsRes = await getMyAppointments();
@@ -144,6 +152,23 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
   useEffect(() => {
     if (clinic?.bookingType === "time" && date) fetchSlots(date);
   }, [date, fetchSlots, clinic?.bookingType]);
+
+  async function loadPatientProfile() {
+    try {
+      setProfileLoading(true);
+      setProfileError(false);
+      const profileRes = await getMyProfile();
+      const p = profileRes.data.patient;
+      setPatientProfile(p);
+      if (p.isFamily && p.familyMembers && p.familyMembers.length > 0) {
+        setSelectedFamilyMember(p.familyMembers[0].name);
+      }
+    } catch {
+      setProfileError(true);
+    } finally {
+      setProfileLoading(false);
+    }
+  }
 
   function handleOpenConfirmModal(e: React.FormEvent) {
     e.preventDefault();
@@ -621,57 +646,108 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
               </div>
             </div>
 
-            <div className="space-y-3 mb-4">
-              {patientProfile?.isFamily && patientProfile?.familyMembers && patientProfile.familyMembers.length > 0 && (
-                <div>
-                  <label className="block text-xs font-bold text-text-secondary mb-1">اسم الفرد من الأسرة</label>
-                  <select
-                    className="w-full rounded-xl border border-border/80 bg-surface px-4 py-2.5 text-sm outline-none transition-all focus:border-primary"
-                    value={selectedFamilyMember}
-                    onChange={(e) => setSelectedFamilyMember(e.target.value)}
-                  >
-                    {patientProfile.familyMembers.map(m => (
-                      <option key={m.name} value={m.name}>{m.name}</option>
-                    ))}
-                  </select>
+            {/* Patient profile loading / error state */}
+            {profileLoading && (
+              <div className="flex items-center justify-center gap-2 rounded-xl border border-border/40 bg-surface-raised px-4 py-4 text-sm text-text-secondary mb-4">
+                <span className="h-4 w-4 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+                جارٍ تحميل بيانات حسابك...
+              </div>
+            )}
+
+            {profileError && (
+              <div className="rounded-xl bg-danger/10 border border-danger/20 p-3.5 mb-4 text-sm text-center">
+                <p className="text-danger font-bold mb-2">تعذّر تحميل بيانات حسابك</p>
+                <button
+                  onClick={loadPatientProfile}
+                  className="rounded-lg bg-danger/20 px-4 py-1.5 text-xs font-bold text-danger hover:bg-danger/30 transition-colors"
+                >
+                  إعادة المحاولة
+                </button>
+              </div>
+            )}
+
+            {!profileLoading && !profileError && (
+              <div className="space-y-3 mb-4">
+                {/* Account data badge */}
+                <div className="flex items-center gap-1.5 rounded-lg bg-success/10 border border-success/20 px-3 py-1.5">
+                  <span className="text-success text-xs">🔒</span>
+                  <span className="text-xs font-bold text-success">البيانات مُحمَّلة من حسابك تلقائياً</span>
                 </div>
-              )}
-              {!patientProfile?.isFamily && (
+
+                {patientProfile?.isFamily && patientProfile?.familyMembers && patientProfile.familyMembers.length > 0 && (
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1">اسم الفرد من الأسرة</label>
+                    <select
+                      className="w-full rounded-xl border border-border/80 bg-surface px-4 py-2.5 text-sm outline-none transition-all focus:border-primary"
+                      value={selectedFamilyMember}
+                      onChange={(e) => setSelectedFamilyMember(e.target.value)}
+                    >
+                      {patientProfile.familyMembers.map(m => (
+                        <option key={m.name} value={m.name}>{m.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {!patientProfile?.isFamily && (
+                  <div>
+                    <label className="block text-xs font-bold text-text-secondary mb-1">
+                      اسم المريض
+                      <span className="mr-1.5 text-[10px] font-normal text-text-secondary bg-surface-raised border border-border/50 rounded px-1.5 py-0.5">من حسابك</span>
+                    </label>
+                    <div className="w-full rounded-xl border border-success/30 bg-success/5 px-4 py-2.5 text-sm text-text-primary font-bold flex items-center justify-between">
+                      <span>
+                        {patientProfile
+                          ? `${patientProfile.firstName} ${patientProfile.lastName}`
+                          : <span className="text-text-secondary font-normal">لم تُحمَّل البيانات</span>}
+                      </span>
+                      <span className="text-success text-xs opacity-60">🔒</span>
+                    </div>
+                  </div>
+                )}
+
                 <div>
-                  <label className="block text-xs font-bold text-text-secondary mb-1">اسم المريض</label>
-                  <div className="w-full rounded-xl border border-border/60 bg-surface-raised px-4 py-2.5 text-sm text-text-primary font-semibold">
-                    {patientProfile ? `${patientProfile.firstName} ${patientProfile.lastName}` : "—"}
+                  <label className="block text-xs font-bold text-text-secondary mb-1">
+                    رقم الهاتف
+                    <span className="mr-1.5 text-[10px] font-normal text-text-secondary bg-surface-raised border border-border/50 rounded px-1.5 py-0.5">من حسابك</span>
+                  </label>
+                  <div className="w-full rounded-xl border border-success/30 bg-success/5 px-4 py-2.5 text-sm text-text-primary font-bold flex items-center justify-between" dir="ltr">
+                    <span>
+                      {patientProfile?.isFamily && selectedFamilyMember
+                        ? patientProfile.familyMembers?.find(m => m.name === selectedFamilyMember)?.phoneNumber || patientProfile?.phoneNumber
+                        : patientProfile?.phoneNumber || <span className="text-text-secondary font-normal">لم تُحمَّل البيانات</span>}
+                    </span>
+                    <span className="text-success text-xs opacity-60">🔒</span>
                   </div>
                 </div>
-              )}
-              <div>
-                <label className="block text-xs font-bold text-text-secondary mb-1">رقم الهاتف</label>
-                <div className="w-full rounded-xl border border-border/60 bg-surface-raised px-4 py-2.5 text-sm text-text-primary font-semibold" dir="ltr">
-                  {patientProfile?.isFamily && selectedFamilyMember
-                    ? patientProfile.familyMembers?.find(m => m.name === selectedFamilyMember)?.phoneNumber || patientProfile?.phoneNumber
-                    : patientProfile?.phoneNumber || "—"}
+
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1">
+                    رقم تليفون آخر للتواصل <span className="text-text-secondary font-normal">(اختياري)</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                    placeholder="01xxxxxxxxx"
+                    dir="ltr"
+                    className="w-full rounded-xl border border-border/80 bg-surface px-4 py-2.5 text-sm outline-none transition-all focus:border-primary focus:shadow-[0_0_0_3px_rgba(var(--color-primary-rgb),0.1)]"
+                  />
                 </div>
               </div>
-              <div>
-                <label className="block text-xs font-bold text-text-secondary mb-1">
-                  رقم تليفون آخر للتواصل <span className="text-text-secondary font-normal">(اختياري)</span>
-                </label>
-                <input
-                  type="tel"
-                  value={contactPhone}
-                  onChange={(e) => setContactPhone(e.target.value)}
-                  placeholder="01xxxxxxxxx"
-                  dir="ltr"
-                  className="w-full rounded-xl border border-border/80 bg-surface px-4 py-2.5 text-sm outline-none transition-all focus:border-primary focus:shadow-[0_0_0_3px_rgba(var(--color-primary-rgb),0.1)]"
-                />
-              </div>
-            </div>
+            )}
 
             <div className="flex gap-3">
               <Button variant="ghost" className="flex-1" onClick={() => setShowConfirmModal(false)} disabled={bookingLoading}>
                 رجوع
               </Button>
-              <Button variant="vibrant" className="flex-1 shadow-glow-cyan font-bold" onClick={handleConfirmBook} loading={bookingLoading} disabled={bookingLoading}>
+              <Button
+                variant="vibrant"
+                className="flex-1 shadow-glow-cyan font-bold"
+                onClick={handleConfirmBook}
+                loading={bookingLoading}
+                disabled={bookingLoading || profileLoading || profileError || !patientProfile}
+              >
                 {bookingLoading ? "جارٍ الحجز..." : "تأكيد الحجز"}
               </Button>
             </div>

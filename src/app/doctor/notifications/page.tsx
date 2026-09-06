@@ -2,6 +2,7 @@
 
 import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
   createNotification,
   deleteAllNotificationsForDoctor,
@@ -13,7 +14,11 @@ import {
   createGeneralNotificationByDoctor,
   getMyGeneralNotifications,
 } from "@/lib/api/generalNotification";
-import { getMyPatients } from "@/lib/api/patient";
+import {
+  getMyPatients,
+  getNonClinicPatients,
+  lookupPatientByNationalId,
+} from "@/lib/api/patient";
 import { Card } from "@/components/ui/Card";
 import { Field, TextAreaField } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -32,59 +37,93 @@ function DoctorNotificationsContent() {
   // Data lists
   const [patients, setPatients] = useState<Patient[]>([]);
   const [patientsLoading, setPatientsLoading] = useState(false);
+  const [patientsError, setPatientsError] = useState<string | null>(null);
   const [directNotifications, setDirectNotifications] = useState<Notification[]>([]);
   const [generalNotifications, setGeneralNotifications] = useState<GeneralNotification[]>([]);
   const [loading, setLoading] = useState(true);
 
-  
+  // Form state: Direct
   const [patientId, setPatientId] = useState(initialPatientId);
   const [directTitle, setDirectTitle] = useState("");
   const [directMessage, setDirectMessage] = useState("");
   const [directSending, setDirectSending] = useState(false);
   const [directError, setDirectError] = useState<string | null>(null);
   const [directSuccess, setDirectSuccess] = useState<string | null>(null);
+  const [directAuthExpired, setDirectAuthExpired] = useState(false);
 
-  
+  // Form state: General
   const [generalTitle, setGeneralTitle] = useState("");
   const [generalMessage, setGeneralMessage] = useState("");
   const [generalSending, setGeneralSending] = useState(false);
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [generalSuccess, setGeneralSuccess] = useState<string | null>(null);
+  const [generalAuthExpired, setGeneralAuthExpired] = useState(false);
 
-  
+  // Patient search filter & National ID lookup
   const [patientSearch, setPatientSearch] = useState("");
+  const [nidInput, setNidInput] = useState("");
+  const [nidLoading, setNidLoading] = useState(false);
+  const [nidMsg, setNidMsg] = useState<{ text: string; isError: boolean } | null>(null);
 
-  
+  // Edit Direct notification modal/state
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editMessage, setEditMessage] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
-  
+  // Delete all direct modal
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
   const [deletingAll, setDeletingAll] = useState(false);
 
-  
+  // Fetch all data
   async function loadData() {
     setLoading(true);
     try {
-      // 1. Patients
+      // 1. Fetch patients (both clinic appointment patients and general registered patients)
       setPatientsLoading(true);
-      getMyPatients()
-        .then((res) => setPatients(res.data.patients ?? []))
-        .catch(() => setPatients([]))
-        .finally(() => setPatientsLoading(false));
+      setPatientsError(null);
 
-      
+      const [myRes, nonClinicRes] = await Promise.allSettled([
+        getMyPatients(),
+        getNonClinicPatients(),
+      ]);
+
+      const listA = myRes.status === "fulfilled" ? (myRes.value.data?.patients ?? []) : [];
+      const listB = nonClinicRes.status === "fulfilled" ? (nonClinicRes.value.data?.patients ?? []) : [];
+
+      const map = new Map<string, Patient>();
+      for (const p of [...listA, ...listB]) {
+        if (p && p._id) {
+          map.set(p._id, p);
+        }
+      }
+      const combined = Array.from(map.values());
+      setPatients(combined);
+
+      if (combined.length === 0) {
+        if (myRes.status === "rejected" && nonClinicRes.status === "rejected") {
+          const errReason = myRes.reason?.message || "";
+          if (errReason.toLowerCase().includes("subscription expired")) {
+            setPatientsError("اشتراكك منتهي — يرجى التجديد لتفعيل إرسال الإشعارات للمرضى");
+          } else {
+            setPatientsError("تعذّر جلب قائمة المرضى من السيرفر");
+          }
+        } else {
+          setPatientsError("لا يوجد مرضى مسجلون في النظام حتى الآن");
+        }
+      }
+
+      // 2. Direct notifications sent by doctor
       const directRes = await getAllNotificationsForDoctor().catch(() => ({ data: { notifications: [] } }));
-      setDirectNotifications(directRes.data.notifications ?? []);
+      setDirectNotifications(directRes.data?.notifications ?? []);
 
-      
+      // 3. General notifications
       const generalRes = await getMyGeneralNotifications().catch(() => ({ data: { notifications: [] } }));
-      setGeneralNotifications(generalRes.data.notifications ?? []);
+      setGeneralNotifications(generalRes.data?.notifications ?? []);
     } catch (err) {
       console.error("Failed to load notifications data", err);
     } finally {
+      setPatientsLoading(false);
       setLoading(false);
     }
   }
@@ -93,12 +132,53 @@ function DoctorNotificationsContent() {
     loadData();
   }, []);
 
-  
+  // Quick lookup by National ID
+  async function handleLookupByNationalId(e: FormEvent) {
+    e.preventDefault();
+    const nid = nidInput.trim();
+    if (!nid) return;
+
+    setNidLoading(true);
+    setNidMsg(null);
+
+    try {
+      const res = await lookupPatientByNationalId(nid);
+      const found = res.data?.patient;
+      if (found && found._id) {
+        // Add to patients list if not present
+        setPatients((prev) => {
+          if (prev.some((p) => p._id === found._id)) return prev;
+          return [found, ...prev];
+        });
+        setPatientId(found._id);
+        setDirectError(null);
+        setNidMsg({
+          text: `✓ تم العثور على المريض: ${found.firstName} ${found.lastName} وتم اختياره بنجاح`,
+          isError: false,
+        });
+        setNidInput("");
+      } else {
+        setNidMsg({
+          text: "لم يتم العثور على مريض مسجل بهذا الرقم القومي",
+          isError: true,
+        });
+      }
+    } catch (err: any) {
+      setNidMsg({
+        text: err instanceof ApiError ? err.message : "لم يتم العثور على مريض بهذا الرقم القومي",
+        isError: true,
+      });
+    } finally {
+      setNidLoading(false);
+    }
+  }
+
+  // Filtered patients for dropdown
   const filteredPatients = useMemo(() => {
     if (!patientSearch.trim()) return patients;
-    const q = patientSearch.toLowerCase();
+    const q = patientSearch.toLowerCase().trim();
     return patients.filter((p) =>
-      `${p.firstName} ${p.lastName}`.toLowerCase().includes(q) ||
+      `${p.firstName || ""} ${p.lastName || ""}`.toLowerCase().includes(q) ||
       p.phoneNumber?.includes(q) ||
       p.nationalId?.includes(q)
     );
@@ -112,10 +192,13 @@ function DoctorNotificationsContent() {
   // Helper to resolve patient name in sent list
   function resolvePatientLabel(target: string | Patient) {
     if (typeof target === "object" && target !== null) {
-      return `${target.firstName || ""} ${target.lastName || ""}`.trim() || target.email || target._id;
+      const name = `${target.firstName || ""} ${target.lastName || ""}`.trim() || target.email || target._id;
+      return target.nationalId ? `${name} (قومي: ${target.nationalId})` : name;
     }
     const found = patients.find((p) => p._id === target);
-    if (found) return `${found.firstName} ${found.lastName}`;
+    if (found) {
+      return `${found.firstName} ${found.lastName}${found.nationalId ? ` (قومي: ${found.nationalId})` : ""}`;
+    }
     return target || "مريض";
   }
 
@@ -133,6 +216,7 @@ function DoctorNotificationsContent() {
 
     setDirectError(null);
     setDirectSuccess(null);
+    setDirectAuthExpired(false);
     setDirectSending(true);
 
     try {
@@ -141,15 +225,32 @@ function DoctorNotificationsContent() {
         title: directTitle.trim(),
         message: directMessage.trim(),
       });
-      const newNotif = res.data.createdNotification;
-      setDirectNotifications((prev) => [newNotif, ...prev]);
+      const newNotif = res.data?.createdNotification;
+      if (newNotif) {
+        setDirectNotifications((prev) => [newNotif, ...prev]);
+      } else {
+        const directRes = await getAllNotificationsForDoctor().catch(() => ({ data: { notifications: [] } }));
+        setDirectNotifications(directRes.data?.notifications ?? []);
+      }
 
       setDirectTitle("");
       setDirectMessage("");
       setDirectSuccess("تم إرسال الإشعار للمريض بنجاح ووصل إلى حسابه فوراً ✓");
-      setTimeout(() => setDirectSuccess(null), 4000);
+      setTimeout(() => setDirectSuccess(null), 5000);
     } catch (err) {
-      setDirectError(err instanceof ApiError ? err.message : "تعذّر إرسال الإشعار، يرجى المحاولة مجدداً");
+      console.error("[Direct Notification Error]", err);
+      if (err instanceof ApiError) {
+        if (err.status === 401) {
+          setDirectAuthExpired(true);
+          setDirectError("انتهت جلسة العمل الخاصة بحساب الطبيب — يرجى إعادة تسجيل الدخول لمتابعة الإرسال.");
+        } else if (err.status === 403) {
+          setDirectError("يتطلب إرسال الإشعارات اشتراكاً فعالاً لحساب الطبيب.");
+        } else {
+          setDirectError(err.message || "تعذّر إرسال الإشعار، يرجى المحاولة مجدداً");
+        }
+      } else {
+        setDirectError("تعذّر إرسال الإشعار، يرجى المحاولة مجدداً");
+      }
     } finally {
       setDirectSending(false);
     }
@@ -165,6 +266,7 @@ function DoctorNotificationsContent() {
 
     setGeneralError(null);
     setGeneralSuccess(null);
+    setGeneralAuthExpired(false);
     setGeneralSending(true);
 
     try {
@@ -172,20 +274,32 @@ function DoctorNotificationsContent() {
         title: generalTitle.trim(),
         message: generalMessage.trim(),
       });
-      const created = res.data.created;
+      const created = res.data?.created;
       if (created) {
         setGeneralNotifications((prev) => [created, ...prev]);
       } else {
         const generalRes = await getMyGeneralNotifications().catch(() => ({ data: { notifications: [] } }));
-        setGeneralNotifications(generalRes.data.notifications ?? []);
+        setGeneralNotifications(generalRes.data?.notifications ?? []);
       }
 
       setGeneralTitle("");
       setGeneralMessage("");
-      setGeneralSuccess("تم نشر التنبيه العام لجميع المرضى المسجلين بنجاح ✓");
-      setTimeout(() => setGeneralSuccess(null), 4000);
+      setGeneralSuccess("تم نشر التنبيه العام بنجاح لجميع المرضى المسجلين ✓");
+      setTimeout(() => setGeneralSuccess(null), 5000);
     } catch (err) {
-      setGeneralError(err instanceof ApiError ? err.message : "تعذّر نشر التنبيه العام");
+      console.error("[General Notification Error]", err);
+      if (err instanceof ApiError) {
+        if (err.status === 401) {
+          setGeneralAuthExpired(true);
+          setGeneralError("انتهت جلسة تسجيل الدخول الخاصة بحسابك — يرجى تسجيل الدخول مجدداً للمتابعة.");
+        } else if (err.status === 403) {
+          setGeneralError("يتطلب نشر التنبيهات العامة اشتراكاً نشطاً لحساب الطبيب.");
+        } else {
+          setGeneralError(err.message || "تعذّر نشر التنبيه العام");
+        }
+      } else {
+        setGeneralError("تعذّر نشر التنبيه العام");
+      }
     } finally {
       setGeneralSending(false);
     }
@@ -209,8 +323,10 @@ function DoctorNotificationsContent() {
     setSavingEdit(true);
     try {
       const res = await updateNotification(id, { title: editTitle, message: editMessage });
-      const updated = res.data.updatedNotification;
-      setDirectNotifications((prev) => prev.map((n) => (n._id === id ? updated : n)));
+      const updated = res.data?.updatedNotification;
+      if (updated) {
+        setDirectNotifications((prev) => prev.map((n) => (n._id === id ? updated : n)));
+      }
       cancelEdit();
     } catch (err) {
       alert(err instanceof ApiError ? err.message : "تعذّر تعديل الإشعار");
@@ -243,15 +359,30 @@ function DoctorNotificationsContent() {
   }
 
   return (
-    <div className="flex flex-col gap-6 animate-fade-in relative max-w-4xl mx-auto">
+    <div className="flex flex-col gap-6 animate-fade-in relative max-w-4xl mx-auto pb-10">
       {/* Page Header */}
-      <div>
-        <h1 className="font-display text-2xl md:text-3xl font-extrabold text-text-primary">
-          إدارة إشعارات وتنبيهات المرضى
-        </h1>
-        <p className="text-xs sm:text-sm text-text-secondary mt-1">
-          أرسل تنبيهات مباشرة لمريض محدد أو انشر إعلاناً وتوجيهات عامة لجميع المرضى
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl md:text-3xl font-extrabold text-text-primary">
+            إدارة إشعارات وتنبيهات المرضى
+          </h1>
+          <p className="text-xs sm:text-sm text-text-secondary mt-1">
+            أرسل تنبيهات مباشرة لمريض محدد أو انشر إعلاناً وتوجيهات عامة لجميع المرضى
+          </p>
+        </div>
+
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => loadData()}
+          disabled={loading || patientsLoading}
+          className="self-start sm:self-auto flex items-center gap-1.5 text-xs font-bold hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
+        >
+          <svg className={`w-3.5 h-3.5 ${loading || patientsLoading ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>تحديث البيانات</span>
+        </Button>
       </div>
 
       {/* Tabs */}
@@ -266,7 +397,7 @@ function DoctorNotificationsContent() {
                 : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
             }`}
           >
-            <span> إشعار خاص لمريض محدد</span>
+            <span>✉ إشعار خاص لمريض محدد</span>
           </button>
           <button
             type="button"
@@ -277,7 +408,7 @@ function DoctorNotificationsContent() {
                 : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
             }`}
           >
-            <span> تنبيه عام لجميع المرضى</span>
+            <span>📢 تنبيه عام لجميع المرضى</span>
           </button>
         </div>
       </Card>
@@ -291,7 +422,7 @@ function DoctorNotificationsContent() {
               إرسال إشعار مباشر لمريض
             </h2>
             <p className="text-xs text-text-secondary mb-5">
-              يصل هذا الإشعار مباشرة إلى صندوق إشعارات المريض في حسابه
+              يصل هذا الإشعار مباشرة إلى صندوق إشعارات المريض في حسابه فور الإرسال
             </p>
 
             <form onSubmit={handleSendDirect} className="flex flex-col gap-4">
@@ -301,41 +432,102 @@ function DoctorNotificationsContent() {
                   اختر المريض المستلم *
                 </label>
 
-                {/* Patient Select Dropdown */}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2.5">
+                  {patientsError && (
+                    <div className="flex items-center gap-2 rounded-xl bg-warning/10 border border-warning/25 px-3.5 py-2.5 text-xs font-bold text-warning">
+                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      {patientsError}
+                    </div>
+                  )}
+
+                  {/* Main Dropdown */}
                   <select
                     value={patientId}
                     onChange={(e) => {
                       setPatientId(e.target.value);
                       setDirectError(null);
                     }}
-                    className="w-full rounded-xl border border-border/80 bg-surface px-4 py-2.5 text-xs sm:text-sm text-text-primary outline-none transition-all focus:border-primary focus:shadow-[0_0_0_3px_rgba(var(--color-primary-rgb),0.1)]"
+                    disabled={patientsLoading}
+                    className="w-full rounded-xl border border-border/80 bg-surface px-4 py-2.5 text-xs sm:text-sm text-text-primary outline-none transition-all focus:border-primary focus:shadow-[0_0_0_3px_rgba(var(--color-primary-rgb),0.1)] disabled:opacity-60"
                   >
-                    <option value="">-- اختر مريضاً من القائمة ({patients.length} مريض) --</option>
-                    {filteredPatients.map((p) => (
-                      <option key={p._id} value={p._id}>
-                        {p.firstName} {p.lastName} {p.phoneNumber ? `(${p.phoneNumber})` : ""} {p.nationalId ? `[${p.nationalId}]` : ""}
-                      </option>
-                    ))}
+                    {patientsLoading ? (
+                      <option value="">جارٍ تحميل قائمة المرضى...</option>
+                    ) : patients.length === 0 ? (
+                      <option value="">-- لم يتم العثور على مرضى تلقائياً (استخدم البحث بالرقم القومي أدناه) --</option>
+                    ) : (
+                      <>
+                        <option value="">-- اختر مريضاً من القائمة ({filteredPatients.length} مريض متاح) --</option>
+                        {filteredPatients.map((p) => (
+                          <option key={p._id} value={p._id}>
+                            {p.firstName} {p.lastName} {p.phoneNumber ? ` | هاتف: ${p.phoneNumber}` : ""} {p.nationalId ? ` | قومي: [${p.nationalId}]` : ""}
+                          </option>
+                        ))}
+                      </>
+                    )}
                   </select>
 
-                  {/* Optional manual search/input */}
-                  {patients.length > 5 && (
+                  {/* Filter / Quick Search Input */}
+                  {patients.length > 3 && (
                     <input
                       type="text"
-                      placeholder=" تصفية بالاسم أو الهاتف أو الرقم القومي..."
+                      placeholder="🔍 تصفية القائمة بالاسم أو الهاتف أو الرقم القومي..."
                       value={patientSearch}
                       onChange={(e) => setPatientSearch(e.target.value)}
-                      className="w-full rounded-xl border border-border/50 bg-surface-raised px-3.5 py-1.5 text-xs text-text-secondary outline-none focus:border-primary"
+                      className="w-full rounded-xl border border-border/50 bg-surface-raised px-3.5 py-2 text-xs text-text-primary outline-none focus:border-primary"
                     />
                   )}
 
+                  {/* Selected Patient Confirmation Badge */}
                   {selectedPatientObj && (
-                    <div className="flex items-center gap-2 rounded-xl bg-primary/10 border border-primary/20 px-3.5 py-2 text-xs font-bold text-primary">
-                      <span>✓ تم اختيار: {selectedPatientObj.firstName} {selectedPatientObj.lastName}</span>
-                      {selectedPatientObj.phoneNumber && <span>({selectedPatientObj.phoneNumber})</span>}
+                    <div className="flex items-center justify-between gap-2 rounded-xl bg-primary/10 border border-primary/25 p-3 text-xs font-bold text-primary animate-fade-in">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span>✓ المستلم:</span>
+                        <span className="text-sm font-extrabold">{selectedPatientObj.firstName} {selectedPatientObj.lastName}</span>
+                        {selectedPatientObj.phoneNumber && <span className="opacity-80 font-mono">({selectedPatientObj.phoneNumber})</span>}
+                        {selectedPatientObj.nationalId && <span className="opacity-70 font-mono text-[11px]">[{selectedPatientObj.nationalId}]</span>}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setPatientId("")}
+                        className="text-text-secondary hover:text-danger text-xs font-normal underline"
+                      >
+                        تغيير
+                      </button>
                     </div>
                   )}
+
+                  {/* National ID Instant Lookup Form */}
+                  <div className="rounded-xl border border-dashed border-border/70 bg-surface-raised/50 p-3 flex flex-col gap-2 mt-1">
+                    <span className="text-[11px] font-bold text-text-secondary">
+                      هل المريض مسجل جديد ولم يظهر في القائمة؟ ابحث عنه بالرقم القومي:
+                    </span>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="أدخل الرقم القومي للمريض (14 رقم)..."
+                        value={nidInput}
+                        onChange={(e) => setNidInput(e.target.value)}
+                        className="flex-1 rounded-lg border border-border/60 bg-surface px-3 py-1.5 text-xs text-text-primary outline-none focus:border-primary font-mono"
+                      />
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="secondary"
+                        onClick={handleLookupByNationalId}
+                        disabled={nidLoading || !nidInput.trim()}
+                        className="text-xs font-bold shrink-0 hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
+                      >
+                        {nidLoading ? "جارٍ البحث..." : "بحث وإضافة"}
+                      </Button>
+                    </div>
+                    {nidMsg && (
+                      <p className={`text-[11px] font-bold ${nidMsg.isError ? "text-danger" : "text-success"}`}>
+                        {nidMsg.text}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -344,7 +536,7 @@ function DoctorNotificationsContent() {
                 required
                 value={directTitle}
                 onChange={(e) => { setDirectTitle(e.target.value); setDirectError(null); }}
-                placeholder="مثال: تذكير بموعد الكشف / مراجعة نتائج التحاليل"
+                placeholder="مثال: تذكير بموعد الاستشارة / نتائج الفحوصات الطبية"
               />
 
               <TextAreaField
@@ -352,18 +544,34 @@ function DoctorNotificationsContent() {
                 required
                 value={directMessage}
                 onChange={(e) => { setDirectMessage(e.target.value); setDirectError(null); }}
-                placeholder="اكتب تفاصيل الرسالة والتوجيهات للمريض هنا..."
+                placeholder="اكتب تفاصيل الرسالة والتوجيهات الطبية للمريض هنا..."
               />
 
               {directError && (
-                <div className="rounded-xl bg-danger/10 px-4 py-3 text-xs font-bold text-danger border border-danger/20 animate-fade-in">
-                  {directError}
+                <div className="rounded-xl bg-danger/10 p-3.5 text-xs font-bold text-danger border border-danger/20 animate-fade-in flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{directError}</span>
+                  </div>
+                  {directAuthExpired && (
+                    <Link
+                      href="/login"
+                      className="self-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-danger text-surface font-bold text-xs hover:bg-danger/90 transition-colors"
+                    >
+                      تسجيل الدخول مرة أخرى ←
+                    </Link>
+                  )}
                 </div>
               )}
 
               {directSuccess && (
-                <div className="rounded-xl bg-success/10 px-4 py-3 text-xs font-bold text-success border border-success/30 animate-fade-in">
-                  {directSuccess}
+                <div className="rounded-xl bg-success/10 px-4 py-3 text-xs font-bold text-success border border-success/30 animate-fade-in flex items-center gap-2">
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{directSuccess}</span>
                 </div>
               )}
 
@@ -371,7 +579,7 @@ function DoctorNotificationsContent() {
                 type="submit"
                 variant="vibrant"
                 disabled={directSending}
-                className="shadow-glow-cyan font-bold justify-center"
+                className="shadow-glow-cyan font-bold justify-center hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
               >
                 {directSending ? "جارٍ إرسال الإشعار..." : "إرسال الإشعار الآن"}
               </Button>
@@ -395,7 +603,7 @@ function DoctorNotificationsContent() {
                   size="sm"
                   variant="danger"
                   onClick={() => setShowDeleteAllModal(true)}
-                  className="self-start sm:self-auto text-xs font-bold"
+                  className="self-start sm:self-auto text-xs font-bold hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
                 >
                   مسح السجل بالكامل
                 </Button>
@@ -450,10 +658,10 @@ function DoctorNotificationsContent() {
                           <p className="text-xs sm:text-sm text-text-secondary mt-1 leading-relaxed whitespace-pre-wrap">{n.message}</p>
                         </div>
                         <div className="flex items-center gap-2 mt-2 sm:mt-0 shrink-0 self-end sm:self-auto">
-                          <Button size="sm" variant="outline" onClick={() => startEdit(n)} className="font-bold">
+                          <Button size="sm" variant="outline" onClick={() => startEdit(n)} className="font-bold hover:-translate-y-0.5 active:scale-95 transition-all duration-200">
                             تعديل
                           </Button>
-                          <Button size="sm" variant="ghost" className="text-danger hover:bg-danger/10 hover:text-danger font-bold" onClick={() => removeDirect(n._id)}>
+                          <Button size="sm" variant="ghost" className="text-danger hover:bg-danger/10 hover:text-danger font-bold hover:-translate-y-0.5 active:scale-95 transition-all duration-200" onClick={() => removeDirect(n._id)}>
                             حذف
                           </Button>
                         </div>
@@ -491,7 +699,7 @@ function DoctorNotificationsContent() {
                 required
                 value={generalTitle}
                 onChange={(e) => { setGeneralTitle(e.target.value); setGeneralError(null); }}
-                placeholder="مثال: مواعيد العمل خلال شهر رمضان / إجازة العيادة يوم الخميس"
+                placeholder="مثال: إجازة يوم العيد / مواعيد العمل خلال شهر رمضان"
               />
 
               <TextAreaField
@@ -503,14 +711,30 @@ function DoctorNotificationsContent() {
               />
 
               {generalError && (
-                <div className="rounded-xl bg-danger/10 px-4 py-3 text-xs font-bold text-danger border border-danger/20 animate-fade-in">
-                  {generalError}
+                <div className="rounded-xl bg-danger/10 p-3.5 text-xs font-bold text-danger border border-danger/20 animate-fade-in flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{generalError}</span>
+                  </div>
+                  {generalAuthExpired && (
+                    <Link
+                      href="/login"
+                      className="self-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-danger text-surface font-bold text-xs hover:bg-danger/90 transition-colors"
+                    >
+                      تسجيل الدخول مرة أخرى للمتابعة ←
+                    </Link>
+                  )}
                 </div>
               )}
 
               {generalSuccess && (
-                <div className="rounded-xl bg-success/10 px-4 py-3 text-xs font-bold text-success border border-success/30 animate-fade-in">
-                  {generalSuccess}
+                <div className="rounded-xl bg-success/10 px-4 py-3 text-xs font-bold text-success border border-success/30 animate-fade-in flex items-center gap-2">
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{generalSuccess}</span>
                 </div>
               )}
 
@@ -518,7 +742,7 @@ function DoctorNotificationsContent() {
                 type="submit"
                 variant="vibrant"
                 disabled={generalSending}
-                className="shadow-glow-cyan font-bold justify-center"
+                className="shadow-glow-cyan font-bold justify-center hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
               >
                 {generalSending ? "جارٍ النشر..." : "نشر التنبيه العام"}
               </Button>
@@ -587,7 +811,7 @@ function DoctorNotificationsContent() {
               <div className="flex w-full gap-3 mt-4">
                 <Button
                   variant="danger"
-                  className="flex-1 font-bold"
+                  className="flex-1 font-bold hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
                   onClick={handleClearAllDirect}
                   disabled={deletingAll}
                 >
@@ -595,7 +819,7 @@ function DoctorNotificationsContent() {
                 </Button>
                 <Button
                   variant="secondary"
-                  className="flex-1 font-bold"
+                  className="flex-1 font-bold hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
                   onClick={() => setShowDeleteAllModal(false)}
                 >
                   إلغاء

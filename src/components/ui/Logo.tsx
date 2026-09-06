@@ -11,7 +11,6 @@ interface LogoProps {
   href?: string | null;
 }
 
-
 export function NabdLogoIcon({
   size = "md",
   className = "",
@@ -28,46 +27,15 @@ export function NabdLogoIcon({
 
   return (
     <div
-      className={`relative shrink-0 flex items-center justify-center rounded-[24%] overflow-hidden shadow-[0_4px_20px_rgba(225,29,72,0.2),0_4px_20px_rgba(13,148,136,0.25)] border border-white/20 transition-all duration-300 group-hover:shadow-[0_6px_28px_rgba(225,29,72,0.35),0_6px_28px_rgba(13,148,136,0.4)] group-hover:scale-105 ${dimensions[size]} ${className}`}
-      style={{
-        background:
-          "linear-gradient(135deg, #D92662 0%, #B81D52 28%, #362947 56%, #115E59 80%, #0D9488 100%)",
-      }}
+      className={`relative shrink-0 flex items-center justify-center rounded-2xl overflow-hidden shadow-md border border-white/20 bg-[#0c1017] transition-all duration-300 group-hover:shadow-[0_6px_24px_rgba(13,148,136,0.35)] group-hover:scale-105 ${dimensions[size]} ${className}`}
     >
-      {/* Glossy top overlay highlight */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/20 pointer-events-none" />
-
-      {/* SVG Icon: EKG Pulse Waveform + Stethoscope Accent */}
-      <svg
-        viewBox="0 0 100 100"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full relative z-10"
-        aria-hidden="true"
-      >
-        {/* Heartbeat EKG line in pure crisp white */}
-        <path
-          d="M 23 50 L 32 50 L 37 40 L 43 62 L 49 35 L 54 56 L 58 50 L 77 50"
-          stroke="#FFFFFF"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-
-        {/* Stethoscope sensor dot on bottom-right corner */}
-        <circle cx="74" cy="74" r="6" fill="#80DFD6" fillOpacity="0.5" />
-        <circle cx="74" cy="74" r="3.5" fill="#FFFFFF" fillOpacity="0.7" />
-        <line
-          x1="74"
-          y1="74"
-          x2="74"
-          y2="100"
-          stroke="#80DFD6"
-          strokeOpacity="0.4"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
+      <img
+        src="/images/nabd-logo.jpeg"
+        alt="شعار نبض - Nabd"
+        className="w-full h-full object-cover select-none"
+      />
+      {/* Glossy overlay */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-white/10 pointer-events-none" />
     </div>
   );
 }
@@ -117,7 +85,7 @@ export function Logo({
           >
             {/* Modal Inner Card */}
             <div
-              className="relative w-full max-w-md my-auto rounded-3xl bg-surface border border-primary/30 p-6 sm:p-8 shadow-2xl shadow-primary/25 animate-scale-in flex flex-col items-center text-center gap-6"
+              className="relative w-full max-w-lg my-auto rounded-3xl bg-surface border border-primary/30 p-6 sm:p-8 shadow-2xl shadow-primary/25 animate-scale-in flex flex-col items-center text-center gap-6"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
@@ -142,25 +110,25 @@ export function Logo({
               </button>
 
               {/* Large Logo Visual Display */}
-              <div className="relative mt-2 p-8 rounded-3xl bg-surface-raised border border-border/50 shadow-inner flex flex-col items-center justify-center gap-4">
-                <NabdLogoIcon size="xl" />
-                <div className="flex flex-col items-center">
-                  <span className="font-display font-black text-3xl text-text-primary tracking-wide">
-                    نبض
-                  </span>
-                  <span className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary mt-0.5">
-                    Nabd SaaS
-                  </span>
-                </div>
+              <div className="relative w-full rounded-2xl overflow-hidden border border-border/60 shadow-xl bg-slate-950">
+                <img
+                  src="/images/nabd-logo.jpeg"
+                  alt="شعار نبض Nabd Healthcare SaaS"
+                  className="w-full h-auto object-contain max-h-72 select-none"
+                />
               </div>
 
               {/* Logo Info */}
               <div className="flex flex-col items-center gap-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="font-display font-black text-2xl text-text-primary">نبض</span>
+                  <span className="text-sm font-extrabold uppercase tracking-[0.2em] text-primary">NABD</span>
+                </div>
                 <p className="text-sm font-bold text-primary">
-                  رعاية طبية متكاملة — Integrated Healthcare SaaS
+                  رعاية طبية متكاملة — Healthcare SaaS
                 </p>
                 <p className="text-xs text-text-secondary max-w-xs mt-1 leading-relaxed">
-                  منظومة  ذكية ومتطورة لإدارة العيادات الطبية، المرضى، المواعيد، والسجلات الصحية.
+                  منظومة ذكية ومتطورة لإدارة العيادات الطبية، المرضى، المواعيد، والسجلات الصحية.
                 </p>
               </div>
 
@@ -195,7 +163,6 @@ export function Logo({
         className={`inline-flex items-center gap-3 cursor-pointer group transition-transform duration-200 select-none ${className}`}
         title="شعار منصة نبض | انقر للعرض"
       >
-        {/* The New Pulse App Icon */}
         <NabdLogoIcon size={size} />
 
         {showText && (

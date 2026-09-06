@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
-  deleteAllNotificationsForPatient,
-  deleteNotificationForPatient,
   getAllNotificationsForPatient,
   getNotificationByIdForPatient,
 } from "@/lib/api/notification";
 import { getMyGeneralNotifications } from "@/lib/api/generalNotification";
+import { getMyProfile } from "@/lib/api/patient";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/lib/http";
-import type { GeneralNotification, Notification } from "@/types/api";
+import type { GeneralNotification, Notification, Patient } from "@/types/api";
 
 type FilterType = "all" | "direct" | "general";
 
@@ -28,32 +27,82 @@ interface UnifiedNotification {
 }
 
 export default function PatientNotificationsPage() {
+  const [patientProfile, setPatientProfile] = useState<Patient | null>(null);
   const [directList, setDirectList] = useState<Notification[]>([]);
   const [generalList, setGeneralList] = useState<GeneralNotification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterType>("all");
 
-  
-  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
-  const [deletingAll, setDeletingAll] = useState(false);
-
-  
+  // Modal inspection
   const [selectedNotification, setSelectedNotification] = useState<UnifiedNotification | null>(null);
 
-  async function loadData() {
-    setLoading(true);
-    try {
-      
-      const directRes = await getAllNotificationsForPatient().catch(() => ({ data: { notification: [] } }));
-      setDirectList(directRes.data.notification ?? []);
+  async function loadData(isManual = false) {
+    if (isManual) setRefreshing(true);
+    else setLoading(true);
 
-      
-      const generalRes = await getMyGeneralNotifications().catch(() => ({ data: { notifications: [] } }));
-      setGeneralList(generalRes.data.notifications ?? []);
+    setAuthError(null);
+
+    try {
+      // 0. Fetch patient profile for account context
+      getMyProfile()
+        .then((res) => {
+          if (res.data?.patient) {
+            setPatientProfile(res.data.patient);
+          }
+        })
+        .catch(() => {});
+
+      // 1. Direct doctor-to-patient notifications
+      let directItems: Notification[] = [];
+      try {
+        const directRes = await getAllNotificationsForPatient();
+        const dData = (directRes as any)?.data;
+        if (Array.isArray(dData)) {
+          directItems = dData;
+        } else if (Array.isArray(dData?.notification)) {
+          directItems = dData.notification;
+        } else if (Array.isArray(dData?.notifications)) {
+          directItems = dData.notifications;
+        } else if (Array.isArray((directRes as any)?.notification)) {
+          directItems = (directRes as any).notification;
+        } else if (Array.isArray((directRes as any)?.notifications)) {
+          directItems = (directRes as any).notifications;
+        }
+      } catch (err: any) {
+        console.error("[Patient Notifications] Direct error:", err);
+        if (err?.status === 401) {
+          setAuthError("انتهت جلسة تسجيل الدخول — يرجى تسجيل الدخول بحساب المريض لعرض الإشعارات.");
+        }
+      }
+      setDirectList(directItems);
+
+      // 2. General clinic announcements
+      let generalItems: GeneralNotification[] = [];
+      try {
+        const generalRes = await getMyGeneralNotifications();
+        const gData = (generalRes as any)?.data;
+        if (Array.isArray(gData)) {
+          generalItems = gData;
+        } else if (Array.isArray(gData?.notifications)) {
+          generalItems = gData.notifications;
+        } else if (Array.isArray(gData?.notification)) {
+          generalItems = gData.notification;
+        } else if (Array.isArray((generalRes as any)?.notifications)) {
+          generalItems = (generalRes as any).notifications;
+        } else if (Array.isArray((generalRes as any)?.notification)) {
+          generalItems = (generalRes as any).notification;
+        }
+      } catch (err: any) {
+        console.error("[Patient Notifications] General error:", err);
+      }
+      setGeneralList(generalItems);
     } catch (err) {
       console.error("Failed to load notifications", err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }
 
@@ -61,20 +110,21 @@ export default function PatientNotificationsPage() {
     loadData();
   }, []);
 
-  
+  // Merge and sort
   const unifiedList = useMemo(() => {
     const list: UnifiedNotification[] = [];
 
-    
+    // Map direct
     for (const d of directList) {
       let docName = "طبيبك المعالج";
       if (typeof d.doctorId === "object" && d.doctorId !== null) {
-        docName = `د. ${d.doctorId.firstName || ""} ${d.doctorId.lastName || ""}`.trim();
+        const docObj = d.doctorId as any;
+        docName = `د. ${docObj.firstName || ""} ${docObj.lastName || ""}`.trim();
       }
       list.push({
         _id: d._id,
         type: "direct",
-        title: d.title || "إشعار من الطبيب",
+        title: d.title || "إشعار خاص من الطبيب",
         message: d.message,
         senderLabel: docName,
         createdAt: d.createdAt,
@@ -85,7 +135,7 @@ export default function PatientNotificationsPage() {
 
     // Map general notifications
     for (const g of generalList) {
-      let sender = "العيادة / الإدارة";
+      let sender = "إدارة العيادة";
       if (typeof g.createdBy === "object" && g.createdBy !== null) {
         sender = `${g.createdBy.role === "Doctor" ? "د. " : ""}${g.createdBy.firstName || ""} ${g.createdBy.lastName || ""}`.trim();
       } else if (g.createdByModel === "Doctor") {
@@ -98,7 +148,7 @@ export default function PatientNotificationsPage() {
         message: g.message,
         senderLabel: sender,
         createdAt: g.createdAt,
-        isRead: true, // general announcements don't have personal unread state
+        isRead: true, // general broadcasts don't have individual unread flag
         rawGeneral: g,
       });
     }
@@ -109,7 +159,7 @@ export default function PatientNotificationsPage() {
     return list;
   }, [directList, generalList]);
 
-  // Filtered by selected tab
+  // Filtered list
   const filteredList = useMemo(() => {
     if (filter === "direct") return unifiedList.filter((n) => n.type === "direct");
     if (filter === "general") return unifiedList.filter((n) => n.type === "general");
@@ -134,37 +184,10 @@ export default function PatientNotificationsPage() {
     }
   }
 
-  // Delete direct notification
-  async function removeDirect(e: React.MouseEvent, id: string) {
-    e.stopPropagation();
-    setDirectList((prev) => prev.filter((n) => n._id !== id));
-
-    try {
-      await deleteNotificationForPatient(id);
-    } catch (err) {
-      loadData();
-      alert(err instanceof ApiError ? err.message : "تعذّر حذف الإشعار");
-    }
-  }
-
-  // Delete all direct notifications
-  async function handleClearAllDirect() {
-    setDeletingAll(true);
-    try {
-      await deleteAllNotificationsForPatient();
-      setDirectList([]);
-      setShowDeleteAllModal(false);
-    } catch (err) {
-      alert(err instanceof ApiError ? err.message : "تعذّر مسح الإشعارات");
-    } finally {
-      setDeletingAll(false);
-    }
-  }
-
   const unreadDirectCount = directList.filter((d) => !d.isRead).length;
 
   return (
-    <div className="flex flex-col gap-6 animate-fade-in max-w-4xl mx-auto">
+    <div className="flex flex-col gap-6 animate-fade-in max-w-4xl mx-auto pb-10">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -172,17 +195,61 @@ export default function PatientNotificationsPage() {
             صندوق الإشعارات والتنبيهات
           </h1>
           <p className="text-xs sm:text-sm text-text-secondary mt-1">
-            جميع الرسائل والتوجيهات المرسلة لك من أطبائك المعالجين وإعلانات العيادات
+            جميع التوجيهات والرسائل الواردة من طبيبك المعالج والتنبيهات العامة للعيادة
           </p>
+
+          {/* Current Logged-in Patient Badge */}
+          {patientProfile && (
+            <div className="mt-2 inline-flex items-center gap-2 rounded-xl bg-surface-raised border border-border/60 px-3 py-1 text-xs text-text-secondary">
+              <span className="font-bold text-text-primary">الحساب الحالي:</span>
+              <span>{patientProfile.firstName} {patientProfile.lastName}</span>
+              {patientProfile.nationalId && (
+                <span className="opacity-70 font-mono">[{patientProfile.nationalId}]</span>
+              )}
+            </div>
+          )}
         </div>
 
-        {unreadDirectCount > 0 && (
-          <div className="inline-flex items-center gap-2 rounded-2xl bg-primary/10 border border-primary/30 px-4 py-2 text-xs font-bold text-primary self-start md:self-auto">
-            <span className="h-2 w-2 rounded-full bg-primary animate-pulse shadow-glow-cyan" />
-            لديك {unreadDirectCount} إشعار جديد لم يُقرأ
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {unreadDirectCount > 0 && (
+            <div className="inline-flex items-center gap-2 rounded-2xl bg-primary/10 border border-primary/30 px-3.5 py-1.5 text-xs font-bold text-primary">
+              <span className="h-2 w-2 rounded-full bg-primary animate-pulse shadow-glow-cyan" />
+              <span>{unreadDirectCount} رسائل جديدة</span>
+            </div>
+          )}
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => loadData(true)}
+            disabled={refreshing || loading}
+            className="flex items-center gap-1.5 text-xs font-bold hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
+          >
+            <svg
+              className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>{refreshing ? "جارٍ التحديث..." : "تحديث"}</span>
+          </Button>
+        </div>
       </div>
+
+      {/* Auth Error Banner */}
+      {authError && (
+        <div className="rounded-2xl bg-danger/10 border border-danger/30 p-4 text-xs sm:text-sm font-bold text-danger flex items-center justify-between gap-3 animate-fade-in">
+          <span>{authError}</span>
+          <Link
+            href="/login"
+            className="px-3.5 py-1.5 rounded-xl bg-danger text-surface font-bold text-xs hover:bg-danger/90 transition-colors shrink-0"
+          >
+            تسجيل الدخول ←
+          </Link>
+        </div>
+      )}
 
       {/* Filter Tabs */}
       <Card glass vibrant className="p-1.5 sm:p-2">
@@ -232,19 +299,11 @@ export default function PatientNotificationsPage() {
       <Card className="shadow-xl">
         <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-4">
           <h2 className="font-display text-base sm:text-lg font-bold text-text-primary flex items-center gap-2">
-            <span>سجل الإشعارات</span>
+            <span>سجل الإشعارات الواردة</span>
           </h2>
-
-          {directList.length > 0 && filter !== "general" && (
-            <Button
-              size="sm"
-              variant="danger"
-              onClick={() => setShowDeleteAllModal(true)}
-              className="text-xs font-bold"
-            >
-              مسح الرسائل الخاصة
-            </Button>
-          )}
+          <span className="text-xs text-text-secondary">
+            {filteredList.length} إشعار
+          </span>
         </div>
 
         {loading ? (
@@ -263,16 +322,17 @@ export default function PatientNotificationsPage() {
                 <div
                   key={`${n.type}-${n._id}`}
                   onClick={() => handleOpenNotification(n)}
-                  className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-4 rounded-2xl border transition-all cursor-pointer ${
+                  className={`group relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-4 rounded-2xl border transition-all duration-200 cursor-pointer hover:shadow-md ${
                     isUnread
                       ? "bg-primary/10 border-primary/40 shadow-glow-cyan/10"
                       : "bg-surface-raised border-border/50 hover:border-primary/40 hover:bg-surface"
                   }`}
                 >
-                  <div className="flex-1 min-w-0">
+                  {/* Content */}
+                  <div className="flex-1 min-w-0 text-right">
                     <div className="flex items-center gap-2 flex-wrap mb-1.5">
                       {isUnread && (
-                        <span className="h-2.5 w-2.5 rounded-full bg-primary shadow-glow-cyan animate-pulse" />
+                        <span className="h-2.5 w-2.5 rounded-full bg-primary shadow-glow-cyan animate-pulse shrink-0" />
                       )}
                       <span
                         className={`rounded-full px-2.5 py-0.5 text-[11px] font-extrabold border ${
@@ -291,32 +351,16 @@ export default function PatientNotificationsPage() {
                     <p className={`text-sm sm:text-base ${isUnread ? "font-extrabold text-primary" : "font-bold text-text-primary"}`}>
                       {n.title}
                     </p>
-                    <p className="text-xs sm:text-sm text-text-secondary mt-1 line-clamp-2 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-text-secondary mt-1 line-clamp-2 leading-relaxed text-right">
                       {n.message}
                     </p>
                   </div>
 
+                  {/* Read button */}
                   <div className="flex items-center gap-2 justify-end shrink-0 pt-2 sm:pt-0 border-t border-border/40 sm:border-0">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-xs"
-                      onClick={() => handleOpenNotification(n)}
-                    >
-                      عرض التفاصيل
-                    </Button>
-
-                    {isDirect && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-danger hover:bg-danger/10 hover:text-danger rounded-xl p-2 text-xs"
-                        onClick={(e) => removeDirect(e, n._id)}
-                        title="حذف الإشعار"
-                      >
-                        حذف
-                      </Button>
-                    )}
+                    <span className="px-3.5 py-1.5 rounded-xl border border-border/60 bg-surface text-text-primary text-xs font-bold group-hover:border-primary group-hover:text-primary group-hover:shadow-sm transition-all duration-200 whitespace-nowrap">
+                      عرض التفاصيل ←
+                    </span>
                   </div>
                 </div>
               );
@@ -337,7 +381,7 @@ export default function PatientNotificationsPage() {
         )}
       </Card>
 
-      {/* Full Modal Viewer for Notification */}
+      {/* Full Modal Viewer for Notification Details */}
       {selectedNotification && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
@@ -375,54 +419,21 @@ export default function PatientNotificationsPage() {
               </button>
             </div>
 
-            <div className="py-3 min-h-[120px] bg-surface-raised rounded-2xl p-4 border border-border/40">
+            <div className="py-4 min-h-[120px] bg-surface-raised rounded-2xl p-4 border border-border/40">
               <p className="text-sm sm:text-base leading-relaxed text-text-primary whitespace-pre-wrap">
                 {selectedNotification.message}
               </p>
             </div>
 
-            <div className="mt-6 flex justify-end">
-              <Button variant="vibrant" onClick={() => setSelectedNotification(null)} className="shadow-glow-cyan font-bold">
-                تم، إغلاق النافذة
+            {/* Modal action buttons */}
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <Button
+                variant="vibrant"
+                onClick={() => setSelectedNotification(null)}
+                className="shadow-glow-cyan font-bold px-6 hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
+              >
+                إغلاق
               </Button>
-            </div>
-          </Card>
-        </div>
-      )}
-
-      {/* Delete All Modal */}
-      {showDeleteAllModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <Card className="max-w-md w-full shadow-2xl border-danger/30 bg-surface p-6">
-            <div className="flex flex-col items-center text-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-danger/10 text-danger text-3xl font-black">
-                !
-              </div>
-              <div>
-                <h3 className="font-display text-xl font-bold text-text-primary">
-                  هل أنت متأكد؟
-                </h3>
-                <p className="text-xs sm:text-sm text-text-secondary mt-2 leading-relaxed">
-                  سيتم حذف <strong>جميع الرسائل الخاصة</strong> من صندوق الوارد نهائياً ولا يمكن التراجع عن هذا الإجراء.
-                </p>
-              </div>
-              <div className="flex w-full gap-3 mt-4">
-                <Button
-                  variant="danger"
-                  className="flex-1 font-bold"
-                  onClick={handleClearAllDirect}
-                  disabled={deletingAll}
-                >
-                  {deletingAll ? "جارٍ الحذف..." : "نعم، احذف الكل"}
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="flex-1 font-bold"
-                  onClick={() => setShowDeleteAllModal(false)}
-                >
-                  إلغاء
-                </Button>
-              </div>
             </div>
           </Card>
         </div>

@@ -27,13 +27,16 @@ export function updateNotification(id: string, payload: UpdateNotificationPayloa
 
 // GET /notification  (doctor: all notifications they've sent)
 export function getAllNotificationsForDoctor() {
-  return apiFetch<ApiEnvelope<{ notifications: Notification[] }>>("/notification");
+  return apiFetch<ApiEnvelope<{ notifications: Notification[] }>>("/notification", {
+    noCache: true,
+  });
 }
 
 // GET /notification/:id  (doctor: single notification)
 export function getNotificationByIdForDoctor(id: string) {
   return apiFetch<ApiEnvelope<{ notification: Notification }>>(
-    `/notification/${id}`
+    `/notification/${id}`,
+    { noCache: true }
   );
 }
 
@@ -50,10 +53,11 @@ export function deleteAllNotificationsForDoctor() {
 }
 
 // GET /notification/patient  (patient: all notifications addressed to them)
-// Note: backend returns key "notification" (no 's') for this endpoint
+// Note: backend returns key "notification" (no 's') or "notifications"
 export function getAllNotificationsForPatient() {
-  return apiFetch<ApiEnvelope<{ notification: Notification[] }>>(
-    "/notification/patient"
+  return apiFetch<ApiEnvelope<{ notification?: Notification[]; notifications?: Notification[] }>>(
+    "/notification/patient",
+    { noCache: true }
   );
 }
 
