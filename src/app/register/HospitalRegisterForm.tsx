@@ -94,7 +94,7 @@ export function HospitalRegisterForm() {
   if (success) {
     return (
       <div className="relative flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 sm:py-12">
-        <Card glass vibrant className="w-full max-w-md p-6 sm:p-10 text-center border-violet-500/30 shadow-2xl animate-scale-in-slow">
+        <Card glass vibrant className="w-full max-w-md p-6 sm:p-10 text-center border-violet-500/30 shadow-md animate-scale-in-slow">
           <div className="mb-4 flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-success/15 border border-success/30">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-success">
               <polyline points="20 6 9 17 4 12" />
@@ -106,7 +106,7 @@ export function HospitalRegisterForm() {
           </p>
           <div className="mt-6 flex flex-col gap-3">
             <Link href="/login">
-              <Button variant="vibrant" className="w-full shadow-glow-purple bg-violet-500 hover:bg-violet-600">
+              <Button variant="primary" className="w-full shadow-xs hover:shadow-sm">
                 الذهاب لتسجيل الدخول
               </Button>
             </Link>
@@ -124,13 +124,13 @@ export function HospitalRegisterForm() {
       <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
         <ThemeToggle />
       </div>
-      <Card glass vibrant className="w-full max-w-xl animate-scale-in-slow p-5 sm:p-8 border-violet-500/20 shadow-2xl">
+      <Card glass vibrant className="w-full max-w-xl animate-scale-in-slow p-5 sm:p-8 border-cyan-400/20 shadow-md">
         <div className="flex flex-col items-center text-center">
           <div className="mb-4">
             <Logo size="lg" href={null} />
           </div>
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="text-violet-500">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/10">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="text-cyan-600 dark:text-amber-400">
               <path d="M3 21h18" /><path d="M19 21v-4a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v4" />
               <path d="M5 15V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8" />
               <path d="M12 9v4" /><path d="M10 11h4" />
@@ -245,7 +245,7 @@ export function HospitalRegisterForm() {
             </div>
           )}
 
-          <Button type="submit" variant="vibrant" loading={loading} className="mt-2 w-full sm:col-span-2 text-base shadow-glow-purple bg-violet-500 hover:bg-violet-600 border-violet-500">
+          <Button type="submit" variant="primary" loading={loading} className="mt-2 w-full sm:col-span-2 text-base shadow-xs hover:shadow-sm">
             {loading ? "جارٍ التسجيل..." : "تسجيل المستشفى"}
           </Button>
         </form>

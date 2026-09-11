@@ -24,7 +24,7 @@ export default function EmergencyReportPage() {
   const [notes, setNotes] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
-  
+
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export default function EmergencyReportPage() {
   const [caseCode, setCaseCode] = useState("");
   const [copied, setCopied] = useState(false);
 
-  
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
@@ -50,7 +50,7 @@ export default function EmergencyReportPage() {
     setLoading(true);
 
     try {
-      
+
       setLoadingMsg("جارٍ إنشاء البلاغ...");
       const createRes = await createEmergencyCase({
         phoneNumber: phoneNumber.trim(),
@@ -58,7 +58,7 @@ export default function EmergencyReportPage() {
       });
       const code = createRes.data.createdEmergency.caseCode;
 
-      
+
       setLoadingMsg("جارٍ رفع التقرير وإشعار المستشفيات...");
       await uploadEmergencyReport(code, file);
 
@@ -91,7 +91,7 @@ export default function EmergencyReportPage() {
     setCopied(false);
   }
 
-  
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Header */}
@@ -113,11 +113,7 @@ export default function EmergencyReportPage() {
                 متابعة بلاغ
               </Button>
             </Link>
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="text-xs px-2 sm:px-3 py-1.5 sm:py-2">
-                الرئيسية
-              </Button>
-            </Link>
+
           </div>
         </div>
       </header>
@@ -125,30 +121,29 @@ export default function EmergencyReportPage() {
       <main className="mx-auto max-w-3xl px-4 py-6 sm:py-12 md:px-8">
         {/* Title */}
         <div className="text-center mb-6 sm:mb-10 animate-fade-in-slow">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-danger/30 bg-danger/10 px-4 py-1.5 text-xs font-bold text-danger">
-            <span className="h-2 w-2 rounded-full bg-danger animate-pulse" />
-            نظام الإبلاغ عن حالات الطوارئ
+          <div className="mb-6 inline-flex items-center rounded-md border  px-5 py-5 text-2xl ">
+
+            <strong>نظام الإبلاغ لحالات الطوارئ</strong>
           </div>
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-text-primary md:text-4xl">
+          <h1 className="font-display   font-extrabold text-text-primary ">
             إرسال تقرير طوارئ
           </h1>
           <p className="mt-3 text-sm text-text-secondary max-w-md mx-auto">
-            أرسل البيانات والصورة دفعة واحدة — تُشعَر المستشفيات تلقائياً فور الإرسال
-          </p>
+            أرسل صورة التقرير مع رقمك للمتابعة          </p>
         </div>
 
-        <Card glass vibrant className="p-5 sm:p-8 shadow-2xl border-danger/20">
-          {}
+        <Card glass className="p-5 sm:p-8  border-danger/20">
+          { }
           {(stage === "form" || stage === "error") && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
               <Field
-                label="رقم الهاتف المصري للمسؤول عن الحالة"
+                label="رقم الهاتف المصري المسؤول عن الحالة"
                 type="tel"
                 inputMode="tel"
                 required
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="مثال: 01000000000"
+                placeholder="مثال :- 01000000000"
               />
 
               <div className="flex flex-col gap-1.5">
@@ -160,22 +155,21 @@ export default function EmergencyReportPage() {
                   rows={3}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="مثال: حادث سير — كسر في الساق اليمنى — المريض واعٍ"
+                  placeholder="مثال: حادث سير — كسر في الساق اليمنى "
                   className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-primary resize-none focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger/20 transition-colors"
                 />
               </div>
 
-              {}
+              { }
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-semibold text-text-primary">
                   صورة / ملف التقرير الطبي
                   <span className="mr-1 text-xs font-bold text-danger">*مطلوب</span>
                 </label>
-                <label className={`relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-8 cursor-pointer transition-all duration-300 ${
-                  file
-                    ? "border-primary/60 bg-primary-soft"
-                    : "border-border hover:border-danger/40 hover:bg-danger/5"
-                }`}>
+                <label className={`relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-8 cursor-pointer transition-all duration-300 ${file
+                  ? "border-primary/60 bg-primary-soft"
+                  : "border-border hover:border-danger/40 hover:bg-danger/5"
+                  }`}>
                   <input
                     type="file"
                     accept="image/*,.pdf"
@@ -234,15 +228,14 @@ export default function EmergencyReportPage() {
 
               <Button
                 type="submit"
+                variant="primary"
                 loading={loading}
-                className="w-full h-14 text-base font-extrabold bg-danger hover:bg-red-600 border-danger text-white shadow-lg"
+                className="w-full h-14 text-base font-extrabold shadow-sm"
               >
-                إرسال البلاغ مع التقرير الآن
-              </Button>
+                أرسل التقرير الآن              </Button>
 
               <p className="text-xs text-text-secondary text-center">
-                كل بلاغ صالح لمدة <strong>6 ساعات</strong> — بعد الإرسال، تُشعَر المستشفيات تلقائياً
-              </p>
+                <strong>  بعد إرسال التقرير يرجى نسخ الكود ومتابعة الحالة </strong>              </p>
             </form>
           )}
 
@@ -274,11 +267,10 @@ export default function EmergencyReportPage() {
                     type="button"
                     onClick={handleCopyCode}
                     title="نسخ الكود"
-                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border transition-all duration-300 ${
-                      copied
-                        ? "border-success/40 bg-success/10 text-success"
-                        : "border-border bg-surface text-text-secondary hover:border-primary/50 hover:text-primary hover:bg-primary-soft"
-                    }`}
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border transition-all duration-300 ${copied
+                      ? "border-success/40 bg-success/10 text-success"
+                      : "border-border bg-surface text-text-secondary hover:border-primary/50 hover:text-primary hover:bg-primary-soft"
+                      }`}
                   >
                     {copied ? (
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

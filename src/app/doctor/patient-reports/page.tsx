@@ -138,41 +138,41 @@ export default function DoctorPatientReportsPage() {
           </div>
         ) : (
           <div className="w-full overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[700px]">
               <thead>
                 <tr className="bg-gradient-to-r from-primary/10 via-surface-raised to-surface-raised border-b border-border/60">
-                  <th className="py-3.5 px-5 text-right font-extrabold text-text-primary text-xs">تاريخ الإرسال</th>
-                  <th className="py-3.5 px-5 text-right font-extrabold text-text-primary text-xs">اسم المريض</th>
-                  <th className="py-3.5 px-5 text-right font-extrabold text-text-primary text-xs">رقم الهاتف</th>
-                  <th className="py-3.5 px-5 text-center font-extrabold text-text-primary text-xs">التفاصيل</th>
-                  <th className="py-3.5 px-5 text-center font-extrabold text-text-primary text-xs">الإجراءات</th>
+                  <th className="py-3.5 px-4 text-center font-extrabold text-text-primary text-xs whitespace-nowrap">تاريخ الإرسال</th>
+                  <th className="py-3.5 px-5 text-right font-extrabold text-text-primary text-xs whitespace-nowrap">اسم المريض</th>
+                  <th className="py-3.5 px-5 text-center font-extrabold text-text-primary text-xs whitespace-nowrap">رقم الهاتف</th>
+                  <th className="py-3.5 px-5 text-center font-extrabold text-text-primary text-xs whitespace-nowrap">التفاصيل</th>
+                  <th className="py-3.5 px-5 text-center font-extrabold text-text-primary text-xs whitespace-nowrap">الإجراءات</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/30">
                 {filteredDocs.map((doc) => (
                   <tr key={doc._id} className="group hover:bg-primary/5 transition-colors duration-150">
-                    <td className="py-4 px-5 whitespace-nowrap text-xs font-bold text-text-secondary">
+                    <td className="py-4 px-4 whitespace-nowrap text-xs font-bold text-text-secondary text-center align-middle">
                       {new Date(doc.createdAt).toLocaleDateString("ar-EG", {
                         year: "numeric",
                         month: "short",
                         day: "numeric",
                       })}
                     </td>
-                    <td className="py-4 px-5">
+                    <td className="py-4 px-5 align-middle whitespace-nowrap text-right">
                       <span className="font-bold text-text-primary text-sm group-hover:text-primary transition-colors">
                         {doc.patient.firstName} {doc.patient.lastName}
                       </span>
                     </td>
-                    <td className="py-4 px-5">
+                    <td className="py-4 px-5 text-center align-middle whitespace-nowrap">
                       <span dir="ltr" className="font-semibold text-text-primary text-sm">
                         {doc.patient.phoneNumber}
                       </span>
                     </td>
-                    <td className="py-4 px-5 text-center">
+                    <td className="py-4 px-5 text-center align-middle whitespace-nowrap">
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => setCaptionDoc(doc)}
-                          className="px-3 py-1.5 rounded-lg bg-surface-raised border border-border/50 text-text-primary hover:border-primary/50 hover:text-primary hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-200 text-xs font-bold whitespace-nowrap"
+                          className="px-3 py-1.5 rounded-lg bg-surface-raised border border-border/50 text-text-primary hover:border-primary/50 hover:text-primary hover:shadow-sm hover:-translate-y-0.5 active:scale-95 transition-all duration-200 text-xs font-bold whitespace-nowrap"
                         >
                           عرض التفاصيل
                         </button>
@@ -181,14 +181,14 @@ export default function DoctorPatientReportsPage() {
                             href={doc.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-transparent hover:border-primary/20 hover:bg-primary/20 hover:shadow-md hover:shadow-primary/10 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 text-xs font-bold whitespace-nowrap inline-flex items-center justify-center"
+                            className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-transparent hover:border-primary/20 hover:bg-primary/20 hover:shadow-sm hover:-translate-y-0.5 active:scale-95 transition-all duration-200 text-xs font-bold whitespace-nowrap inline-flex items-center justify-center"
                           >
                             عرض الصورة
                           </a>
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-5">
+                    <td className="py-4 px-5 text-center align-middle whitespace-nowrap">
                       <div className="flex items-center justify-center gap-2">
                         {activeDocTab === "unseen" && (
                           <>
@@ -219,7 +219,7 @@ export default function DoctorPatientReportsPage() {
                             onClick={() => updateDocState(doc._id, "seen")}
                             className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-transparent hover:bg-primary/20 hover:border-primary/20 hover:shadow-sm hover:-translate-y-0.5 active:scale-95 transition-all duration-200 text-xs font-bold whitespace-nowrap"
                           >
-                            استرجاع
+                            استعادة
                           </button>
                         )}
                       </div>

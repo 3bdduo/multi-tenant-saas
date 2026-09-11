@@ -6,7 +6,6 @@ import type {
   RegisterDoctorPayload,
   RegisterHospitalPayload,
   RegisterPatientPayload,
-  RegisterFamilyPatientPayload,
   ResetPasswordPayload,
   SendOtpPayload,
 } from "@/types/api";
@@ -31,13 +30,6 @@ export function registerHospital(payload: RegisterHospitalPayload) {
 export function registerPatient(payload: RegisterPatientPayload) {
   return apiFetch<ApiEnvelope<{ createdPatient: Record<string, unknown> }>>(
     "/auth/register/patient",
-    { method: "POST", body: JSON.stringify(payload), auth: false }
-  );
-}
-
-export function registerFamilyPatient(payload: RegisterFamilyPatientPayload) {
-  return apiFetch<ApiEnvelope<{ createdPatient: Record<string, unknown> }>>(
-    "/auth/register/family",
     { method: "POST", body: JSON.stringify(payload), auth: false }
   );
 }

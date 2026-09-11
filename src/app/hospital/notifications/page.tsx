@@ -50,7 +50,7 @@ export default function HospitalNotificationsPage() {
                 className="py-4 flex flex-col gap-1.5 cursor-pointer hover:bg-surface-raised/60 p-3 rounded-xl transition-all"
               >
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <span className="rounded-full bg-violet-500/15 border border-violet-500/30 px-2.5 py-0.5 text-[11px] font-bold text-violet-500">
+                  <span className="rounded-full bg-cyan-500/15 border border-cyan-500/30 px-2.5 py-0.5 text-[11px] font-bold text-cyan-700 dark:text-amber-400 dark:bg-amber-800/15 dark:border-amber-700/30">
                     تنبيه من إدارة المنصة
                   </span>
                   <span className="text-[10px] text-text-secondary opacity-60 font-mono">
@@ -86,12 +86,12 @@ export default function HospitalNotificationsPage() {
           onClick={() => setSelectedNotif(null)}
         >
           <Card
-            className="max-w-lg w-full shadow-2xl border-violet-500/30 bg-surface p-6"
+            className="max-w-lg w-full shadow-2xl border-cyan-400/25 bg-surface p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between border-b border-border/50 pb-4 mb-4">
               <div>
-                <span className="inline-block rounded-full bg-violet-500/15 border border-violet-500/30 px-2.5 py-0.5 text-[11px] font-extrabold text-violet-500 mb-2">
+                <span className="inline-block rounded-full bg-cyan-500/15 border border-cyan-500/30 px-2.5 py-0.5 text-[11px] font-extrabold text-cyan-700 dark:text-amber-400 dark:bg-amber-800/15 dark:border-amber-700/30 mb-2">
                   تنبيه إداري
                 </span>
                 <h3 className="font-display text-xl font-extrabold text-text-primary">
@@ -118,7 +118,7 @@ export default function HospitalNotificationsPage() {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setSelectedNotif(null)}
-                className="rounded-xl bg-violet-500 hover:bg-violet-600 px-5 py-2.5 text-xs font-bold text-white transition-all shadow-glow-purple"
+                className="rounded-xl bg-gray-700 dark:bg-gray-200 dark:text-gray-900 px-5 py-2.5 text-xs font-bold text-white transition-all shadow-sm"
               >
                 إغلاق
               </button>

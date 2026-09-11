@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
 import { ApiError } from "@/lib/http";
+import { validateFourWordsName } from "@/lib/validators";
 
 function PatientRegisterFormInner() {
   const router = useRouter();
@@ -18,8 +19,7 @@ function PatientRegisterFormInner() {
   const [form, setForm] = useState({
     nationalId: "",
     password: "",
-    firstName: "",
-    lastName: "",
+    fullName: "",
     phoneNumber: "",
     email: "",
   });
@@ -29,6 +29,13 @@ function PatientRegisterFormInner() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const nameErr = validateFourWordsName(form.fullName, "الاسم بالكامل");
+    if (nameErr) {
+      setError(nameErr);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -54,7 +61,7 @@ function PatientRegisterFormInner() {
         <ThemeToggle />
       </div>
 
-      <Card glass vibrant className="w-full max-w-xl animate-scale-in-slow p-5 sm:p-8 border-primary/20 shadow-2xl">
+      <Card glass vibrant className="w-full max-w-xl animate-scale-in-slow p-5 sm:p-8 border-primary/20 shadow-md">
         <div className="flex flex-col items-center text-center">
           <div className="mb-4">
             <Logo size="lg" href={null} />
@@ -74,42 +81,31 @@ function PatientRegisterFormInner() {
         )}
 
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4 sm:gap-5">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
-            <Field
-              label="الاسم الأول"
-              required
-              value={form.firstName}
-              onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-              placeholder="مثال: أحمد"
-            />
-            <Field
-              label="الاسم الأخير"
-              required
-              value={form.lastName}
-              onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-              placeholder="مثال: محمد"
-            />
-          </div>
+          <Field
+            label="الاسم بالكامل (رباعي على الأقل)"
+            required
+            value={form.fullName}
+            onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+            placeholder="مثال: محمد أحمد محمود علي"
+          />
 
           <Field
-            label="الرقم القومي (14 رقم)"
+            label="الرقم القومي"
             required
-            pattern="[0-9]{14}"
-            title="يجب إدخال 14 رقماً"
+            maxLength={14}
             value={form.nationalId}
-            onChange={(e) => setForm({ ...form, nationalId: e.target.value })}
-            placeholder="مثال: 29001011234567"
+            onChange={(e) => setForm({ ...form, nationalId: e.target.value.replace(/\D/g, "") })}
+            placeholder="14 رقماً"
+            dir="ltr"
           />
 
           <Field
             label="رقم الهاتف"
+            type="tel"
             required
-            pattern="^01[0125][0-9]{8}$"
-            title="رقم هاتف مصري صحيح (مثال: 01012345678)"
             value={form.phoneNumber}
             onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
-            placeholder="مثال: 01012345678"
-            type="tel"
+            placeholder="01xxxxxxxxx"
             dir="ltr"
           />
 
@@ -134,7 +130,7 @@ function PatientRegisterFormInner() {
             dir="ltr"
           />
 
-          <Button type="submit" variant="vibrant" size="lg" className="mt-2 w-full font-bold shadow-glow-cyan" loading={loading}>
+          <Button type="submit" variant="primary" size="lg" className="mt-2 w-full font-bold shadow-xs hover:shadow-sm" loading={loading}>
             إنشاء الحساب
           </Button>
         </form>

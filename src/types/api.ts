@@ -184,17 +184,11 @@ export interface RegisterDoctorPayload {
 export interface RegisterPatientPayload {
   nationalId: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
   phoneNumber: string;
   email: string;
-}
-
-export interface RegisterFamilyPatientPayload {
-  nationalId: string;
-  password: string;
-  email: string;
-  familyMembers: { name: string; phoneNumber: string }[];
 }
 
 export interface LoginPayload {

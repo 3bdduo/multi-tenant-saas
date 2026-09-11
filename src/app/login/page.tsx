@@ -73,7 +73,7 @@ export default function LoginPage() {
       <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
         <ThemeToggle />
       </div>
-      <Card glass vibrant className="w-full max-w-md animate-scale-in-slow p-5 sm:p-8 border-primary/20 shadow-2xl">
+      <Card glass vibrant className="w-full max-w-md animate-scale-in-slow p-5 sm:p-8 border-primary/20 shadow-md">
         <div className="flex flex-col items-center text-center">
           <div className="mb-4">
             <Logo size="lg" href={null} />
@@ -124,7 +124,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <Button type="submit" variant="vibrant" loading={loading} className="mt-2 w-full shadow-glow-cyan text-base">
+          <Button type="submit" variant="primary" loading={loading} className="mt-2 w-full text-base shadow-xs hover:shadow-sm">
             {loading ? "جارٍ تسجيل الدخول..." : "دخول إلى النظام"}
           </Button>
         </form>

@@ -122,31 +122,33 @@ export default function AdminPatientsPage() {
         )}
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-right">
+          <table className="w-full text-sm min-w-[650px]">
             <thead>
               <tr className="border-b border-border bg-surface-raised text-text-secondary">
-                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">الاسم</th>
-                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">الرقم القومي</th>
-                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">الهاتف</th>
-                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">تاريخ التسجيل</th>
-                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-left">إجراءات</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-right whitespace-nowrap">الاسم</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center whitespace-nowrap">الرقم القومي</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center whitespace-nowrap">الهاتف</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center whitespace-nowrap">تاريخ التسجيل</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center whitespace-nowrap">إجراءات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {filteredAndSortedPatients.map((p) => (
                 <tr key={p._id} className="hover:bg-surface-raised/40 transition-colors">
-                  <td className="px-6 py-4 font-medium text-text-primary">
+                  <td className="px-6 py-4 font-medium text-text-primary text-right align-middle whitespace-nowrap">
                     {p.firstName} {p.lastName}
                   </td>
-                  <td className="px-6 py-4 text-text-secondary">{p.nationalId || "-"}</td>
-                  <td className="px-6 py-4 text-text-secondary" dir="ltr">{p.phoneNumber}</td>
-                  <td className="px-6 py-4 text-text-secondary">
+                  <td className="px-6 py-4 text-text-secondary text-center align-middle whitespace-nowrap">{p.nationalId || "—"}</td>
+                  <td className="px-6 py-4 text-text-secondary text-center align-middle whitespace-nowrap" dir="ltr">{p.phoneNumber}</td>
+                  <td className="px-6 py-4 text-text-secondary text-center align-middle whitespace-nowrap">
                     {new Date(p.createdAt).toLocaleDateString('ar-EG')}
                   </td>
-                  <td className="px-6 py-4 text-left">
-                    <Button size="sm" variant="danger" onClick={() => handleRemove(p._id, `${p.firstName} ${p.lastName}`)}>
-                      حذف
-                    </Button>
+                  <td className="px-6 py-4 text-center align-middle whitespace-nowrap">
+                    <div className="flex justify-center items-center">
+                      <Button size="sm" variant="danger" onClick={() => handleRemove(p._id, `${p.firstName} ${p.lastName}`)} className="justify-center text-xs">
+                        حذف
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}

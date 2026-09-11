@@ -279,8 +279,8 @@ export function DashboardShell({
                     : "justify-start px-3.5 gap-3 text-sm"
                 } ${
                   active
-                    ? "bg-primary-soft text-primary shadow-xs font-semibold"
-                    : "text-text-secondary hover:bg-primary-soft/50 hover:text-text-primary"
+                    ? "bg-gradient-to-r from-cyan-500/15 via-sky-500/10 to-emerald-500/5 text-cyan-700 dark:text-amber-400 font-bold border-r-2 border-cyan-600 dark:border-amber-500 shadow-xs"
+                    : "text-text-secondary hover:bg-cyan-50/60 dark:hover:bg-stone-800/40 hover:text-cyan-700 dark:hover:text-amber-300"
                 }`}
               >
                 <span

@@ -177,7 +177,7 @@ export default function HospitalProfilePage() {
           variant="vibrant"
           loading={saving}
           onClick={handleSave}
-          className="mt-5 w-full shadow-glow-purple bg-violet-500 hover:bg-violet-600 border-violet-500"
+          className="mt-5 w-full shadow-sm"
         >
           {saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}
         </Button>

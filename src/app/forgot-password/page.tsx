@@ -75,7 +75,7 @@ export default function ForgotPasswordPage() {
             {error && (
               <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p>
             )}
-            <Button type="submit" variant="vibrant" disabled={loading} className="w-full shadow-glow-cyan">
+            <Button type="submit" variant="primary" disabled={loading} className="w-full shadow-sm">
               {loading ? "جارٍ الإرسال..." : "إرسال رمز التحقق"}
             </Button>
           </form>
@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
             {error && (
               <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p>
             )}
-            <Button type="submit" variant="vibrant" disabled={loading} className="w-full shadow-glow-cyan">
+            <Button type="submit" variant="primary" disabled={loading} className="w-full shadow-sm">
               {loading ? "جارٍ الحفظ..." : "تغيير كلمة المرور"}
             </Button>
           </form>

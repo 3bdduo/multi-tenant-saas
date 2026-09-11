@@ -121,7 +121,7 @@ export default function AdminLoginPage() {
             </div>
           )}
 
-          <Button type="submit" variant="vibrant" loading={loading} className="mt-2 w-full shadow-glow-cyan text-base">
+          <Button type="submit" variant="primary" loading={loading} className="mt-2 w-full shadow-sm text-base">
             {loading ? "جارٍ تسجيل الدخول..." : "دخول المشرف إلى النظام"}
           </Button>
         </form>

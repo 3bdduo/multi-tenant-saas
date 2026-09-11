@@ -3,224 +3,234 @@
 @tailwind utilities;
 
 /* 
-   Design Tokens — Deep Nordic Teal & Sunlit Amber Palette
-   Philosophy: Modern Warm Clinical (Trust, Serenity & Human Warmth)
-   */
+   Design Tokens — Refined Clinic SaaS Palette
+   Philosophy: Clean, Trustworthy, Calming Healthcare SaaS
+   Light Mode: Cyan-blue sky tones + soft emerald greens, minimal white.
+   Dark Mode: Warm charcoal-black + earthy browns + clean grays. Zero purple or deep navy.
+*/
 
 :root {
-  /* ── ️ 1. Light Mode (Warm Linen Background with Clear Soft Sage/Mint Cards) ── */
+  /* ── 1. Light Mode (Cyan-Blue & Soft Green) ── */
   --radius: 1rem;
 
-  /* Backgrounds & Surfaces
-     Page bg: Warm Linen / Cream (#FAF5EE)
-     Card:    Clear Soft Sage Mint (#D2E7DB) — distinct, rich, refreshing */
-  --background: #FAF5EE;
-  --background-secondary: #D2E7DB;
-  --background-tertiary: #BFDCCB;
-  --color-bg: #FAF5EE;
-  --color-surface: #D2E7DB;
-  --color-surface-raised: #BFDCCB;
-  --color-card: #D2E7DB;
-  --color-card-foreground: #2D231F;
+  /* Backgrounds & Surfaces — cyan-tinted, barely-white */
+  --background: #EEF7FB;
+  --background-secondary: #E0F2F8;
+  --background-tertiary: #C8E8F4;
+  --color-bg: #EEF7FB;
+  --color-surface: #F5FBFD;
+  --color-surface-raised: #EEF7FB;
+  --color-card: #F5FBFD;
+  --color-card-foreground: #0C2340;
 
-  /* Mint / Soft Sage accent surface (for info boxes & callout divs) */
-  --mint: #C0DECD;
-  --mint-border: rgba(90, 165, 125, 0.45);
-  --color-mint: #C0DECD;
+  /* Mint / Soft Green accent surface */
+  --mint: #EDFAF3;
+  --mint-border: rgba(5, 150, 105, 0.30);
+  --color-mint: #EDFAF3;
 
-  /* Text & Typography — Deep Warm Espresso & Warm Taupe */
-  --foreground: #2D231F;
-  --foreground-muted: #6E5A4E;
-  --color-text-primary: #2D231F;
-  --color-text-secondary: #6E5A4E;
-  --color-text-muted: #8E7A6E;
+  /* Text & Typography */
+  --foreground: #0C2340;
+  --foreground-muted: #2E6A8A;
+  --color-text-primary: #0C2340;
+  --color-text-secondary: #2E6A8A;
+  --color-text-muted: #4A8FAA;
 
-  /* Primary Brand: Sleek Slate Charcoal / Slate Gray (#475569) */
-  --primary: #475569;
-  --primary-hover: #334155;
+  /* Primary Brand: Ocean Cyan (#0891B2) */
+  --primary: #0891B2;
+  --primary-hover: #0E7490;
   --primary-foreground: #FFFFFF;
-  --primary-light: #64748B;
-  --primary-soft: rgba(71, 85, 105, 0.12);
-  --color-primary: #475569;
-  --color-primary-hover: #334155;
-  --color-primary-light: #64748B;
-  --color-primary-soft: rgba(71, 85, 105, 0.12);
+  --primary-light: #67E8F9;
+  --primary-soft: rgba(8, 145, 178, 0.12);
+  --color-primary: #0891B2;
+  --color-primary-hover: #0E7490;
+  --color-primary-light: #67E8F9;
+  --color-primary-soft: rgba(8, 145, 178, 0.12);
   --color-primary-foreground: #FFFFFF;
 
-  /* Secondary Brand: Neutral Cool Slate (#64748B) */
-  --secondary: #64748B;
-  --secondary-hover: #475569;
+  /* Secondary Brand: Soft Emerald-Green (#059669) */
+  --secondary: #059669;
+  --secondary-hover: #047857;
   --secondary-foreground: #FFFFFF;
-  --secondary-light: #94A3B8;
-  --secondary-soft: rgba(100, 116, 139, 0.12);
-  --color-secondary: #64748B;
-  --color-secondary-hover: #475569;
+  --secondary-light: #6EE7B7;
+  --secondary-soft: rgba(5, 150, 105, 0.12);
+  --color-secondary: #059669;
+  --color-secondary-hover: #047857;
   --color-secondary-foreground: #FFFFFF;
-  --color-secondary-soft: rgba(100, 116, 139, 0.12);
+  --color-secondary-soft: rgba(5, 150, 105, 0.12);
 
-  /* Accent: Platinum Silver Slate (#94A3B8) */
-  --accent: #94A3B8;
-  --accent-hover: #64748B;
-  --accent-foreground: #0F172A;
-  --accent-soft: rgba(148, 163, 184, 0.15);
-  --color-accent: #94A3B8;
-  --color-accent-hover: #64748B;
-  --color-accent-soft: rgba(148, 163, 184, 0.15);
+  /* Accent: Sky Blue (#0EA5E9) */
+  --accent: #0EA5E9;
+  --accent-hover: #0284C7;
+  --accent-foreground: #FFFFFF;
+  --accent-soft: rgba(14, 165, 233, 0.12);
+  --color-accent: #0EA5E9;
+  --color-accent-hover: #0284C7;
+  --color-accent-soft: rgba(14, 165, 233, 0.12);
 
   /* Muted */
-  --muted: #BFDCCB;
-  --muted-foreground: #6E5A4E;
-  --color-muted: #BFDCCB;
-  --color-muted-foreground: #6E5A4E;
+  --muted: #D9EFF8;
+  --muted-foreground: #4A8FAA;
+  --color-muted: #D9EFF8;
+  --color-muted-foreground: #4A8FAA;
 
-  /* Borders & Dividers — Soft Sage Green Border (#B2D8C2) */
-  --border: #B2D8C2;
-  --border-subtle: #CBE5D6;
-  --border-hover: #7CBF97;
-  --color-border: #B2D8C2;
-  --color-border-hover: #7CBF97;
+  /* Borders & Dividers — cyan-tinted borders */
+  --border: #B0D9EC;
+  --border-subtle: #D9EFF8;
+  --border-hover: #0891B2;
+  --color-border: #B0D9EC;
+  --color-border-hover: #0891B2;
 
-  /* Navbar / Header — crisp warm off-white glass strip */
-  --color-header-bg: rgba(250, 245, 238, 0.90);
-  --color-header-border: rgba(178, 216, 194, 0.70);
+  /* Navbar / Header */
+  --color-header-bg: rgba(238, 247, 251, 0.92);
+  --color-header-border: rgba(176, 217, 236, 0.85);
 
   /* Semantic Alerts */
-  --destructive: #C84B31;
-  --destructive-hover: #A8361E;
+  --destructive: #DC2626;
+  --destructive-hover: #B91C1C;
   --destructive-foreground: #FFFFFF;
-  --color-destructive: #C84B31;
-  --color-danger: #C84B31;
-  --success: #608058;
-  --color-success: #608058;
-  --warning: #D98E32;
-  --color-warning: #D98E32;
+  --color-destructive: #DC2626;
+  --color-danger: #DC2626;
+  --success: #059669;
+  --color-success: #059669;
+  --warning: #D97706;
+  --color-warning: #D97706;
 
-  /* Shadows — Soft Mint Green & Neutral diffusion */
-  --card-shadow: 0 10px 32px -4px rgba(70, 135, 98, 0.14), 0 2px 8px -2px rgba(45, 35, 31, 0.05);
-  --shadow-sm: 0 1px 4px rgba(70, 135, 98, 0.08);
-  --shadow-md: 0 4px 16px rgba(70, 135, 98, 0.12);
-  --shadow-lg: 0 12px 32px rgba(70, 135, 98, 0.16);
-  --shadow-glow: 0 0 25px rgba(100, 116, 139, 0.25);
-  --color-glow-cyan: rgba(100, 116, 139, 0.20);
-  --color-glow-emerald: rgba(96, 128, 88, 0.20);
+  /* Shadows — soft, balanced, modern depth */
+  --card-shadow: 0 2px 8px -2px rgba(8, 70, 100, 0.06), 0 1px 3px 0 rgba(8, 70, 100, 0.03);
+  --shadow-sm: 0 1px 2px 0 rgba(8, 70, 100, 0.04);
+  --shadow-md: 0 3px 8px -2px rgba(8, 70, 100, 0.06), 0 1px 3px 0 rgba(8, 70, 100, 0.03);
+  --shadow-lg: 0 6px 16px -4px rgba(8, 70, 100, 0.07), 0 2px 5px -2px rgba(8, 70, 100, 0.03);
+  --shadow-xl: 0 10px 20px -4px rgba(8, 70, 100, 0.08), 0 3px 6px -2px rgba(8, 70, 100, 0.03);
+  --shadow-2xl: 0 12px 26px -6px rgba(8, 70, 100, 0.09);
+  --shadow-glow: 0 0 10px rgba(8, 145, 178, 0.10);
+  --shadow-glow-cyan: 0 2px 8px rgba(8, 145, 178, 0.10);
+  --shadow-glow-emerald: 0 2px 8px rgba(5, 150, 105, 0.10);
+  --shadow-glow-amber: 0 2px 8px rgba(217, 119, 6, 0.08);
+  --color-glow-cyan: rgba(8, 145, 178, 0.10);
+  --color-glow-emerald: rgba(5, 150, 105, 0.10);
 
-  /* Glassmorphism — Clear Soft Sage Mint */
-  --glass-bg: rgba(210, 231, 219, 0.95);
-  --glass-border: rgba(145, 195, 165, 0.65);
+  /* Glassmorphism — cyan-tinted glass */
+  --glass-bg: rgba(238, 247, 251, 0.90);
+  --glass-border: rgba(8, 145, 178, 0.20);
   --glass-blur: 20px;
 
-  /* Gradient Text Colors */
-  --gradient-text-start: #0F172A;
-  --gradient-text-mid: #475569;
-  --gradient-text-end: #64748B;
+  /* Gradient Text Colors — Cyan to Green */
+  --gradient-text-start: #0369A1;
+  --gradient-text-mid: #0891B2;
+  --gradient-text-end: #059669;
 
   color-scheme: light;
 }
 
 .dark {
-  /* ──  2. Dark Mode (Sleek Slate Charcoal & Mid-Tone Gray Palette) ── */
+  /* ── 2. Dark Mode (Charcoal-Black + Earthy Brown + Clean Gray) ── */
   --radius: 1rem;
 
-  /* Backgrounds & Surfaces (Balanced between dark and light: Slate Graphite & Mid-Gray) */
-  --background: #111418;
-  --background-secondary: #242A33;
-  --background-tertiary: #333C48;
-  --color-bg: #111418;
-  --color-surface: #242A33;
-  --color-surface-raised: #333C48;
-  --color-card: #242A33;
-  --color-card-foreground: #F1F4F8;
+  /* Backgrounds & Surfaces — warm charcoal, NOT navy/blue */
+  --background: #111111;
+  --background-secondary: #1A1A1A;
+  --background-tertiary: #242424;
+  --color-bg: #111111;
+  --color-surface: #1C1C1C;
+  --color-surface-raised: #242424;
+  --color-card: #1C1C1C;
+  --color-card-foreground: #F0EDE8;
 
-  /* Mint / Info Div Surface in Dark Mode: Subtle slate steel surface */
-  --mint: rgba(51, 60, 72, 0.60);
-  --mint-border: rgba(148, 163, 184, 0.35);
-  --color-mint: rgba(51, 60, 72, 0.60);
+  /* Warm Brown accent surface */
+  --mint: rgba(60, 40, 20, 0.60);
+  --mint-border: rgba(180, 120, 60, 0.35);
+  --color-mint: rgba(60, 40, 20, 0.60);
 
-  /* Text & Typography — Crisp Silver White & Slate Gray */
-  --foreground: #F1F4F8;
-  --foreground-muted: #A6B2C3;
-  --color-text-primary: #F1F4F8;
-  --color-text-secondary: #A6B2C3;
-  --color-text-muted: #788599;
+  /* Text & Typography — warm off-white */
+  --foreground: #F0EDE8;
+  --foreground-muted: #B8A99A;
+  --color-text-primary: #F0EDE8;
+  --color-text-secondary: #B8A99A;
+  --color-text-muted: #8A7A6A;
 
-  /* Primary Brand: Sleek Light Grey / Platinum Slate (#E2E8F0) */
-  --primary: #E2E8F0;
-  --primary-hover: #FFFFFF;
-  --primary-foreground: #0F172A;
-  --primary-light: #F8FAFC;
-  --primary-soft: rgba(226, 232, 240, 0.14);
-  --color-primary: #E2E8F0;
-  --color-primary-hover: #FFFFFF;
-  --color-primary-light: #F8FAFC;
-  --color-primary-soft: rgba(226, 232, 240, 0.14);
-  --color-primary-foreground: #0F172A;
+  /* Primary Brand: Warm Sand-Brown (#C49A6C) */
+  --primary: #C49A6C;
+  --primary-hover: #D4AA7C;
+  --primary-foreground: #111111;
+  --primary-light: #E8C99A;
+  --primary-soft: rgba(196, 154, 108, 0.18);
+  --color-primary: #C49A6C;
+  --color-primary-hover: #D4AA7C;
+  --color-primary-light: #E8C99A;
+  --color-primary-soft: rgba(196, 154, 108, 0.18);
+  --color-primary-foreground: #111111;
 
-  /* Secondary Brand: Slate Blue Gray (#475569) */
-  --secondary: #475569;
-  --secondary-hover: #64748B;
-  --secondary-foreground: #F1F4F8;
-  --secondary-light: #64748B;
-  --secondary-soft: rgba(71, 85, 105, 0.30);
-  --color-secondary: #475569;
-  --color-secondary-hover: #64748B;
-  --color-secondary-foreground: #F1F4F8;
-  --color-secondary-soft: rgba(71, 85, 105, 0.30);
+  /* Secondary Brand: Warm Taupe-Brown (#A0785A) */
+  --secondary: #A0785A;
+  --secondary-hover: #B8896A;
+  --secondary-foreground: #F0EDE8;
+  --secondary-light: #D4B090;
+  --secondary-soft: rgba(160, 120, 90, 0.18);
+  --color-secondary: #A0785A;
+  --color-secondary-hover: #B8896A;
+  --color-secondary-foreground: #F0EDE8;
+  --color-secondary-soft: rgba(160, 120, 90, 0.18);
 
-  /* Accent: Platinum Silver Slate (#CBD5E1) */
-  --accent: #CBD5E1;
-  --accent-hover: #E2E8F0;
-  --accent-foreground: #0F172A;
-  --accent-soft: rgba(203, 213, 225, 0.14);
-  --color-accent: #CBD5E1;
-  --color-accent-hover: #E2E8F0;
-  --color-accent-soft: rgba(203, 213, 225, 0.14);
+  /* Accent: Medium Gray (#9E9E9E) */
+  --accent: #A8A8A8;
+  --accent-hover: #C0C0C0;
+  --accent-foreground: #111111;
+  --accent-soft: rgba(168, 168, 168, 0.16);
+  --color-accent: #A8A8A8;
+  --color-accent-hover: #C0C0C0;
+  --color-accent-soft: rgba(168, 168, 168, 0.16);
 
-  /* Muted */
-  --muted: #333C48;
-  --muted-foreground: #A6B2C3;
-  --color-muted: #333C48;
-  --color-muted-foreground: #A6B2C3;
+  /* Muted — dark gray tones */
+  --muted: #2A2A2A;
+  --muted-foreground: #8A7A6A;
+  --color-muted: #2A2A2A;
+  --color-muted-foreground: #8A7A6A;
 
-  /* Borders & Dividers — Slate Gray Border (#3B4554 / #4F5B6E) */
-  --border: #3B4554;
-  --border-subtle: rgba(79, 91, 110, 0.40);
-  --border-hover: #64748B;
-  --color-border: #3B4554;
-  --color-border-hover: #64748B;
+  /* Borders & Dividers — warm gray-brown borders */
+  --border: #3A3028;
+  --border-subtle: rgba(58, 48, 40, 0.70);
+  --border-hover: #C49A6C;
+  --color-border: #3A3028;
+  --color-border-hover: #C49A6C;
 
-  /* Navbar / Header — deep slate charcoal glass strip */
-  --color-header-bg: rgba(17, 20, 24, 0.92);
-  --color-header-border: rgba(59, 69, 84, 0.80);
+  /* Navbar / Header */
+  --color-header-bg: rgba(17, 17, 17, 0.92);
+  --color-header-border: rgba(58, 48, 40, 0.85);
 
   /* Semantic Alerts */
-  --destructive: #E63946;
-  --destructive-hover: #F25C68;
+  --destructive: #E05A5A;
+  --destructive-hover: #F07070;
   --destructive-foreground: #FFFFFF;
-  --color-destructive: #E63946;
-  --color-danger: #E63946;
-  --success: #4EBA87;
-  --color-success: #4EBA87;
-  --warning: #F4A261;
-  --color-warning: #F4A261;
+  --color-destructive: #E05A5A;
+  --color-danger: #E05A5A;
+  --success: #6DBF7E;
+  --color-success: #6DBF7E;
+  --warning: #D4A050;
+  --color-warning: #D4A050;
 
-  /* Shadows (Sleek Slate & Modern Shadow Glow) */
-  --card-shadow: 0 16px 44px -6px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 25px rgba(90, 115, 145, 0.15);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.40);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.50);
-  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.65);
-  --shadow-glow: 0 0 35px rgba(226, 232, 240, 0.25);
-  --color-glow-cyan: rgba(203, 213, 225, 0.25);
-  --color-glow-emerald: rgba(78, 186, 135, 0.25);
+  /* Shadows — warm dark depth */
+  --card-shadow: 0 3px 10px -2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 3px 8px -2px rgba(0, 0, 0, 0.30);
+  --shadow-lg: 0 6px 14px -4px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 8px 18px -4px rgba(0, 0, 0, 0.38);
+  --shadow-2xl: 0 10px 22px -6px rgba(0, 0, 0, 0.40);
+  --shadow-glow: 0 0 10px rgba(196, 154, 108, 0.12);
+  --shadow-glow-cyan: 0 2px 8px rgba(196, 154, 108, 0.12);
+  --shadow-glow-emerald: 0 2px 8px rgba(160, 120, 90, 0.12);
+  --shadow-glow-amber: 0 2px 8px rgba(212, 160, 80, 0.12);
+  --color-glow-cyan: rgba(196, 154, 108, 0.12);
+  --color-glow-emerald: rgba(160, 120, 90, 0.12);
 
-  /* Glassmorphism — Medium Slate Gray */
-  --glass-bg: rgba(36, 42, 51, 0.92);
-  --glass-border: rgba(90, 105, 125, 0.40);
+  /* Glassmorphism — warm dark glass */
+  --glass-bg: rgba(28, 24, 20, 0.90);
+  --glass-border: rgba(196, 154, 108, 0.22);
   --glass-blur: 24px;
 
-  /* Gradient Text Colors */
-  --gradient-text-start: #FFFFFF;
-  --gradient-text-mid: #E2E8F0;
-  --gradient-text-end: #94A3B8;
+  /* Gradient Text Colors — warm sand to gray */
+  --gradient-text-start: #F0EDE8;
+  --gradient-text-mid: #C49A6C;
+  --gradient-text-end: #A0785A;
 
   color-scheme: dark;
 }
@@ -321,11 +331,11 @@ div, svg {
   }
 
   .glow-box-primary {
-    box-shadow: 0 0 35px var(--color-glow-cyan);
+    box-shadow: 0 2px 10px var(--color-glow-cyan);
   }
 
   .glow-box-emerald {
-    box-shadow: 0 0 35px var(--color-glow-emerald);
+    box-shadow: 0 2px 10px var(--color-glow-emerald);
   }
 }
 
@@ -428,4 +438,98 @@ div, svg {
 
 .animate-fade-in {
   animation: fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ═══════════════════════════════════════════════
+   Vivid Gradient & Multi-Color Utilities
+   ═══════════════════════════════════════════════ */
+
+.gradient-text-alive,
+.gradient-text {
+  background: linear-gradient(135deg, var(--gradient-text-start) 0%, var(--gradient-text-mid) 50%, var(--gradient-text-end) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+
+.glass-alive {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-color: var(--glass-border);
+}
+
+/* Light mode: cyan badge */
+.badge-sapphire {
+  background: rgba(8, 145, 178, 0.12);
+  color: #0891B2;
+  border: 1px solid rgba(8, 145, 178, 0.25);
+}
+/* Dark mode: warm sand badge */
+.dark .badge-sapphire {
+  background: rgba(196, 154, 108, 0.15);
+  color: #C49A6C;
+  border: 1px solid rgba(196, 154, 108, 0.30);
+}
+
+/* Light mode: green badge */
+.badge-emerald {
+  background: rgba(5, 150, 105, 0.12);
+  color: #059669;
+  border: 1px solid rgba(5, 150, 105, 0.25);
+}
+/* Dark mode: taupe-brown badge */
+.dark .badge-emerald {
+  background: rgba(160, 120, 90, 0.15);
+  color: #B8896A;
+  border: 1px solid rgba(160, 120, 90, 0.30);
+}
+
+/* Light mode: sky blue badge */
+.badge-indigo {
+  background: rgba(14, 165, 233, 0.12);
+  color: #0EA5E9;
+  border: 1px solid rgba(14, 165, 233, 0.25);
+}
+/* Dark mode: gray badge */
+.dark .badge-indigo {
+  background: rgba(168, 168, 168, 0.15);
+  color: #A8A8A8;
+  border: 1px solid rgba(168, 168, 168, 0.28);
+}
+
+/* Danger/rose badge — consistent in both modes */
+.badge-rose {
+  background: rgba(220, 38, 38, 0.12);
+  color: #DC2626;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+}
+.dark .badge-rose {
+  background: rgba(224, 90, 90, 0.15);
+  color: #E05A5A;
+  border: 1px solid rgba(224, 90, 90, 0.30);
+}
+
+/* ═══════════════════════════════════════════════
+   Universal Table Alignment & Centering
+   ═══════════════════════════════════════════════ */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+table th,
+table td {
+  vertical-align: middle;
+}
+
+table th,
+table td {
+  white-space: nowrap;
+}
+
+.table-wrap-cell {
+  white-space: normal !important;
+  word-break: break-word;
 }

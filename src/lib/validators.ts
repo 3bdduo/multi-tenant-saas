@@ -52,6 +52,19 @@ export function validateName(name: string, fieldLabel = "الاسم"): string | 
   return null;
 }
 
+export function validateFourWordsName(name: string, fieldLabel = "الاسم"): string | null {
+  const clean = name.trim();
+  if (!clean) return `${fieldLabel} مطلوب`;
+  if (!/^[\u0600-\u06FFa-zA-Z\s]+$/.test(clean)) {
+    return `${fieldLabel} يجب أن يحتوي على حروف فقط بدون أرقام أو رموز`;
+  }
+  const words = clean.split(/\s+/).filter(Boolean);
+  if (words.length < 4) {
+    return `${fieldLabel} يجب أن يتكون من 4 كلمات على الأقل (رباعي)`;
+  }
+  return null;
+}
+
 // Email Validator
 export function validateEmail(email: string): string | null {
   const clean = email.trim();

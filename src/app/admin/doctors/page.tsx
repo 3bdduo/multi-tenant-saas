@@ -103,44 +103,46 @@ export default function AdminDoctorsPage() {
 
       <Card className="overflow-hidden p-0">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-right">
+          <table className="w-full text-sm min-w-[650px]">
             <thead>
               <tr className="border-b border-border bg-surface-raised text-text-secondary">
-                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">الاسم</th>
-                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">البريد الإلكتروني</th>
-                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">الاشتراك</th>
-                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-left">إجراءات</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-right whitespace-nowrap">الاسم</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center whitespace-nowrap">البريد الإلكتروني</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center whitespace-nowrap">الاشتراك</th>
+                <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center whitespace-nowrap">إجراءات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {doctors.map((d) => (
                 <tr key={d._id} className="hover:bg-surface-raised/40 transition-colors">
-                  <td className="px-6 py-4 font-medium text-text-primary">
+                  <td className="px-6 py-4 font-medium text-text-primary text-right align-middle whitespace-nowrap">
                     <Link href={`/admin/doctors/${d._id}`} className="hover:text-primary hover:underline font-bold transition-colors">
                       د. {d.firstName} {d.lastName}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 text-text-secondary">{d.email}</td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${
-                        d.isPaid ? "bg-success/15 text-success border border-success/30" : "bg-warning/15 text-warning border border-warning/30"
-                      }`}
-                    >
-                      {d.isPaid ? "فعّال" : "منتهي"}
-                    </span>
+                  <td className="px-6 py-4 text-text-secondary text-center align-middle whitespace-nowrap">{d.email}</td>
+                  <td className="px-6 py-4 text-center align-middle whitespace-nowrap">
+                    <div className="flex justify-center items-center">
+                      <span
+                        className={`inline-flex items-center justify-center rounded-full px-2.5 py-1 text-xs font-bold ${
+                          d.isPaid ? "bg-success/15 text-success border border-success/30" : "bg-warning/15 text-warning border border-warning/30"
+                        }`}
+                      >
+                        {d.isPaid ? "فعّال" : "منتهي"}
+                      </span>
+                    </div>
                   </td>
-                  <td className="px-6 py-4 text-left">
-                    <div className="flex gap-2 justify-end">
+                  <td className="px-6 py-4 text-center align-middle whitespace-nowrap">
+                    <div className="flex gap-2 justify-center items-center">
                       <Link href={`/admin/doctors/${d._id}`}>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" className="justify-center text-xs">
                           عرض
                         </Button>
                       </Link>
-                      <Button size="sm" variant="secondary" onClick={() => renew(d._id)}>
+                      <Button size="sm" variant="secondary" onClick={() => renew(d._id)} className="justify-center text-xs">
                         تجديد
                       </Button>
-                      <Button size="sm" variant="danger" onClick={() => remove(d._id)}>
+                      <Button size="sm" variant="danger" onClick={() => remove(d._id)} className="justify-center text-xs">
                         حذف
                       </Button>
                     </div>

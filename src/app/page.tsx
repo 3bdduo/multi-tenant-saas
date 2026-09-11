@@ -7,7 +7,7 @@ import { Logo } from "@/components/ui/Logo";
 export default function LandingPage() {
   return (
     <div className="min-h-screen relative overflow-hidden transition-colors duration-500 ease-silky">
-      {}
+      { }
       <div
         aria-hidden="true"
         className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[560px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(100,116,139,0.08),transparent_75%)] dark:bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(71,85,105,0.20),transparent_75%)] -z-10"
@@ -25,12 +25,8 @@ export default function LandingPage() {
           <Logo size="md" />
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {}
-            <Link href="/clinics" className="hidden sm:block">
-              <Button variant="vibrant" size="sm" className="font-bold shadow-glow-cyan text-xs sm:text-sm">
-                تصفح العيادات واحجز كشفك
-              </Button>
-            </Link>
+            { }
+
             <ThemeToggle />
           </div>
         </div>
@@ -47,33 +43,37 @@ export default function LandingPage() {
             منصة سحابية متكاملة لربط المرضى، العيادات، والمستشفيات. اختر وجهتك للبدء أو احجز كشفك مباشرةً.
           </p>
 
-          {}
-          <div className="hidden sm:inline-flex mt-6 flex-wrap items-center justify-center gap-3.5 rounded-2xl bg-surface-raised/60 border border-border p-2.5 sm:px-5 sm:py-3 shadow-sm backdrop-blur-sm">
+          {/* Quick CTA Banner */}
+          <div className="hidden sm:inline-flex mt-6 flex-wrap items-center justify-center gap-3.5 rounded-2xl bg-surface/90 dark:bg-surface/80 border border-cyan-200/60 dark:border-stone-700/40 p-2.5 sm:px-5 sm:py-3 shadow-md backdrop-blur-md">
             <span className="text-sm font-bold text-text-primary">
               تريد حجز موعد كشف عند طبيب الآن؟
             </span>
             <Link href="/clinics">
-              <span className="inline-flex items-center justify-center rounded-xl bg-gradient-to-b from-[#FFFFFF] via-[#F8FAFC] to-[#E2E8F0] dark:from-[#374151] dark:via-[#2D3748] dark:to-[#242A33] border border-border px-5 py-2.5 min-h-[44px] text-sm font-extrabold text-text-primary shadow-[inset_0_1px_0_0_rgba(255,255,255,1),0_2px_6px_0_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15),0_2px_6px_0_rgba(0,0,0,0.4)] hover:brightness-105 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all cursor-pointer">
+              <Button variant="primary" size="md">
                 استعراض العيادات والمواعيد المتاحة
-              </span>
+              </Button>
             </Link>
           </div>
         </div>
 
-        {}
+        {/* Portals Grid */}
         <div className="grid gap-4 sm:gap-8 sm:grid-cols-2 animate-scale-in-slow max-w-5xl mx-auto">
 
-          {}
+          {/* 1. Emergency & Cases Card (Crimson / Rose Theme) */}
           <Card
             hover
             glass
-            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border-border/80 hover:border-destructive/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(100,116,139,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
+            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border border-rose-200/70 dark:border-rose-900/40 hover:border-rose-500/60 transition-all duration-300 hover:scale-[1.01] text-center shadow-sm hover:shadow-md"
           >
             <div className="flex flex-col items-center">
-              <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive shadow-[0_4px_20px_rgba(200,75,49,0.15)] dark:shadow-[0_0_25px_rgba(230,57,70,0.30)] backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(200,75,49,0.25)]">
+              <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-400 shadow-xs backdrop-blur-md transition-all duration-300 group-hover:scale-105">
                 <svg width="28" height="28" className="sm:w-[38px] sm:h-[38px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                 </svg>
+              </div>
+
+              <div className="mb-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                استجابة فورية 24/7
               </div>
 
               <h2 className="font-display text-xl sm:text-2xl font-extrabold text-text-primary mb-2 sm:mb-3">
@@ -85,35 +85,39 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-5 sm:mt-8 flex flex-col gap-2 sm:gap-3 w-full">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mb-1 sm:mb-2" />
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-rose-300/40 dark:via-rose-800/40 to-transparent mb-1 sm:mb-2" />
               <Link href="/emergency-report" className="w-full">
                 <Button
                   variant="primary"
                   size="lg"
-                  className="w-full justify-center text-sm font-bold"
+                  className="w-full justify-center text-sm font-bold shadow-xs hover:shadow-sm"
                 >
-                   إرسال تقرير طوارئ
+                  إرسال تقرير طوارئ
                 </Button>
               </Link>
               <Link href="/emergency-track" className="w-full">
-                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold">
-                   متابعة حالة بلاغ
+                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold shadow-xs hover:shadow-sm">
+                  متابعة حالة طوارئ
                 </Button>
               </Link>
             </div>
           </Card>
 
-          {}
+          {/* 2. Patients & Bookings Card (Teal & Emerald Theme) */}
           <Card
             hover
             glass
-            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border-border/80 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(100,116,139,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
+            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border border-teal-200/70 dark:border-teal-900/40 hover:border-teal-500/60 transition-all duration-300 hover:scale-[1.01] text-center shadow-sm hover:shadow-md"
           >
             <div className="flex flex-col items-center">
-              <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-primary/10 border border-primary/20 text-primary shadow-[0_4px_20px_rgba(100,116,139,0.15)] dark:shadow-[0_0_25px_rgba(226,232,240,0.18)] dark:border-primary/30 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(100,116,139,0.25)]">
+              <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-teal-500/15 border border-teal-500/30 text-teal-600 dark:text-teal-400 shadow-xs backdrop-blur-md transition-all duration-300 group-hover:scale-105">
                 <svg width="28" height="28" className="sm:w-[38px] sm:h-[38px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
                 </svg>
+              </div>
+
+              <div className="mb-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+                حجز فوري ومتابعة طبية
               </div>
 
               <h2 className="font-display text-xl sm:text-2xl font-extrabold text-text-primary mb-2 sm:mb-3">
@@ -125,44 +129,43 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-5 sm:mt-8 flex flex-col gap-2 sm:gap-3 w-full">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mb-1 sm:mb-2" />
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-teal-300/40 dark:via-teal-800/40 to-transparent mb-1 sm:mb-2" />
               <Link href="/clinics" className="w-full">
-                <Button variant="vibrant" size="lg" className="w-full justify-center text-sm font-bold shadow-glow-cyan">
-                   تصفح العيادات وحجز كشف أونلاين
+                <Button variant="primary" size="lg" className="w-full justify-center text-sm font-bold shadow-xs hover:shadow-sm">
+                  احجز كشف اونلاين
                 </Button>
               </Link>
               <Link href="/login" className="w-full">
-                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold">
-                  تسجيل الدخول لمتابعة مواعيدي
+                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold shadow-xs hover:shadow-sm">
+                  بوابة تسجيل دخول المرضى
                 </Button>
               </Link>
               <Link href="/register?type=patient" className="w-full">
-                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold">
+                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold shadow-xs hover:shadow-sm">
                   إنشاء حساب مريض جديد
-                </Button>
-              </Link>
-              <Link href="/register?type=family" className="w-full">
-                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold">
-                  تسجيل حساب عائلي
                 </Button>
               </Link>
             </div>
           </Card>
 
-          {}
+          {/* 3. Doctors & Clinics Card (Emerald / Cyan Theme) */}
           <Card
             hover
             glass
-            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border-border/80 hover:border-accent/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(100,116,139,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
+            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border border-emerald-200/70 dark:border-stone-700/40 hover:border-emerald-500/60 dark:hover:border-amber-700/50 transition-all duration-300 hover:scale-[1.01] text-center shadow-sm hover:shadow-md"
           >
             <div className="flex flex-col items-center">
-              <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-accent/15 border border-accent/25 text-primary-hover dark:text-[#F1F4F8] shadow-[0_4px_20px_rgba(100,116,139,0.15)] dark:shadow-[0_0_25px_rgba(100,150,220,0.25)] dark:border-border/40 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(100,116,139,0.25)]">
+              <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-emerald-500/15 dark:bg-amber-800/15 border border-emerald-500/30 dark:border-amber-700/30 text-emerald-700 dark:text-amber-400 shadow-xs backdrop-blur-md transition-all duration-300 group-hover:scale-105">
                 <svg width="28" height="28" className="sm:w-[38px] sm:h-[38px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4.5 3h15" />
                   <path d="M6 3v6a6 6 0 0 0 12 0V3" />
                   <path d="M12 15v3a3 3 0 0 0 3 3h1a2 2 0 0 0 2-2v-1" />
                   <circle cx="18" cy="18" r="2" />
                 </svg>
+              </div>
+
+              <div className="mb-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/10 dark:bg-amber-800/15 text-emerald-700 dark:text-amber-400 border border-emerald-500/20 dark:border-amber-700/25">
+                إدارة العيادة والكشوفات
               </div>
 
               <h2 className="font-display text-xl sm:text-2xl font-extrabold text-text-primary mb-2 sm:mb-3">
@@ -174,28 +177,28 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-5 sm:mt-8 flex flex-col gap-2 sm:gap-3 w-full">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mb-1 sm:mb-2" />
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-emerald-300/40 dark:via-amber-800/40 to-transparent mb-1 sm:mb-2" />
               <Link href="/login" className="w-full">
-                <Button variant="primary" size="lg" className="w-full justify-center text-sm font-bold">
+                <Button variant="primary" size="lg" className="w-full justify-center text-sm font-bold shadow-xs hover:shadow-sm">
                   تسجيل الدخول كطبيب
                 </Button>
               </Link>
               <Link href="/register?type=doctor" className="w-full">
-                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold">
-                  إنشاء حساب عيادة جديدة
+                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold shadow-xs hover:shadow-sm">
+                  إنشاء حساب طبيب جديد
                 </Button>
               </Link>
             </div>
           </Card>
 
-          {}
+          {/* 4. Hospitals & Facilities Card (Sky & Royal Blue Theme) */}
           <Card
             hover
             glass
-            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border-border/80 hover:border-secondary/50 transition-all duration-300 hover:scale-[1.02] text-center shadow-[0_8px_30px_-4px_rgba(100,116,139,0.06),0_2px_8px_-2px_rgba(45,35,31,0.03)] dark:shadow-[0_14px_40px_-6px_rgba(0,0,0,0.70),0_0_0_1px_rgba(255,255,255,0.08)]"
+            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl border border-sky-200/70 dark:border-sky-900/40 hover:border-sky-500/60 transition-all duration-300 hover:scale-[1.01] text-center shadow-sm hover:shadow-md"
           >
             <div className="flex flex-col items-center">
-              <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-secondary/10 border border-secondary/20 text-secondary shadow-[0_4px_20px_rgba(150,154,131,0.15)] dark:shadow-[0_0_25px_rgba(100,150,220,0.25)] dark:border-border/40 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_25px_rgba(150,154,131,0.25)]">
+              <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-xl sm:rounded-2xl bg-sky-500/15 border border-sky-500/30 text-sky-600 dark:text-sky-400 shadow-xs backdrop-blur-md transition-all duration-300 group-hover:scale-105">
                 <svg width="28" height="28" className="sm:w-[38px] sm:h-[38px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 21h18" />
                   <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
@@ -204,6 +207,10 @@ export default function LandingPage() {
                   <path d="M9 17v4" />
                   <path d="M15 17v4" />
                 </svg>
+              </div>
+
+              <div className="mb-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                منظومة المستشفيات المركزية
               </div>
 
               <h2 className="font-display text-xl sm:text-2xl font-extrabold text-text-primary mb-2 sm:mb-3">
@@ -215,15 +222,19 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-5 sm:mt-8 flex flex-col gap-2 sm:gap-3 w-full">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent mb-1 sm:mb-2" />
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-sky-300/40 dark:via-sky-800/40 to-transparent mb-1 sm:mb-2" />
               <Link href="/login" className="w-full">
-                <Button variant="primary" size="lg" className="w-full justify-center text-sm font-bold">
-                  دخول لوحة المستشفى
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="w-full justify-center text-sm font-bold shadow-xs hover:shadow-sm"
+                >
+                  بوابة دخول المستشفى
                 </Button>
               </Link>
               <Link href="/register?type=hospital" className="w-full">
-                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold">
-                  تسجيل مستشفى جديد
+                <Button variant="secondary" size="lg" className="w-full justify-center text-sm font-semibold shadow-xs hover:shadow-sm">
+                  تسجيل مستشفى جديدة
                 </Button>
               </Link>
             </div>

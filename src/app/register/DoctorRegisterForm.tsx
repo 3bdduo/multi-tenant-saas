@@ -98,7 +98,7 @@ export function DoctorRegisterForm() {
       <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
         <ThemeToggle />
       </div>
-      <Card glass vibrant className="w-full max-w-lg animate-scale-in-slow p-5 sm:p-8 border-primary/20 shadow-2xl">
+      <Card glass vibrant className="w-full max-w-lg animate-scale-in-slow p-5 sm:p-8 border-primary/20 shadow-md">
         <div className="flex flex-col items-center text-center">
           <div className="mb-4">
             <Logo size="lg" href={null} />
@@ -178,7 +178,7 @@ export function DoctorRegisterForm() {
             </div>
           )}
 
-          <Button type="submit" variant="vibrant" loading={loading} className="mt-2 w-full sm:col-span-2 shadow-glow-cyan text-base">
+          <Button type="submit" variant="primary" loading={loading} className="mt-2 w-full sm:col-span-2 shadow-xs hover:shadow-sm text-base">
             {loading ? "جارٍ الإنشاء..." : "إنشاء حساب العيادة"}
           </Button>
         </form>

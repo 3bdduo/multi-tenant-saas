@@ -11,7 +11,6 @@ import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
 
 import { PatientRegisterForm } from "./PatientRegisterForm";
-import { FamilyRegisterForm } from "./FamilyRegisterForm";
 
 function RegisterContent() {
   const searchParams = useSearchParams();
@@ -31,16 +30,13 @@ function RegisterContent() {
     return <PatientRegisterForm />;
   }
 
-  if (type === "family") {
-    return <FamilyRegisterForm />;
-  }
 
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 sm:py-12">
       <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
         <ThemeToggle />
       </div>
-      <Card glass vibrant className="w-full max-w-lg animate-scale-in-slow p-5 sm:p-8 border-primary/20 shadow-2xl">
+      <Card glass vibrant className="w-full max-w-lg animate-scale-in-slow p-5 sm:p-8 border-primary/20 shadow-md">
         <div className="flex flex-col items-center text-center">
           <div className="mb-4">
             <Logo size="lg" href={null} />
@@ -53,24 +49,48 @@ function RegisterContent() {
           </p>
         </div>
 
-        <div className="mt-8 flex flex-col gap-4">
+        <div className="mt-8 flex flex-col gap-3.5">
           <Link href={`/register?type=patient${redirectSuffix}`} className="w-full">
-            <Button variant="vibrant" size="lg" className="w-full justify-center text-base font-bold shadow-glow-cyan">
-              إنشاء حساب مريض (فردي)
+            <Button
+              variant="primary"
+              size="lg"
+              className="w-full justify-center text-base font-bold shadow-xs hover:shadow-sm"
+            >
+              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+              </svg>
+              إنشاء حساب مريض
             </Button>
           </Link>
-          <Link href={`/register?type=family${redirectSuffix}`} className="w-full">
-            <Button variant="outline" size="lg" className="w-full justify-center text-base font-bold border-primary/40 hover:bg-primary/10">
-              إنشاء حساب أسرة (عائلي)
-            </Button>
-          </Link>
+
           <Link href="/register?type=doctor" className="w-full">
-            <Button variant="secondary" size="lg" className="w-full justify-center text-base font-medium text-text-secondary hover:text-text-primary">
+            <Button
+              variant="secondary"
+              size="lg"
+              className="w-full justify-center text-base font-bold shadow-xs hover:shadow-sm"
+            >
+              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4.5 3h15" />
+                <path d="M6 3v6a6 6 0 0 0 12 0V3" />
+                <path d="M12 15v3a3 3 0 0 0 3 3h1a2 2 0 0 0 2-2v-1" />
+                <circle cx="18" cy="18" r="2" />
+              </svg>
               إنشاء حساب عيادة طبية (طبيب)
             </Button>
           </Link>
+
           <Link href="/register?type=hospital" className="w-full">
-            <Button variant="ghost" size="lg" className="w-full justify-center text-base font-medium text-text-secondary hover:text-text-primary">
+            <Button
+              variant="secondary"
+              size="lg"
+              className="w-full justify-center text-base font-bold shadow-xs hover:shadow-sm"
+            >
+              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 21h18" />
+                <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
+                <path d="M12 7v4" />
+                <path d="M10 9h4" />
+              </svg>
               إنشاء حساب مستشفى
             </Button>
           </Link>

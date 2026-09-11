@@ -316,13 +316,13 @@ export default function PatientAppointmentsPage() {
                     </div>
 
                     {a.status === "pending" && (
-                      <div className="pt-2 border-t border-border/40 flex justify-end">
+                      <div className="pt-2 border-t border-border/40 flex justify-center items-center w-full">
                         <Button
                           variant="ghost"
                           size="sm"
                           disabled={cancellingId === a._id}
                           onClick={() => handleCancel(a)}
-                          className="text-danger hover:bg-danger/10 text-xs w-full justify-center"
+                          className="text-danger hover:bg-danger/10 text-xs w-full justify-center text-center"
                         >
                           {cancellingId === a._id ? "جارٍ الإلغاء..." : "إلغاء الموعد"}
                         </Button>
@@ -335,14 +335,14 @@ export default function PatientAppointmentsPage() {
 
             {/* Desktop Table View */}
             <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm min-w-[680px]">
                 <thead>
-                  <tr className="border-b border-border text-right text-text-secondary bg-surface-elevated/50">
-                    <th className="px-4 py-3 font-semibold">الطبيب / العيادة</th>
-                    <th className="px-4 py-3 font-semibold">نوع الكشف</th>
-                    <th className="px-4 py-3 font-semibold">تاريخ الكشف</th>
-                    <th className="px-4 py-3 font-semibold">حالة الموعد</th>
-                    <th className="px-4 py-3 font-semibold">إجراءات</th>
+                  <tr className="border-b border-border text-text-secondary bg-surface-elevated/50">
+                    <th className="px-4 py-3 font-bold text-right whitespace-nowrap">الطبيب / العيادة</th>
+                    <th className="px-4 py-3 font-bold text-center whitespace-nowrap">نوع الكشف</th>
+                    <th className="px-4 py-3 font-bold text-center whitespace-nowrap">تاريخ الكشف</th>
+                    <th className="px-4 py-3 font-bold text-center whitespace-nowrap">حالة الموعد</th>
+                    <th className="px-4 py-3 font-bold text-center whitespace-nowrap">إجراءات</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
@@ -354,7 +354,7 @@ export default function PatientAppointmentsPage() {
 
                     return (
                       <tr key={a._id} className="hover:bg-surface-elevated/40 transition-colors">
-                        <td className="px-4 py-3.5 text-text-primary">
+                        <td className="px-4 py-3.5 text-text-primary text-right align-middle whitespace-nowrap">
                           <div className="font-bold">
                             {docName || "طبيب العيادة"}
                           </div>
@@ -362,9 +362,9 @@ export default function PatientAppointmentsPage() {
                             {clinic ? `${clinic.name} (${clinic.specialization})` : "كشف طبي"}
                           </div>
                         </td>
-                        <td className="px-4 py-3.5">
+                        <td className="px-4 py-3.5 text-center align-middle whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-extrabold ${
+                            className={`inline-flex items-center justify-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-extrabold ${
                               isFollowUp
                                 ? "bg-accent/15 text-accent border border-accent/30"
                                 : "bg-primary/15 text-primary border border-primary/30"
@@ -373,7 +373,7 @@ export default function PatientAppointmentsPage() {
                             {isFollowUp ? "إعادة كشف" : "كشف جديد"}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5 text-text-primary font-medium">
+                        <td className="px-4 py-3.5 text-text-primary font-medium text-center align-middle whitespace-nowrap">
                           {new Date(a.date).toLocaleDateString("ar-EG", {
                             weekday: "long",
                             year: "numeric",
@@ -381,23 +381,27 @@ export default function PatientAppointmentsPage() {
                             day: "numeric",
                           })}
                         </td>
-                        <td className="px-4 py-3.5">
-                          <StatusBadge status={a.status} />
+                        <td className="px-4 py-3.5 text-center align-middle whitespace-nowrap">
+                          <div className="flex justify-center items-center">
+                            <StatusBadge status={a.status} />
+                          </div>
                         </td>
-                        <td className="px-4 py-3.5">
-                          {a.status === "pending" ? (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              disabled={cancellingId === a._id}
-                              onClick={() => handleCancel(a)}
-                              className="text-danger hover:bg-danger/10"
-                            >
-                              {cancellingId === a._id ? "جارٍ الإلغاء..." : "إلغاء الموعد"}
-                            </Button>
-                          ) : (
-                            <span className="text-xs text-text-secondary">-</span>
-                          )}
+                        <td className="px-4 py-3.5 text-center align-middle whitespace-nowrap">
+                          <div className="flex justify-center items-center">
+                            {a.status === "pending" ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled={cancellingId === a._id}
+                                onClick={() => handleCancel(a)}
+                                className="text-danger hover:bg-danger/10 justify-center text-xs"
+                              >
+                                {cancellingId === a._id ? "جارٍ الإلغاء..." : "إلغاء الموعد"}
+                              </Button>
+                            ) : (
+                              <span className="text-xs text-text-secondary">—</span>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );

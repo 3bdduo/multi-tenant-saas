@@ -69,14 +69,18 @@ module.exports = {
         brush: ["var(--font-brush)", "var(--font-display)", "sans-serif"],
       },
       boxShadow: {
+        DEFAULT: "var(--shadow-sm)",
+        xs: "var(--shadow-sm)",
         sm: "var(--shadow-sm)",
         md: "var(--shadow-md)",
         lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
+        "2xl": "var(--shadow-2xl)",
         card: "var(--card-shadow)",
         glow: "var(--shadow-glow)",
-        "glow-cyan": "0 0 35px var(--color-glow-cyan)",
-        "glow-emerald": "0 0 35px var(--color-glow-emerald)",
-        "glow-amber": "0 0 30px rgba(245, 158, 11, 0.30)",
+        "glow-cyan": "var(--shadow-glow-cyan)",
+        "glow-emerald": "var(--shadow-glow-emerald)",
+        "glow-amber": "var(--shadow-glow-amber)",
       },
       transitionTimingFunction: {
         silky: "cubic-bezier(0.16, 1, 0.3, 1)",
@@ -132,8 +136,8 @@ module.exports = {
           "100%": { opacity: "1", transform: "scale(1)" },
         },
         "pulse-glow": {
-          "0%, 100%": { opacity: "0.8", transform: "scale(0.95)", filter: "drop-shadow(0 0 10px rgba(0, 229, 255, 0.5))" },
-          "50%": { opacity: "1", transform: "scale(1.15)", filter: "drop-shadow(0 0 25px rgba(0, 229, 255, 0.9))" },
+          "0%, 100%": { opacity: "0.8", transform: "scale(0.95)", filter: "drop-shadow(0 0 10px rgba(45, 212, 191, 0.5))" },
+          "50%": { opacity: "1", transform: "scale(1.15)", filter: "drop-shadow(0 0 25px rgba(45, 212, 191, 0.9))" },
         },
         "float-slow": {
           "0%, 100%": { transform: "translateY(0px)" },

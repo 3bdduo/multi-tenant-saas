@@ -98,7 +98,7 @@ export default function PublicClinicsPage() {
                   <span className="text-text-secondary text-xs">إعادة: <strong className="text-primary font-bold">{clinic.followUpPrice != null ? clinic.followUpPrice : clinic.consultationPrice} ج.م</strong></span>
                 </div>
                 <Link href={`/clinics/${clinic._id}`} className="w-full sm:w-auto">
-                  <Button size="md" variant="vibrant" className="w-full sm:w-auto shadow-glow-cyan font-bold justify-center">
+                  <Button size="md" variant="primary" className="w-full sm:w-auto shadow-sm font-bold justify-center">
                     التفاصيل والحجز
                   </Button>
                 </Link>

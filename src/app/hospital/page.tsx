@@ -8,10 +8,10 @@ import { ApiError } from "@/lib/http";
 import type { Hospital, EmergencyCase } from "@/types/api";
 
 const STATUS_MAP: Record<string, { label: string; badge: string }> = {
-  open:     { label: "بانتظار الاستجابة (جديدة)", badge: "bg-warning/15 text-warning border-warning/30" },
-  claimed:  { label: "تم الاستلام (جارية)",       badge: "bg-primary/15 text-primary border-primary/30" },
-  resolved: { label: "تم الحل",                   badge: "bg-success/15 text-success border-success/30" },
-  expired:  { label: "منتهية / ملغاة",            badge: "bg-border/30 text-text-secondary border-border/40" },
+  open: { label: "بانتظار الاستجابة (جديدة)", badge: "bg-warning/15 text-warning border-warning/30" },
+  claimed: { label: "تم الاستلام (جارية)", badge: "bg-primary/15 text-primary border-primary/30" },
+  resolved: { label: "تم الحل", badge: "bg-success/15 text-success border-success/30" },
+  expired: { label: "منتهية / ملغاة", badge: "bg-border/30 text-text-secondary border-border/40" },
 };
 
 export default function HospitalDashboard() {
@@ -71,7 +71,6 @@ export default function HospitalDashboard() {
     }
   }
 
-  
   const pendingCases = cases.filter((c) => (c.status || "").toLowerCase() === "open");
   const activeCases = cases.filter((c) => (c.status || "").toLowerCase() === "claimed");
   const resolvedCases = cases.filter((c) => (c.status || "").toLowerCase() === "resolved");
@@ -101,9 +100,9 @@ export default function HospitalDashboard() {
 
       {/* Welcome Banner */}
       {hospital && (
-        <Card glass vibrant className="p-6 border-violet-500/20 shadow-xl">
+        <Card glass vibrant className="p-6 border-cyan-400/20 shadow-xl">
           <div className="flex flex-wrap items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-violet-600 text-white shadow-glow-purple">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-600 dark:from-amber-700 dark:to-amber-800 text-white shadow-sm">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                 <path d="M3 21h18" /><path d="M19 21v-4a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v4" />
                 <path d="M5 15V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8" />
@@ -122,11 +121,10 @@ export default function HospitalDashboard() {
               const isExpired = hospital.paidExpired ? new Date(hospital.paidExpired) < new Date() : false;
               const isActive = Boolean(hospital.isPaid && !isExpired);
               return (
-                <div className={`rounded-full px-4 py-1.5 text-xs font-bold border ${
-                  isActive
-                    ? "bg-success/10 text-success border-success/30"
-                    : "bg-warning/10 text-warning border-warning/30"
-                }`}>
+                <div className={`rounded-full px-4 py-1.5 text-xs font-bold border ${isActive
+                  ? "bg-success/10 text-success border-success/30"
+                  : "bg-warning/10 text-warning border-warning/30"
+                  }`}>
                   {isActive ? "اشتراك فعّال" : "اشتراك غير مفعّل"}
                 </div>
               );
@@ -152,9 +150,8 @@ export default function HospitalDashboard() {
           <Card
             key={stat.label}
             onClick={() => setFilter(stat.key)}
-            className={`p-5 border cursor-pointer transition-all hover:scale-[1.02] ${stat.border} ${stat.bg} ${
-              filter === stat.key ? "ring-2 ring-primary shadow-glow-cyan" : ""
-            }`}
+            className={`p-5 border cursor-pointer transition-all hover:scale-[1.02] ${stat.border} ${stat.bg} ${filter === stat.key ? "ring-2 ring-primary shadow-glow-cyan" : ""
+              }`}
           >
             <div className="flex items-center justify-between">
               <p className="text-xs sm:text-sm font-bold text-text-secondary">{stat.label}</p>
@@ -178,11 +175,10 @@ export default function HospitalDashboard() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded-xl px-4 py-2 text-xs font-bold border transition-all shrink-0 whitespace-nowrap ${
-                filter === f
-                  ? "bg-primary text-surface border-primary shadow-glow-cyan font-extrabold"
-                  : "border-border text-text-secondary hover:border-primary/50 hover:text-text-primary bg-surface-raised"
-              }`}
+              className={`rounded-xl px-4 py-2 text-xs font-bold border transition-all shrink-0 whitespace-nowrap ${filter === f
+                ? "bg-primary text-surface border-primary shadow-glow-cyan font-extrabold"
+                : "border-border text-text-secondary hover:border-primary/50 hover:text-text-primary bg-surface-raised"
+                }`}
             >
               {labels[f]} ({count})
             </button>
@@ -211,15 +207,15 @@ export default function HospitalDashboard() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[720px]">
               <thead>
-                <tr className="border-b border-border text-right text-text-secondary bg-surface-elevated/50">
-                  <th className="px-4 py-3 font-semibold">كود الحالة</th>
-                  <th className="px-4 py-3 font-semibold">رقم الهاتف</th>
-                  <th className="px-4 py-3 font-semibold">الملاحظات</th>
-                  <th className="px-4 py-3 font-semibold">الحالة</th>
-                  <th className="px-4 py-3 font-semibold">الوقت</th>
-                  <th className="px-4 py-3 font-semibold text-center">إجراءات الحالة</th>
+                <tr className="border-b border-border text-text-secondary bg-surface-elevated/50">
+                  <th className="px-4 py-3 font-bold text-center whitespace-nowrap">كود الحالة</th>
+                  <th className="px-4 py-3 font-bold text-center whitespace-nowrap">رقم الهاتف</th>
+                  <th className="px-4 py-3 font-bold text-right whitespace-nowrap">الملاحظات</th>
+                  <th className="px-4 py-3 font-bold text-center whitespace-nowrap">الحالة</th>
+                  <th className="px-4 py-3 font-bold text-center whitespace-nowrap">الوقت</th>
+                  <th className="px-4 py-3 font-bold text-center whitespace-nowrap">إجراءات الحالة</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
@@ -232,61 +228,59 @@ export default function HospitalDashboard() {
 
                   return (
                     <tr key={ec._id} className="hover:bg-surface-elevated/40 transition-colors">
-                      <td className="px-4 py-3.5 font-mono font-bold text-text-primary">
+                      <td className="px-4 py-3.5 font-mono font-bold text-text-primary text-center align-middle whitespace-nowrap">
                         {ec.caseCode}
                       </td>
-                      <td className="px-4 py-3.5 text-text-secondary font-mono" dir="ltr">
+                      <td className="px-4 py-3.5 text-text-secondary font-mono text-center align-middle whitespace-nowrap" dir="ltr">
                         {ec.phoneNumber}
                       </td>
-                      <td className="px-4 py-3.5 text-text-secondary max-w-[220px] truncate" title={ec.notes}>
+                      <td className="px-4 py-3.5 text-text-secondary max-w-[220px] truncate text-right align-middle whitespace-nowrap" title={ec.notes}>
                         {ec.notes || "—"}
                       </td>
-                      <td className="px-4 py-3.5">
-                        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold border ${st.badge}`}>
-                          {st.label}
-                        </span>
+                      <td className="px-4 py-3.5 text-center align-middle whitespace-nowrap">
+                        <div className="flex justify-center items-center">
+                          <span className={`inline-flex items-center justify-center rounded-full px-2.5 py-1 text-xs font-bold border ${st.badge}`}>
+                            {st.label}
+                          </span>
+                        </div>
                       </td>
-                      <td className="px-4 py-3.5 text-xs text-text-secondary">
+                      <td className="px-4 py-3.5 text-xs text-text-secondary text-center align-middle whitespace-nowrap">
                         {new Date(ec.createdAt).toLocaleString("ar-EG")}
                       </td>
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-2 justify-center flex-wrap">
-                          {/* Accept / Claim Button */}
+                      <td className="px-4 py-3.5 text-center align-middle whitespace-nowrap">
+                        <div className="flex items-center gap-2 justify-center whitespace-nowrap">
                           {isOpen && (
                             <Button
                               size="sm"
                               variant="vibrant"
                               disabled={isActioning}
                               onClick={() => handleClaim(ec._id)}
-                              className="text-xs font-bold shadow-glow-cyan"
+                              className="text-xs font-bold shadow-xs hover:shadow-sm"
                             >
                               {isActioning ? "جارٍ القبول..." : "قبول واستلام الحالة ✓"}
                             </Button>
                           )}
 
-                          {/* Resolve Button */}
                           {isClaimed && (
                             <Button
                               size="sm"
                               variant="secondary"
                               disabled={isActioning}
                               onClick={() => handleResolve(ec._id)}
-                              className="text-xs font-bold bg-success/20 text-success border-success/30 hover:bg-success/30"
+                              className="text-xs font-bold bg-success/20 text-success border-success/30 hover:bg-success/30 shadow-xs hover:shadow-sm"
                             >
                               {isActioning ? "جارٍ التحديث..." : "تم علاج الحالة"}
                             </Button>
                           )}
 
-                          {/* View Report Link */}
                           {ec.reportImageUrl?.secure_url && (
                             <a
                               href={ec.reportImageUrl.secure_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/10 border border-primary/20 transition-all"
+                              className="px-3 py-1.5 rounded-lg border border-primary/30 text-primary hover:bg-primary/15 transition-colors text-xs font-bold whitespace-nowrap inline-flex items-center justify-center"
                             >
-                              <span>عرض التقرير</span>
-                              <span>↗</span>
+                              عرض التقرير
                             </a>
                           )}
                         </div>

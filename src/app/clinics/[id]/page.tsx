@@ -541,8 +541,8 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                   </div>
                   <Button
                     type="button"
-                    variant="vibrant"
-                    className="w-full shadow-glow-cyan font-bold py-3"
+                    variant="primary"
+                    className="w-full shadow-sm font-bold py-3"
                     onClick={() => router.push(`/login?redirect=/clinics/${params.id}`)}
                   >
                     تسجيل الدخول بحساب مريض
@@ -571,8 +571,8 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                 <div className="mt-auto pt-4">
                   <Button
                     type="submit"
-                    variant="vibrant"
-                    className="w-full shadow-glow-cyan font-bold py-3.5"
+                    variant="primary"
+                    className="w-full shadow-sm font-bold py-3.5"
                     loading={bookingLoading}
                     disabled={!canSubmit || bookingLoading}
                   >
@@ -598,7 +598,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
             <h3 className="font-display text-lg font-bold text-text-primary mb-2">تسجيل الدخول مطلوب</h3>
             <p className="text-text-secondary text-sm mb-6">يرجى تسجيل الدخول أو إنشاء حساب جديد لإتمام الحجز.</p>
             <div className="flex flex-col gap-3">
-              <Button onClick={() => router.push(`/login?redirect=/clinics/${params.id}`)} variant="vibrant" className="w-full justify-center">
+              <Button onClick={() => router.push(`/login?redirect=/clinics/${params.id}`)} variant="primary" className="w-full justify-center">
                 تسجيل الدخول
               </Button>
               <Button onClick={() => router.push(`/register?type=patient&redirect=${encodeURIComponent(`/clinics/${params.id}`)}`)} variant="secondary" className="w-full justify-center">
@@ -742,8 +742,8 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                 رجوع
               </Button>
               <Button
-                variant="vibrant"
-                className="flex-1 shadow-glow-cyan font-bold"
+                variant="primary"
+                className="flex-1 shadow-sm font-bold"
                 onClick={handleConfirmBook}
                 loading={bookingLoading}
                 disabled={bookingLoading || profileLoading || profileError || !patientProfile}
