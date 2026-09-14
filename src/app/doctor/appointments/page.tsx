@@ -9,7 +9,6 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { getMyAppointments, updateAppointment, createAppointmentByDoctor } from "@/lib/api/appointment";
 import { getMyPatients } from "@/lib/api/patient";
 import { getMyClinic } from "@/lib/api/doctor";
-import { getPublicClinicSlots } from "@/lib/api/public";
 import type { Appointment, AppointmentStatus, Clinic, Patient } from "@/types/api";
 import { Field, SelectField, TextAreaField } from "@/components/ui/Input";
 import { ApiError } from "@/lib/http";
@@ -33,12 +32,8 @@ export default function DoctorAppointmentsPage() {
   const [newVisitingType, setNewVisitingType] = useState<"NEW" | "FOLLOW_UP">("NEW");
   const [newDate, setNewDate] = useState("");
   const [newNotes, setNewNotes] = useState("");
-  const [newStartTime, setNewStartTime] = useState("");
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
-
-  const [modalSlots, setModalSlots] = useState<string[]>([]);
-  const [loadingSlots, setLoadingSlots] = useState(false);
 
   useEffect(() => {
     fetchAppointments();
@@ -77,8 +72,6 @@ export default function DoctorAppointmentsPage() {
     setNewVisitingType("NEW");
     setNewDate("");
     setNewNotes("");
-    setNewStartTime("");
-    setModalSlots([]);
 
     if (patients.length === 0) {
       setLoadingPatients(true);
@@ -97,26 +90,7 @@ export default function DoctorAppointmentsPage() {
         const res = await getMyClinic();
         setClinic(res.data as unknown as Clinic);
       } catch {
-        /* ignore */
       }
-    }
-  }
-
-  async function fetchModalSlots(date: string) {
-    const clinicId = typeof clinic?._id === "string" ? clinic._id : (clinic as any)?._id;
-    if (!clinic || clinic.bookingType !== "time" || !clinicId || !date) {
-      setModalSlots([]);
-      return;
-    }
-    setLoadingSlots(true);
-    setNewStartTime("");
-    try {
-      const res = await getPublicClinicSlots(clinicId, date);
-      setModalSlots(res.data.availableSlots ?? []);
-    } catch {
-      setModalSlots([]);
-    } finally {
-      setLoadingSlots(false);
     }
   }
 
@@ -127,7 +101,6 @@ export default function DoctorAppointmentsPage() {
     try {
       await createAppointmentByDoctor(newPatientId, {
         date: newDate,
-        startTime: clinic?.bookingType === "time" ? newStartTime : undefined,
         notes: newNotes || undefined,
         visitingType: newVisitingType,
       });
@@ -470,12 +443,8 @@ export default function DoctorAppointmentsPage() {
                                 </div>
                               )}
 
-                              {/* Time or queue */}
-                              {appt.startTime ? (
-                                <span className="text-xs font-semibold text-primary bg-primary/10 rounded-lg px-2 py-0.5">
-                                  ⏰ {appt.startTime.slice(11, 16)}
-                                </span>
-                              ) : appt.queueNumber != null ? (
+                              {/* Queue number */}
+                              {appt.queueNumber != null ? (
                                 <span className="text-xs font-semibold text-accent bg-accent/10 rounded-lg px-2 py-0.5">
                                   دور #{appt.queueNumber}
                                 </span>
@@ -597,48 +566,12 @@ export default function DoctorAppointmentsPage() {
                 required
                 min={new Date().toISOString().split("T")[0]}
                 value={newDate}
-                onChange={(e) => {
-                  setNewDate(e.target.value);
-                  fetchModalSlots(e.target.value);
-                }}
+                onChange={(e) => setNewDate(e.target.value)}
               />
 
-              {clinic?.bookingType === "time" && newDate && (
-                <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-text-primary">وقت الكشف *</label>
-                  {loadingSlots ? (
-                    <div className="flex items-center gap-2 text-sm text-text-secondary py-2">
-                      <span className="h-4 w-4 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-                      جارٍ تحميل الأوقات...
-                    </div>
-                  ) : modalSlots.length > 0 ? (
-                    <div className="grid grid-cols-3 gap-2">
-                      {modalSlots.map((slot) => (
-                        <button
-                          key={slot}
-                          type="button"
-                          onClick={() => setNewStartTime(slot)}
-                          className={`rounded-xl border px-2 py-2 text-sm font-bold transition-all ${
-                            newStartTime === slot
-                              ? "bg-primary text-surface border-primary shadow-glow-cyan"
-                              : "border-border/60 hover:border-primary/40 text-text-primary bg-surface-raised"
-                          }`}
-                        >
-                          {slot}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="rounded-xl bg-warning/10 border border-warning/20 p-3 text-xs text-warning">
-                      لا توجد مواعيد متاحة في هذا اليوم
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {clinic && clinic.bookingType !== "time" && newDate && (
+              {newDate && (
                 <div className="rounded-xl bg-accent/10 border border-accent/20 px-3 py-2 text-xs text-text-primary">
-                  العيادة تعمل بنظام الطابور — سيتم تعيين رقم الدور تلقائياً.
+                  العيادة تعمل بنظام الدور — سيتم تعيين رقم الدور تلقائياً فور تأكيد الحجز.
                 </div>
               )}
 
@@ -660,12 +593,7 @@ export default function DoctorAppointmentsPage() {
                   type="submit"
                   variant="vibrant"
                   className="flex-1 font-bold shadow-glow-cyan"
-                  disabled={
-                    creating ||
-                    !newPatientId ||
-                    !newDate ||
-                    (clinic?.bookingType === "time" && !newStartTime)
-                  }
+                  disabled={creating || !newPatientId || !newDate}
                 >
                   {creating ? "جارٍ الحفظ..." : "تأكيد الحجز"}
                 </Button>

@@ -2,11 +2,11 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { getPublicClinicById, getPublicClinicSlots } from "@/lib/api/public";
+import { getPublicClinicById, getQueueStatus } from "@/lib/api/public";
 import { createAppointmentByPatient, getMyAppointments } from "@/lib/api/appointment";
 import { getMyProfile } from "@/lib/api/patient";
 import { useAuth } from "@/hooks/useAuth";
-import type { Clinic, Patient } from "@/types/api";
+import type { Clinic, Patient, QueueStatus } from "@/types/api";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/http";
@@ -51,26 +51,20 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
 
   
   const [date, setDate] = useState(tomorrow());
-  const [selectedSlot, setSelectedSlot] = useState("");
   const [visitingType, setVisitingType] = useState<"NEW" | "FOLLOW_UP">("NEW");
   const [hasPreviousVisit, setHasPreviousVisit] = useState(false);
 
-  
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [contactPhone, setContactPhone] = useState("");
 
-  
-  const [slots, setSlots] = useState<string[]>([]);
-  const [slotsLoading, setSlotsLoading] = useState(false);
-  const [slotsError, setSlotsError] = useState<string | null>(null);
+  const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
+  const [queueLoading, setQueueLoading] = useState(false);
 
-  
   const [bookingLoading, setBookingLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error" | "warning";
     text: string;
     queueNumber?: number;
-    startTime?: string;
   } | null>(null);
 
   
@@ -130,28 +124,25 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     load();
   }, [params.id, isAuthenticated, role]);
 
-  const fetchSlots = useCallback(
+  const fetchQueue = useCallback(
     async (selectedDate: string) => {
-      if (!clinic || clinic.bookingType !== "time" || !selectedDate) return;
-      setSlotsLoading(true);
-      setSlotsError(null);
-      setSelectedSlot("");
+      if (!params.id || !selectedDate) return;
+      setQueueLoading(true);
       try {
-        const res = await getPublicClinicSlots(params.id, selectedDate);
-        setSlots(res.data.availableSlots ?? []);
-      } catch (err: any) {
-        setSlotsError(err?.message || "تعذّر تحميل المواعيد المتاحة");
-        setSlots([]);
+        const res = await getQueueStatus(params.id, selectedDate);
+        setQueueStatus(res.data);
+      } catch {
+        setQueueStatus(null);
       } finally {
-        setSlotsLoading(false);
+        setQueueLoading(false);
       }
     },
-    [clinic, params.id]
+    [params.id]
   );
 
   useEffect(() => {
-    if (clinic?.bookingType === "time" && date) fetchSlots(date);
-  }, [date, fetchSlots, clinic?.bookingType]);
+    if (date) fetchQueue(date);
+  }, [date, fetchQueue]);
 
   async function loadPatientProfile() {
     try {
@@ -204,7 +195,6 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
       const payload: {
         doctorId: string;
         date: string;
-        startTime?: string;
         visitingType?: "NEW" | "FOLLOW_UP";
         contactPhone?: string;
         notes?: string;
@@ -216,42 +206,26 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
         notes: finalNotes || undefined,
       };
 
-      if (clinic.bookingType === "time") {
-        payload.startTime = selectedSlot;
-      }
-
       const res = await createAppointmentByPatient(payload);
       const appt = res.data.createdAppointment;
 
-      if (appt.status === "waitlisted") {
-        setMessage({
-          type: "warning",
-          text: "تم تسجيل طلبك، لكنك في قائمة الانتظار حالياً. سيتم تأكيد موعدك عند توفر مكان.",
-        });
-      } else {
-        const visitLabel = visitingType === "FOLLOW_UP" ? "إعادة كشف" : "كشف جديد";
-        setMessage({
-          type: "success",
-          text:
-            clinic.bookingType === "queue"
-              ? `تم حجز موعد (${visitLabel}) بنجاح! رقمك في الدور: ${appt.queueNumber ?? "—"}`
-              : `تم حجز موعد (${visitLabel}) بنجاح! موعدك الساعة ${appt.startTime ? appt.startTime.slice(11, 16) : selectedSlot}`,
-          queueNumber: appt.queueNumber,
-          startTime: appt.startTime,
-        });
-      }
+      const visitLabel = visitingType === "FOLLOW_UP" ? "إعادة كشف" : "كشف جديد";
+      setMessage({
+        type: "success",
+        text: `تم حجز موعد (${visitLabel}) بنجاح! رقمك في الدور: ${appt.queueNumber ?? "—"}`,
+        queueNumber: appt.queueNumber,
+      });
 
       setDate(tomorrow());
-      setSelectedSlot("");
       setContactPhone("");
-      if (clinic.bookingType === "time") fetchSlots(tomorrow());
+      fetchQueue(tomorrow());
     } catch (err: any) {
       if (err instanceof ApiError && err.status === 409) {
         setMessage({
           type: "error",
           text: "هذا الموعد تم حجزه للتو من شخص آخر. يرجى اختيار وقت آخر.",
         });
-        fetchSlots(date);
+        fetchQueue(date);
       } else {
         setMessage({ type: "error", text: err.message || "حدث خطأ أثناء الحجز، يرجى المحاولة لاحقاً." });
       }
@@ -282,17 +256,23 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     );
   }
 
-  const isQueue = clinic.bookingType !== "time";
   const isInactive = clinic.isActive === false;
+  const isDateBlocked = queueStatus?.isBlocked;
+  const isDateFull = queueStatus?.isFull;
+  const isNotWorkingDay = queueStatus && !queueStatus.isOpenDay;
   const followUpPrice = clinic.followUpPrice != null ? clinic.followUpPrice : clinic.consultationPrice;
   const canSubmit =
-    !isInactive && date && (isQueue || (selectedSlot !== "" && !slotsLoading));
+    !isInactive &&
+    Boolean(date) &&
+    !isDateBlocked &&
+    !isDateFull &&
+    !isNotWorkingDay &&
+    !queueLoading;
 
   const currentPrice = visitingType === "FOLLOW_UP" ? followUpPrice : clinic.consultationPrice;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-12 md:px-12 animate-fade-in">
-      {/* Header */}
       <div className="mb-6 sm:mb-8">
         <Button variant="ghost" size="sm" onClick={() => router.push("/clinics")} className="mb-3 sm:mb-4 font-bold">
           العودة لقائمة العيادات
@@ -316,14 +296,8 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
           <span className="text-xs sm:text-sm text-text-secondary">
             {clinic.governorate} - {clinic.city}
           </span>
-          <span
-            className={`rounded px-2 py-0.5 text-[11px] sm:text-xs font-bold ${
-              isQueue
-                ? "bg-accent/10 text-accent border border-accent/30"
-                : "bg-primary/10 text-primary border border-primary/30"
-            }`}
-          >
-            {isQueue ? "حجز بالدور" : "حجز بمواعيد محددة"}
+          <span className="rounded px-2 py-0.5 text-[11px] sm:text-xs font-bold bg-accent/10 text-accent border border-accent/30">
+            حجز بالدور
           </span>
         </div>
       </div>
@@ -455,54 +429,48 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                 />
               </div>
 
-              {/* Time slots — only for 'time' clinics */}
-              {!isQueue && date && (
+              {date && (
                 <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-text-primary">
-                    اختر الوقت المناسب *
-                  </label>
-                  {slotsLoading ? (
+                  {queueLoading ? (
                     <div className="flex items-center gap-2 rounded-xl border border-border/50 bg-surface-raised px-4 py-3 text-sm text-text-secondary">
                       <span className="h-4 w-4 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-                      جارٍ تحميل الأوقات المتاحة...
+                      جارٍ التحقق من إمكانية الحجز لهذا اليوم...
                     </div>
-                  ) : slotsError ? (
-                     <div className="rounded-xl bg-danger/10 border border-danger/20 p-3 text-sm text-danger text-center">
-                       {slotsError}
-                     </div>
-                  ) : slots.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
-                      {slots.map((slot) => (
-                        <button
-                          key={slot}
-                          type="button"
-                          onClick={() => setSelectedSlot(slot)}
-                          className={`rounded-xl border min-h-[42px] px-3 py-2 text-xs sm:text-sm font-bold transition-all duration-150 flex items-center justify-center ${
-                            selectedSlot === slot
-                              ? "bg-primary text-surface border-primary shadow-glow-cyan"
-                              : "border-border/60 hover:border-primary/40 text-text-primary bg-surface-raised"
-                          }`}
-                        >
-                          {slot}
-                        </button>
-                      ))}
+                  ) : isDateBlocked ? (
+                    <div className="rounded-xl bg-danger/10 border border-danger/20 p-3.5 text-sm text-danger font-bold text-center">
+                      هذا اليوم مغلق للحجز من قبل الطبيب. يرجى اختيار تاريخ آخر.
+                    </div>
+                  ) : isNotWorkingDay ? (
+                    <div className="rounded-xl bg-warning/10 border border-warning/20 p-3.5 text-sm text-warning font-bold text-center">
+                      العيادة لا تعمل في هذا اليوم. يرجى اختيار أحد أيام العمل الموضحة.
+                    </div>
+                  ) : isDateFull ? (
+                    <div className="rounded-xl bg-danger/10 border border-danger/20 p-3.5 text-sm text-danger font-bold text-center">
+                      تم اكتمال الحد الأقصى للحجوزات لهذا اليوم ({queueStatus?.maxPatientsPerDay} كشف). الحجز مغلق لهذا اليوم.
+                    </div>
+                  ) : queueStatus ? (
+                    <div className="rounded-xl bg-primary/10 border border-primary/20 px-4 py-3 text-sm text-text-primary flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="h-2.5 w-2.5 rounded-full bg-success animate-pulse" />
+                        <span className="font-bold text-primary">الحجز متاح بالدور</span>
+                      </div>
+                      <div className="text-xs font-semibold text-text-secondary">
+                        الحجوزات الحالية: <span className="font-bold text-text-primary">{queueStatus.queueCount}</span> من <span className="font-bold text-text-primary">{queueStatus.maxPatientsPerDay}</span>
+                        {queueStatus.remainingSlots > 0 && (
+                          <span className="mr-1.5 text-success font-bold">
+                            (متبقي {queueStatus.remainingSlots} كشف)
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ) : (
-                    <div className="rounded-xl bg-warning/10 border border-warning/20 p-3 text-sm text-warning text-center">
-                      لا توجد مواعيد متاحة في هذا اليوم. يرجى اختيار يوم آخر.
+                    <div className="rounded-xl bg-accent/10 border border-accent/20 px-4 py-3 text-sm text-text-primary">
+                      <span className="font-bold text-accent">نظام الدور:</span> ستحصل على رقم دور تلقائياً فور تأكيد الحجز.
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Queue notice */}
-              {isQueue && date && (
-                <div className="rounded-xl bg-accent/10 border border-accent/20 px-4 py-3 text-sm text-text-primary">
-                  <span className="font-bold text-accent">نظام الطابور:</span> ستحصل على رقم دور تلقائياً عند تأكيد الحجز.
-                </div>
-              )}
-
-              {/* Feedback message */}
               {message && (
                 <div
                   className={`rounded-xl px-4 py-3 text-sm font-medium animate-fade-in border ${
@@ -514,15 +482,6 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                   }`}
                 >
                   {message.text}
-                  {message.type === "error" && clinic.bookingType === "time" && (
-                    <button
-                      type="button"
-                      onClick={() => fetchSlots(date)}
-                      className="block mt-1 underline text-xs opacity-70 hover:opacity-100"
-                    >
-                      تحديث الأوقات المتاحة
-                    </button>
-                  )}
                 </div>
               )}
 
@@ -578,11 +537,7 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                   >
                     {bookingLoading
                       ? "جارٍ الحجز..."
-                      : isQueue
-                      ? `متابعة الحجز (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`
-                      : selectedSlot
-                      ? `متابعة الحجز — ${selectedSlot} (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`
-                      : "اختر وقتاً أولاً"}
+                      : `متابعة الحجز بالدور (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`}
                   </Button>
                 </div>
               )}
@@ -634,12 +589,10 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                 <span className="text-text-secondary">التاريخ</span>
                 <span className="font-bold text-text-primary" dir="ltr">{date}</span>
               </div>
-              {!isQueue && selectedSlot && (
-                <div className="flex justify-between">
-                  <span className="text-text-secondary">الوقت</span>
-                  <span className="font-bold text-text-primary" dir="ltr">{selectedSlot}</span>
-                </div>
-              )}
+              <div className="flex justify-between">
+                <span className="text-text-secondary">طريقة الحجز</span>
+                <span className="font-bold text-text-primary">بالدور (أسبقية الحضور)</span>
+              </div>
               <div className="flex justify-between border-t border-primary/20 pt-1.5 mt-1.5">
                 <span className="text-text-secondary">السعر</span>
                 <span className="font-black text-accent text-base">{currentPrice} ج.م</span>

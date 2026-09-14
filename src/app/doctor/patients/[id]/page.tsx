@@ -487,9 +487,9 @@ export default function DoctorPatientDetailPage() {
                     <p className="font-bold text-sm text-text-primary">
                       {new Date(a.date).toLocaleDateString("ar-EG", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
                     </p>
-                    {a.startTime && (
+                    {a.queueNumber != null && (
                       <p className="text-xs text-text-secondary mt-0.5">
-                        وقت الكشف: {a.startTime} {a.endTime ? `— ${a.endTime}` : ""}
+                        رقم الدور: #{a.queueNumber}
                       </p>
                     )}
                   </div>

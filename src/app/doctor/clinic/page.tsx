@@ -432,7 +432,7 @@ export default function DoctorClinicPage() {
                   البيانات الضرورية لإنشاء العيادة
                 </h3>
                 <p className="mt-1 text-xs text-text-secondary leading-relaxed">
-                  أدخل البيانات الأساسية للعيادة وأسعار الكشف والموقع لبدء العمل. يمكنك ضبط أيام ومواعيد ونظام الحجز لاحقاً من خانة <strong>إعدادات الحجز</strong> في السايد بار.
+                  أدخل البيانات الأساسية للعيادة وأسعار الكشف والموقع لبدء العمل. يمكنك تخصيص أيام العمل وإغلاق أيام معينة وضبط الحد الأقصى للحجوزات لاحقاً من خانة <strong>إعدادات الحجز</strong> في السايد بار.
                 </p>
               </div>
 
@@ -750,7 +750,7 @@ export default function DoctorClinicPage() {
                     إعدادات الحجز والمواعيد وأيام العمل
                   </h4>
                   <p className="text-xs text-text-secondary mt-0.5">
-                    يمكنك ضبط نظام الحجز (دور أو مواعيد محددة)، مدة الكشف، وساعات وأيام العمل من صفحة إعدادات الحجز بالسايد بار.
+                    يمكنك ضبط أيام وساعات العمل وإغلاق أيام معينة والحد الأقصى للحجوزات من صفحة إعدادات الحجز بالسايد بار.
                   </p>
                 </div>
                 <Link href="/doctor/booking-settings">
@@ -823,7 +823,7 @@ export default function DoctorClinicPage() {
                 <div>
                   <p className="text-[11px] font-extrabold text-text-secondary">نظام الحجز</p>
                   <p className="text-sm font-bold text-text-primary">
-                    {form.bookingType === "time" ? "مواعيد محددة" : "أسبقية الحضور (طابور)"}
+                    أسبقية الحضور (حجز بالدور)
                   </p>
                 </div>
               </div>

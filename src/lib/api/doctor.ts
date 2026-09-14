@@ -53,7 +53,6 @@ export function updateProfileImage(formData: FormData) {
   });
 }
 
-// PUT /doctor/clinic/status
 export function updateClinicStatus(payload: { isActive: boolean }) {
   return apiFetch<ApiEnvelope<null>>("/doctor/clinic/status", {
     method: "PUT",
@@ -61,7 +60,18 @@ export function updateClinicStatus(payload: { isActive: boolean }) {
   });
 }
 
-// GET /clinic/:clinicId/slots?date=YYYY-MM-DD
-export function getAvailableSlots(clinicId: string, date: string) {
-  return apiFetch<ApiEnvelope<{ availableSlots: any[] }>>(`/clinic/${clinicId}/slots?date=${date}`);
+export function blockDate(date: string) {
+  return apiFetch<ApiEnvelope<Clinic>>("/doctor/clinic/block-date", {
+    method: "PUT",
+    body: JSON.stringify({ date }),
+  });
 }
+
+export function unblockDate(date: string) {
+  return apiFetch<ApiEnvelope<Clinic>>("/doctor/clinic/unblock-date", {
+    method: "PUT",
+    body: JSON.stringify({ date }),
+  });
+}
+
+

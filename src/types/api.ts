@@ -38,9 +38,9 @@ export interface Clinic {
   followUpPrice?: number;
   workingDays: WorkingDay[];
   isActive?: boolean;
-  bookingType?: "time" | "queue";
+  bookingType?: "queue";
   maxPatientsPerDay?: number;
-  slotDuration?: number;
+  blockedDates?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -96,8 +96,6 @@ export interface Appointment {
   doctorId: string | Doctor;
   clinicId: string | Clinic;
   date: string;
-  startTime?: string;
-  endTime?: string;
   status: AppointmentStatus;
   visitingType?: "NEW" | "FOLLOW_UP";
   notes?: string;
@@ -206,6 +204,16 @@ export interface ResetPasswordPayload {
   newPassword: string;
 }
 
+export interface QueueStatus {
+  isActive: boolean;
+  isBlocked: boolean;
+  isOpenDay: boolean;
+  isFull: boolean;
+  queueCount: number;
+  maxPatientsPerDay: number;
+  remainingSlots: number;
+}
+
 export interface CreateClinicPayload {
   name: string;
   description?: string;
@@ -219,9 +227,9 @@ export interface CreateClinicPayload {
   consultationPrice: number;
   followUpPrice?: number;
   workingDays: WorkingDay[];
-  bookingType?: "time" | "queue";
+  bookingType?: "queue";
   maxPatientsPerDay?: number;
-  slotDuration?: number; 
+  blockedDates?: string[];
   _id?: string;
   isActive?: boolean;
 }
@@ -232,18 +240,14 @@ export interface CreateAppointmentByPatientPayloadV2 extends CreateAppointmentBy
 
 export interface CreateAppointmentByPatientPayload {
   doctorId: string;
-  date: string; // YYYY-MM-DD
-  startTime?: string; 
+  date: string;
   notes?: string;
   visitingType?: "NEW" | "FOLLOW_UP";
   contactPhone?: string;
 }
 
-
-
 export interface CreateAppointmentByDoctorPayload {
   date: string;
-  startTime?: string;
   notes?: string;
   visitingType?: "NEW" | "FOLLOW_UP";
 }
