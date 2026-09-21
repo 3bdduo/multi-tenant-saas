@@ -1,14 +1,11 @@
-
-
-
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
   (typeof window !== "undefined"
     ? "/api-proxy"
     : "https://multi-tenant-saas-ten.vercel.app");
 
-const ACCESS_TOKEN_KEY = "clinic_access_token";
-const REFRESH_TOKEN_KEY = "clinic_refresh_token";
+export const ACCESS_TOKEN_KEY = "clinic_access_token";
+export const REFRESH_TOKEN_KEY = "clinic_refresh_token";
 
 export function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -42,56 +39,146 @@ export class ApiError extends Error {
   }
 }
 
-interface RequestOptions extends RequestInit {
-  auth?: boolean; 
-  retry?: boolean; 
+
+// ───────────────────────────── Session refresh ─────────────────────────────
+
+export const AUTH_EXPIRED_EVENT = "auth-expired";
+
+/** ok = valid session | invalid = refresh token rejected (real logout) | error = transient failure (network / 5xx) */
+export type RefreshResult = "ok" | "invalid" | "error";
+
+export function getTokenExp(token: string | null): number | null {
+  if (!token) return null;
+  try {
+    const part = token.split(".")[1];
+    const json = atob(part.replace(/-/g, "+").replace(/_/g, "/"));
+    const exp = JSON.parse(json)?.exp;
+    return typeof exp === "number" ? exp : null;
+  } catch {
+    return null;
+  }
 }
 
-let refreshPromise: Promise<boolean> | null = null;
+/** true when the token is expired or will expire within `skewMs` */
+export function isTokenExpiring(token: string | null, skewMs = 60_000): boolean {
+  const exp = getTokenExp(token);
+  if (exp === null) return false; // unknown expiry → let the 401 flow handle it
+  return exp * 1000 - Date.now() <= skewMs;
+}
 
-async function tryRefreshToken(): Promise<boolean> {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) return false;
+function notifyAuthExpired() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT));
+}
 
-  if (!refreshPromise) {
-    const accessToken = getAccessToken();
-    refreshPromise = fetch(`${API_BASE_URL}/auth/refresh-token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(accessToken ? { Authorization: accessToken } : {}),
-      },
-      body: JSON.stringify({ refreshToken }),
-    })
-      .then(async (res) => {
-        if (!res.ok) return false;
-        const json = await res.json();
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function doRefresh(staleAccessToken: string | null): Promise<RefreshResult> {
+  // Another tab may already have refreshed while we were waiting for the lock.
+  const current = getAccessToken();
+  if (current && current !== staleAccessToken && !isTokenExpiring(current, 5_000)) {
+    return "ok";
+  }
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) return "invalid";
+
+    try {
+      const accessToken = getAccessToken();
+      const res = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: accessToken } : {}),
+        },
+        body: JSON.stringify({ refreshToken }),
+        cache: "no-store",
+      });
+
+      if (res.ok) {
+        const json = await res.json().catch(() => null);
         const result = json?.data?.result ?? json?.data;
         if (result?.accessToken && result?.refreshToken) {
           setTokens(result.accessToken, result.refreshToken);
-          return true;
+          return "ok";
         }
-        return false;
-      })
-      .catch(() => false)
-      .finally(() => {
-        refreshPromise = null;
-      });
+        return "error";
+      }
+
+      if (res.status === 400 || res.status === 401 || res.status === 403) {
+        // Refresh token may have been rotated by another tab in the meantime.
+        const latest = getRefreshToken();
+        if (latest && latest !== refreshToken) return "ok";
+        return "invalid";
+      }
+      // 404 / 5xx / cold start → transient, retry once then give up WITHOUT logging out
+    } catch {
+      // network error → transient
+    }
+    if (attempt === 0) await sleep(800);
+  }
+  return "error";
+}
+
+let refreshPromise: Promise<RefreshResult> | null = null;
+
+/** Single-flight refresh, also serialized across browser tabs (Web Locks API). */
+export function refreshSession(
+  staleAccessToken: string | null = getAccessToken()
+): Promise<RefreshResult> {
+  if (!refreshPromise) {
+    const run = () => doRefresh(staleAccessToken);
+    const locks =
+      typeof navigator !== "undefined" ? (navigator as any).locks : undefined;
+    const p: Promise<RefreshResult> = locks?.request
+      ? locks.request("clinic-refresh-token", run)
+      : run();
+    refreshPromise = Promise.resolve(p).finally(() => {
+      refreshPromise = null;
+    });
   }
   return refreshPromise;
 }
 
-let activeRequests = 0;
+/**
+ * Makes sure a usable access token exists, refreshing it if it is expired or about to expire.
+ * Clears the session (and notifies the UI) only when the refresh token is really rejected.
+ */
+export async function ensureSession(skewMs = 60_000): Promise<RefreshResult> {
+  const access = getAccessToken();
+  if (access && !isTokenExpiring(access, skewMs)) return "ok";
+  if (!getRefreshToken()) {
+    clearTokens();
+    clearApiCache();
+    if (access) notifyAuthExpired();
+    return "invalid";
+  }
+  const result = await refreshSession();
+  if (result === "invalid") {
+    clearTokens();
+    clearApiCache();
+    notifyAuthExpired();
+  }
+  return result;
+}
 
-function updateLoadingState(increment: boolean) {
+let activeRequests = 0;
+let activeBlocking = 0;
+
+function updateLoadingState(increment: boolean, blocking: boolean) {
   if (typeof window === "undefined") return;
   if (increment) {
     activeRequests++;
+    if (blocking) activeBlocking++;
   } else {
     activeRequests = Math.max(0, activeRequests - 1);
+    if (blocking) activeBlocking = Math.max(0, activeBlocking - 1);
   }
   window.dispatchEvent(
-    new CustomEvent("global-loading", { detail: { isLoading: activeRequests > 0 } })
+    new CustomEvent("global-loading", {
+      detail: { isLoading: activeRequests > 0, blocking: activeBlocking > 0 },
+    })
   );
 }
 
@@ -259,6 +346,7 @@ interface RequestOptions extends RequestInit {
   auth?: boolean; // attach Authorization header (default: true)
   retry?: boolean; // internal flag to prevent infinite refresh loops
   noCache?: boolean; // bypass memory cache
+  silent?: boolean; // don't show the global loading indicator (background requests)
 }
 
 export async function prefetchApi<T = any>(
@@ -266,7 +354,7 @@ export async function prefetchApi<T = any>(
   options: RequestOptions = {}
 ): Promise<void> {
   try {
-    await apiFetch<T>(path, options);
+    await apiFetch<T>(path, { ...options, silent: true });
   } catch {
     // ignore prefetch errors
   }
@@ -276,9 +364,24 @@ export async function apiFetch<T>(
   path: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { auth = true, retry = false, noCache = false, headers, ...rest } = options;
+  const {
+    auth = true,
+    retry = false,
+    noCache = false,
+    silent = false,
+    headers,
+    ...rest
+  } = options;
   const method = (rest.method || "GET").toUpperCase();
   const isGet = method === "GET";
+
+  // Refresh proactively so the request doesn't have to fail with 401 first.
+  if (auth && !retry && typeof window !== "undefined") {
+    const access = getAccessToken();
+    if (access && isTokenExpiring(access, 30_000)) {
+      await ensureSession(30_000);
+    }
+  }
 
   // Build cache key
   const token = auth ? getAccessToken() : null;
@@ -298,7 +401,10 @@ export async function apiFetch<T>(
     clearApiCache();
   }
 
-  if (!retry) updateLoadingState(true);
+  // Only user-triggered writes block the screen; reads just move the top progress bar.
+  const track = !retry && !silent;
+  const blocking = !isGet;
+  if (track) updateLoadingState(true, blocking);
 
   const isFormData =
     typeof FormData !== "undefined" && rest.body instanceof FormData;
@@ -340,12 +446,24 @@ export async function apiFetch<T>(
     }
 
     if (res.status === 401 && auth && !retry) {
-      const refreshed = await tryRefreshToken();
-      if (refreshed) {
+      // Pass the token THIS request used: if it was already replaced (by another
+      // request or tab), doRefresh returns "ok" without hitting the server again.
+      const result = await refreshSession(token);
+      if (result === "ok") {
         return await apiFetch<T>(path, { ...options, retry: true });
       }
-      clearTokens();
-      clearApiCache();
+      if (result === "invalid") {
+        clearTokens();
+        clearApiCache();
+        notifyAuthExpired();
+      } else {
+        // Transient refresh failure: keep the session, just report a connection problem.
+        throw new ApiError(
+          "تعذّر تجديد الجلسة مؤقتاً بسبب مشكلة في الاتصال بالسيرفر. حاول مرة أخرى.",
+          0,
+          body
+        );
+      }
     }
 
     if (!res.ok) {
@@ -362,7 +480,6 @@ export async function apiFetch<T>(
 
     return body as T;
   } finally {
-    if (!retry) updateLoadingState(false);
+    if (track) updateLoadingState(false, blocking);
   }
 }
-

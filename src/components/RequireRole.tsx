@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import type { Role } from "@/types/api";
 
@@ -14,15 +14,22 @@ export function RequireRole({
 }) {
   const { isAuthenticated, isLoading, role: currentRole } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (isLoading) return;
     if (!isAuthenticated || currentRole !== role) {
-      router.replace(role === "Admin" ? "/admin-login" : "/login");
+      const target =
+        role === "Admin"
+          ? "/admin-login"
+          : !isAuthenticated && pathname
+            ? `/login?redirect=${encodeURIComponent(pathname)}`
+            : "/login";
+      router.replace(target);
     }
-  }, [isLoading, isAuthenticated, currentRole, role, router]);
+  }, [isLoading, isAuthenticated, currentRole, role, router, pathname]);
 
-  
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#090D12]">
@@ -34,7 +41,7 @@ export function RequireRole({
     );
   }
 
-  
+
   if (!isAuthenticated || currentRole !== role) return null;
 
   return <>{children}</>;

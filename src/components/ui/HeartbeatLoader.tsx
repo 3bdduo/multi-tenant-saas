@@ -9,10 +9,12 @@ function LoaderInner() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isBlocking, setIsBlocking] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
   const startTimeRef = useRef<number>(0);
   const minTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  
+
   useEffect(() => {
     setProgress(100);
     const elapsed = Date.now() - startTimeRef.current;
@@ -28,11 +30,12 @@ function LoaderInner() {
     };
   }, [pathname, searchParams]);
 
-  
+
   useEffect(() => {
     function handleGlobalLoading(e: Event) {
-      const customEv = e as CustomEvent<{ isLoading: boolean }>;
+      const customEv = e as CustomEvent<{ isLoading: boolean; blocking?: boolean }>;
       const shouldLoad = customEv.detail?.isLoading;
+      setIsBlocking(Boolean(customEv.detail?.blocking));
 
       if (shouldLoad) {
         if (minTimerRef.current) clearTimeout(minTimerRef.current);
@@ -57,7 +60,17 @@ function LoaderInner() {
   }, []);
 
 
-  
+
+  // Full-screen overlay: only for writes (POST/PUT/DELETE) that last longer than 400ms
+  useEffect(() => {
+    if (!(isLoading && isBlocking)) {
+      setShowOverlay(false);
+      return;
+    }
+    const t = setTimeout(() => setShowOverlay(true), 400);
+    return () => clearTimeout(t);
+  }, [isLoading, isBlocking]);
+
   useEffect(() => {
     if (!isLoading) return;
     const interval = setInterval(() => {
@@ -73,7 +86,7 @@ function LoaderInner() {
 
   return (
     <>
-      {}
+      { }
       <div className="fixed top-0 left-0 right-0 z-[10000] pointer-events-none">
         <div
           className="h-1 bg-gradient-to-r from-primary via-accent to-emerald-400 shadow-[0_0_15px_rgba(0,229,255,0.9)] transition-all duration-150 ease-out"
@@ -82,10 +95,10 @@ function LoaderInner() {
       </div>
 
       {/* Instant ECG Pulse Modal Overlay */}
-      {isLoading && (
+      {showOverlay && (
         <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-950/50 backdrop-blur-md transition-all duration-200 animate-fade-in">
           <div className="relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl bg-surface/95 border border-primary/30 shadow-2xl backdrop-blur-xl max-w-xs sm:max-w-sm w-full mx-4 animate-scale-up">
-            
+
             {/* ECG Heartbeat SVG */}
             <div className="w-full h-20 relative flex items-center justify-center overflow-hidden">
               <svg

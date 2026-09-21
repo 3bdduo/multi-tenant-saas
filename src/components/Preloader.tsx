@@ -12,13 +12,32 @@ const ROUTES_TO_PREFETCH = [
   "/patient",
 ];
 
-const SPLASH_MS = 5000;
+const SPLASH_MS = 1800;
+const SPLASH_KEY = "clinic-preloaded-at";
+const SPLASH_TTL_MS = 6 * 60 * 60 * 1000; // show the splash at most once every 6 hours
+
+function hasSeenSplash(): boolean {
+  try {
+    const at = Number(localStorage.getItem(SPLASH_KEY) || 0);
+    return at > 0 && Date.now() - at < SPLASH_TTL_MS;
+  } catch {
+    return false;
+  }
+}
+
+function markSplashSeen() {
+  try {
+    localStorage.setItem(SPLASH_KEY, String(Date.now()));
+  } catch {
+    // ignore
+  }
+}
 
 function preloadImage(src: string): Promise<void> {
   return new Promise((resolve) => {
     const img = new window.Image();
     img.onload = () => resolve();
-    img.onerror = () => resolve(); 
+    img.onerror = () => resolve();
     img.src = src;
   });
 }
@@ -31,7 +50,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    const alreadyLoaded = sessionStorage.getItem("clinic-preloaded") === "1";
+    const alreadyLoaded = hasSeenSplash();
     if (alreadyLoaded) {
       setSkip(true);
       setDone(true);
@@ -39,8 +58,8 @@ export function Preloader({ children }: { children: React.ReactNode }) {
     }
 
     let cancelled = false;
-    
-    
+
+
     const startTime = Date.now();
     const interval = setInterval(() => {
       if (cancelled) return;
@@ -49,22 +68,22 @@ export function Preloader({ children }: { children: React.ReactNode }) {
       setProgress(newProgress);
     }, 50);
 
-    
+
     const tasks = [...IMAGE_MANIFEST.map((src) => preloadImage(src))];
     const routeTasks = ROUTES_TO_PREFETCH.map(
       () => new Promise<void>((resolve) => setTimeout(resolve, 40))
     );
-    Promise.all([...tasks, ...routeTasks]).catch(() => {});
+    Promise.all([...tasks, ...routeTasks]).catch(() => { });
 
-    
+
     setTimeout(() => {
       if (cancelled) return;
       clearInterval(interval);
       setProgress(100);
-      sessionStorage.setItem("clinic-preloaded", "1");
+      markSplashSeen();
       setTimeout(() => {
         if (!cancelled) setDone(true);
-      }, 400); 
+      }, 400);
     }, SPLASH_MS);
 
     return () => {
@@ -84,13 +103,12 @@ export function Preloader({ children }: { children: React.ReactNode }) {
           aria-hidden={done}
           role="status"
           aria-live="polite"
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#090D12] text-white ${
-            done ? "pointer-events-none animate-fade-scale-out" : ""
-          }`}
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#090D12] text-white ${done ? "pointer-events-none animate-fade-scale-out" : ""
+            }`}
         >
           {/* Logos Section */}
           <div className="flex items-center gap-6 sm:gap-12 md:gap-16 mb-12 animate-fade-in-slow">
-            
+
             {/* Nabd Logo - New Premium Metallic Logo */}
             <div className="flex flex-col items-center gap-4">
               <div

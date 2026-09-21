@@ -108,10 +108,10 @@ export function DashboardShell({
         (currentRole === "Doctor"
           ? "د. طبيب نبض"
           : currentRole === "Hospital"
-          ? "مستشفى نبض"
-          : currentRole === "Admin"
-          ? "المشرف العام"
-          : "المريض"),
+            ? "مستشفى نبض"
+            : currentRole === "Admin"
+              ? "المشرف العام"
+              : "المريض"),
       avatar: defaultAvatar,
       roleLabel: defaultLabel,
       profileHref: defaultHref,
@@ -161,15 +161,14 @@ export function DashboardShell({
     return () => {
       cancelled = true;
     };
-  }, [role, pathname]);
+  }, [role]); // was [role, pathname] → refetched the profile on every navigation
 
   return (
     <div className="flex min-h-screen">
       {/* ── Desktop Collapsible Sidebar ── */}
       <aside
-        className={`hidden shrink-0 flex-col border-l py-4 transition-all duration-300 ease-in-out md:flex select-none sticky top-0 h-screen overflow-hidden ${
-          isCollapsed ? "w-20 px-2.5 items-center" : "w-64 px-4"
-        }`}
+        className={`hidden shrink-0 flex-col border-l py-4 transition-all duration-300 ease-in-out md:flex select-none sticky top-0 h-screen overflow-hidden ${isCollapsed ? "w-20 px-2.5 items-center" : "w-64 px-4"
+          }`}
         style={{
           background: "var(--color-surface)",
           borderColor: "var(--color-header-border)",
@@ -177,9 +176,8 @@ export function DashboardShell({
       >
         {/* Header: Logo + Smooth Collapse Toggle Button */}
         <div
-          className={`flex items-center gap-2 mb-3 ${
-            isCollapsed ? "flex-col justify-center" : "justify-between px-1"
-          }`}
+          className={`flex items-center gap-2 mb-3 ${isCollapsed ? "flex-col justify-center" : "justify-between px-1"
+            }`}
         >
           {!isCollapsed ? (
             <div className="min-w-0 overflow-hidden">
@@ -273,20 +271,17 @@ export function DashboardShell({
                 href={item.href}
                 prefetch
                 title={isCollapsed ? item.label : undefined}
-                className={`group relative flex items-center rounded-xl py-2.5 font-medium transition-all duration-200 ${
-                  isCollapsed
+                className={`group relative flex items-center rounded-xl py-2.5 font-medium transition-all duration-200 ${isCollapsed
                     ? "justify-center px-2 text-base"
                     : "justify-start px-3.5 gap-3 text-sm"
-                } ${
-                  active
+                  } ${active
                     ? "bg-gradient-to-r from-cyan-500/15 via-sky-500/10 to-emerald-500/5 text-cyan-700 dark:text-amber-400 font-bold border-r-2 border-cyan-600 dark:border-amber-500 shadow-xs"
                     : "text-text-secondary hover:bg-cyan-50/60 dark:hover:bg-stone-800/40 hover:text-cyan-700 dark:hover:text-amber-300"
-                }`}
+                  }`}
               >
                 <span
-                  className={`shrink-0 transition-transform duration-200 ${
-                    active ? "scale-110 text-primary" : "group-hover:scale-105"
-                  }`}
+                  className={`shrink-0 transition-transform duration-200 ${active ? "scale-110 text-primary" : "group-hover:scale-105"
+                    }`}
                 >
                   {item.icon}
                 </span>
@@ -300,11 +295,10 @@ export function DashboardShell({
                 {/* Subtle active indicator marker */}
                 {active && (
                   <span
-                    className={`absolute rounded-full bg-primary ${
-                      isCollapsed
+                    className={`absolute rounded-full bg-primary ${isCollapsed
                         ? "right-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-l-full"
                         : "right-1 top-1/2 -translate-y-1/2 h-5 w-1 rounded-l-full"
-                    }`}
+                      }`}
                   />
                 )}
               </Link>
@@ -314,9 +308,8 @@ export function DashboardShell({
 
         {/* ── Bottom Section: Theme Toggle & Logout ── */}
         <div
-          className={`mt-3 pt-3 border-t border-border/50 flex flex-col gap-1.5 w-full ${
-            isCollapsed ? "items-center" : ""
-          }`}
+          className={`mt-3 pt-3 border-t border-border/50 flex flex-col gap-1.5 w-full ${isCollapsed ? "items-center" : ""
+            }`}
         >
           {/* Mode switch inside sidebar */}
           {!isCollapsed ? (
@@ -464,11 +457,10 @@ export function DashboardShell({
                       key={item.href}
                       href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`group flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-all duration-200 ${
-                        active
+                      className={`group flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-all duration-200 ${active
                           ? "bg-primary-soft text-primary shadow-xs font-semibold"
                           : "text-text-secondary hover:bg-primary-soft/50 hover:text-text-primary"
-                      }`}
+                        }`}
                     >
                       <span className={active ? "scale-110 text-primary" : ""}>
                         {item.icon}
@@ -594,9 +586,8 @@ function PanelToggleIcon({ isCollapsed }: { isCollapsed: boolean }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={`transition-transform duration-300 ${
-        isCollapsed ? "rotate-180" : ""
-      }`}
+      className={`transition-transform duration-300 ${isCollapsed ? "rotate-180" : ""
+        }`}
     >
       <rect width="18" height="18" x="3" y="3" rx="2" />
       <path d="M9 3v18" />

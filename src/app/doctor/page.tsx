@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { SupportContactBox } from "@/components/SupportActivationModal";
+import { ApiError } from "@/lib/http";
 import type { Appointment, Clinic, Patient } from "@/types/api";
 
 export default function DoctorDashboardPage() {
@@ -17,31 +18,46 @@ export default function DoctorDashboardPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [needsClinic, setNeedsClinic] = useState(false);
-  
+
   const [isPaid, setIsPaid] = useState<boolean | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  function retry() {
+    setLoading(true);
+    setLoadError(false);
+    setNeedsClinic(false);
+    setIsPaid(null);
+    setReloadKey((k) => k + 1);
+  }
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
-        
-        
-        
-        
+
+
+
+
         let doctorActive = false;
         try {
           await getMe();
           doctorActive = true;
-        } catch {
+        } catch (err) {
+          if (err instanceof ApiError && err.status === 401) return; // session ended → auth layer redirects to login
+          if (!(err instanceof ApiError) || err.status === 0 || err.status >= 500) {
+            if (!cancelled) setLoadError(true); // network / server hiccup, NOT an inactive account
+            return;
+          }
           doctorActive = false;
         }
 
         if (cancelled) return;
         setIsPaid(doctorActive);
 
-        if (!doctorActive) return; 
+        if (!doctorActive) return;
 
-        
+
         const [clinicRes, apptRes, patientRes] = await Promise.allSettled([
           getMyClinic(),
           getMyAppointments(),
@@ -65,13 +81,29 @@ export default function DoctorDashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadKey]);
 
   if (loading) {
     return <DashboardSkeleton />;
   }
 
-  
+  if (loadError) {
+    return (
+      <Card className="mx-auto max-w-xl text-center animate-fade-in p-8">
+        <h2 className="font-display text-xl font-bold text-text-primary">تعذّر تحميل البيانات</h2>
+        <p className="mt-3 text-sm leading-relaxed text-text-secondary">
+          حدثت مشكلة مؤقتة في الاتصال بالسيرفر. حسابك سليم — حاول مرة أخرى.
+        </p>
+        <div className="mt-6 flex justify-center">
+          <Button variant="vibrant" size="sm" onClick={retry}>
+            إعادة المحاولة
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
+
   if (isPaid === false) {
     return (
       <Card className="mx-auto max-w-xl text-center animate-fade-in p-8 border-warning/30 bg-surface">
@@ -92,7 +124,7 @@ export default function DoctorDashboardPage() {
           <SupportContactBox />
         </div>
         <div className="mt-4 flex flex-wrap justify-center gap-3">
-          <Button variant="vibrant" size="sm" onClick={() => window.location.reload()}>
+          <Button variant="vibrant" size="sm" onClick={retry}>
             إعادة المحاولة
           </Button>
         </div>
@@ -100,7 +132,7 @@ export default function DoctorDashboardPage() {
     );
   }
 
-  
+
   if (needsClinic) {
     return (
       <Card className="mx-auto max-w-xl text-center animate-fade-in p-6 sm:p-8 border-warning/30">
@@ -125,7 +157,7 @@ export default function DoctorDashboardPage() {
               تسجيل العيادة
             </Button>
           </Link>
-          <Button variant="secondary" onClick={() => window.location.reload()}>
+          <Button variant="secondary" onClick={retry}>
             إعادة الفحص
           </Button>
         </div>
