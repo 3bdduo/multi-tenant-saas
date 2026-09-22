@@ -28,7 +28,7 @@ export function NabdLogoIcon({
 
   return (
     <div
-      className={`relative shrink-0 flex items-center justify-center rounded-2xl overflow-hidden shadow-md border border-white/20 bg-[#071014] transition-all duration-300 group-hover:shadow-[0_6px_26px_rgba(var(--color-primary-rgb),0.4)] group-hover:scale-105 ${dimensions[size]} ${className}`}
+      className={`relative shrink-0 flex items-center justify-center rounded-2xl overflow-hidden shadow-md border border-white/20 bg-[#0A0E1A] transition-all duration-300 group-hover:shadow-[0_6px_26px_rgba(var(--color-primary-rgb),0.4)] group-hover:scale-105 ${dimensions[size]} ${className}`}
     >
       <img
         src="/images/nabd-logo.jpeg"
@@ -112,7 +112,7 @@ export function Logo({
             </button>
 
             {/* Large Logo Visual Display */}
-            <div className="relative w-full rounded-2xl overflow-hidden border border-border/60 shadow-xl bg-[#071014]">
+            <div className="relative w-full rounded-2xl overflow-hidden border border-border/60 shadow-xl bg-[#0A0E1A]">
               <img
                 src="/images/nabd-logo.jpeg"
                 alt="شعار نبض Nabd Healthcare SaaS"

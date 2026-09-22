@@ -1,6 +1,7 @@
 /**
  * Decorative heartbeat trace — a soft teal→orange pulse that travels along an
- * ECG line. Purely visual (aria-hidden); respects prefers-reduced-motion.
+ * ECG line, with a glowing blip riding it like a vitals monitor. Purely
+ * visual (aria-hidden); respects prefers-reduced-motion.
  */
 export function HeartbeatLine({ className = "" }: { className?: string }) {
   const TRACE = "M0 30 H140 L156 30 L168 12 L184 52 L200 4 L214 38 L222 30 H400";
@@ -35,12 +36,17 @@ export function HeartbeatLine({ className = "" }: { className?: string }) {
         d={TRACE}
         pathLength={1}
         stroke="url(#hb-line-gradient)"
-        strokeWidth="2.6"
+        strokeWidth="2.8"
         strokeLinecap="round"
         strokeLinejoin="round"
         className="hb-pulse"
         style={{ filter: "drop-shadow(0 0 5px rgba(var(--color-primary-rgb), 0.75))" }}
       />
+
+      {/* glowing blip riding the same path, like a monitor's live marker */}
+      <circle r="4.5" fill="var(--color-primary-light)" className="hb-blip">
+        <animateMotion dur="2.1s" repeatCount="indefinite" path={TRACE} />
+      </circle>
     </svg>
   );
 }

@@ -296,8 +296,12 @@ function SmartAssistantInner() {
           cursor: isDragging ? "grabbing" : "grab",
           transition: isDragging ? "none" : "left 0.25s cubic-bezier(0.34,1.2,0.64,1), top 0.25s cubic-bezier(0.34,1.2,0.64,1)",
         }}
-        className="select-none pointer-events-auto"
+        className="select-none pointer-events-auto pulse-ring-host"
       >
+        {/* Continuous vitals-monitor pulse around the assistant orb */}
+        <span className="pulse-ring rounded-full text-primary" />
+        <span className="pulse-ring rounded-full text-primary" style={{ animationDelay: "1.3s" }} />
+
         {/* Intro badge "مساعد ذكي" — 3 seconds then fades */}
         <div
           className="absolute pointer-events-none"

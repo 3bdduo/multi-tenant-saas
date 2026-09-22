@@ -5,8 +5,10 @@
 /*
    Design Tokens — Cinematic Clinic SaaS
    Philosophy: film-graded teal shadows + warm orange highlights.
-   Dark  = the hero look (deep teal-black, teal glow, orange accents).
-   Light = a clean clinical counterpart that shares the same hues.
+   Dark  = navy/indigo base with a teal glow and orange accents (cool,
+           clinical trust — deliberately less "sci-fi black" than before).
+   Light = a warm cream/beige counterpart that shares the same hues, meant
+           to read as calmer and more human than a cool gray-teal would.
 
    Rules that must keep holding (components depend on them):
    - `text-surface` is used as the "on-color" text for filled primary / accent /
@@ -17,30 +19,30 @@
 */
 
 :root {
-  /* ── 1. Light Mode (clinical, teal ink + warm accents) ── */
+  /* ── 1. Light Mode (warm clinical: cream + teal ink + warm accents) ── */
   --radius: 1rem;
 
   /* Backgrounds & Surfaces */
-  --background: #F2F6F6;
-  --background-secondary: #E8F0F0;
-  --background-tertiary: #DCE8E8;
-  --color-bg: #F2F6F6;
-  --color-surface: #FBFDFD;
-  --color-surface-raised: #EBF2F2;
-  --color-card: #FBFDFD;
-  --color-card-foreground: #0A1D22;
+  --background: #FAF5EC;
+  --background-secondary: #F3ECDD;
+  --background-tertiary: #EBE1CC;
+  --color-bg: #FAF5EC;
+  --color-surface: #FFFDF9;
+  --color-surface-raised: #F1E7D8;
+  --color-card: #FFFDF9;
+  --color-card-foreground: #241F1A;
 
-  /* Teal-tinted surface */
-  --mint: #E4F3F1;
-  --mint-border: rgba(8, 107, 103, 0.28);
-  --color-mint: #E4F3F1;
+  /* Teal-tinted surface (kept teal, just slightly warmed to sit on cream) */
+  --mint: #E9F1EA;
+  --mint-border: rgba(8, 107, 103, 0.26);
+  --color-mint: #E9F1EA;
 
-  /* Text & Typography */
-  --foreground: #0A1D22;
-  --foreground-muted: #3A5860;
-  --color-text-primary: #0A1D22;
-  --color-text-secondary: #3A5860;
-  --color-text-muted: #4C6C75;
+  /* Text & Typography — warm charcoal instead of cool teal-black */
+  --foreground: #241F1A;
+  --foreground-muted: #5C5044;
+  --color-text-primary: #241F1A;
+  --color-text-secondary: #5C5044;
+  --color-text-muted: #6E6255;
 
   /* Primary Brand: Cinematic Teal */
   --primary: #086B67;
@@ -75,21 +77,21 @@
   --color-accent-soft: rgba(162, 64, 5, 0.12);
 
   /* Muted */
-  --muted: #E1EBEB;
-  --muted-foreground: #4C6C75;
-  --color-muted: #E1EBEB;
-  --color-muted-foreground: #4C6C75;
+  --muted: #ECE2D2;
+  --muted-foreground: #6E6255;
+  --color-muted: #ECE2D2;
+  --color-muted-foreground: #6E6255;
 
   /* Borders & Dividers */
-  --border: #B7CBCF;
-  --border-subtle: #D5E2E4;
+  --border: #DED0B8;
+  --border-subtle: #EBE1CC;
   --border-hover: #086B67;
-  --color-border: #B7CBCF;
+  --color-border: #DED0B8;
   --color-border-hover: #086B67;
 
   /* Navbar / Header */
-  --color-header-bg: rgba(242, 246, 246, 0.85);
-  --color-header-border: rgba(183, 203, 207, 0.80);
+  --color-header-bg: rgba(250, 245, 236, 0.85);
+  --color-header-border: rgba(222, 208, 184, 0.80);
 
   /* Semantic Alerts */
   --destructive: #B52626;
@@ -103,13 +105,13 @@
   --color-warning: #8A5000;
 
   /* RGB triplets (comma separated) for rgba(var(--x-rgb), a) */
-  --color-bg-rgb: 242, 246, 246;
-  --color-surface-rgb: 251, 253, 253;
-  --color-surface-raised-rgb: 235, 242, 242;
-  --color-border-rgb: 183, 203, 207;
-  --color-text-primary-rgb: 10, 29, 34;
-  --color-text-secondary-rgb: 58, 88, 96;
-  --color-text-muted-rgb: 76, 108, 117;
+  --color-bg-rgb: 250, 245, 236;
+  --color-surface-rgb: 255, 253, 249;
+  --color-surface-raised-rgb: 241, 231, 216;
+  --color-border-rgb: 222, 208, 184;
+  --color-text-primary-rgb: 36, 31, 26;
+  --color-text-secondary-rgb: 92, 80, 68;
+  --color-text-muted-rgb: 110, 98, 85;
   --color-primary-rgb: 8, 107, 103;
   --color-primary-light-rgb: 47, 181, 172;
   --color-secondary-rgb: 23, 94, 156;
@@ -119,13 +121,13 @@
   --color-danger-rgb: 181, 38, 38;
   --color-destructive-rgb: 181, 38, 38;
 
-  /* Shadows — teal-ink, soft */
-  --card-shadow: 0 8px 24px -10px rgba(6, 50, 52, 0.16), 0 1px 3px 0 rgba(6, 50, 52, 0.06);
-  --shadow-sm: 0 1px 2px 0 rgba(6, 50, 52, 0.06);
-  --shadow-md: 0 4px 12px -3px rgba(6, 50, 52, 0.10), 0 1px 3px 0 rgba(6, 50, 52, 0.05);
-  --shadow-lg: 0 10px 24px -6px rgba(6, 50, 52, 0.13), 0 2px 6px -2px rgba(6, 50, 52, 0.05);
-  --shadow-xl: 0 16px 34px -8px rgba(6, 50, 52, 0.16), 0 4px 8px -3px rgba(6, 50, 52, 0.05);
-  --shadow-2xl: 0 22px 46px -12px rgba(6, 50, 52, 0.22);
+  /* Shadows — warm ink instead of teal-ink, to sit naturally on cream */
+  --card-shadow: 0 8px 24px -10px rgba(50, 40, 25, 0.16), 0 1px 3px 0 rgba(50, 40, 25, 0.06);
+  --shadow-sm: 0 1px 2px 0 rgba(50, 40, 25, 0.06);
+  --shadow-md: 0 4px 12px -3px rgba(50, 40, 25, 0.10), 0 1px 3px 0 rgba(50, 40, 25, 0.05);
+  --shadow-lg: 0 10px 24px -6px rgba(50, 40, 25, 0.13), 0 2px 6px -2px rgba(50, 40, 25, 0.05);
+  --shadow-xl: 0 16px 34px -8px rgba(50, 40, 25, 0.16), 0 4px 8px -3px rgba(50, 40, 25, 0.05);
+  --shadow-2xl: 0 22px 46px -12px rgba(50, 40, 25, 0.22);
   --shadow-glow: 0 0 0 1px rgba(8, 107, 103, 0.18), 0 12px 32px -12px rgba(8, 107, 103, 0.30);
   --shadow-glow-cyan: 0 6px 18px -6px rgba(8, 107, 103, 0.32);
   --shadow-glow-emerald: 0 6px 18px -6px rgba(11, 110, 74, 0.28);
@@ -134,7 +136,7 @@
   --color-glow-emerald: rgba(11, 110, 74, 0.20);
 
   /* Glass */
-  --glass-bg: rgba(251, 253, 253, 0.78);
+  --glass-bg: rgba(255, 253, 249, 0.78);
   --glass-border: rgba(8, 107, 103, 0.18);
   --glass-blur: 20px;
 
@@ -162,30 +164,30 @@
 }
 
 .dark {
-  /* ── 2. Dark Mode (the cinematic look: teal-black + teal glow + orange) ── */
+  /* ── 2. Dark Mode (navy/indigo base: cool clinical trust + teal/orange glow) ── */
   --radius: 1rem;
 
   /* Backgrounds & Surfaces */
-  --background: #070B0F;
-  --background-secondary: #0A1116;
-  --background-tertiary: #0F181E;
-  --color-bg: #070B0F;
-  --color-surface: #0D1419;
-  --color-surface-raised: #131D24;
-  --color-card: #0D1419;
-  --color-card-foreground: #EAF2F3;
+  --background: #090C16;
+  --background-secondary: #0C1020;
+  --background-tertiary: #111528;
+  --color-bg: #090C16;
+  --color-surface: #0E1220;
+  --color-surface-raised: #151B2E;
+  --color-card: #0E1220;
+  --color-card-foreground: #E9ECF5;
 
   /* Teal-tinted surface */
   --mint: rgba(46, 196, 182, 0.08);
   --mint-border: rgba(46, 196, 182, 0.28);
   --color-mint: rgba(46, 196, 182, 0.08);
 
-  /* Text & Typography — cool off-white */
-  --foreground: #EAF2F3;
-  --foreground-muted: #A3B8BF;
-  --color-text-primary: #EAF2F3;
-  --color-text-secondary: #A3B8BF;
-  --color-text-muted: #7896A0;
+  /* Text & Typography — cool blue-white */
+  --foreground: #E9ECF5;
+  --foreground-muted: #A9B2C8;
+  --color-text-primary: #E9ECF5;
+  --color-text-secondary: #A9B2C8;
+  --color-text-muted: #7C87A3;
 
   /* Primary Brand: Cinematic Teal */
   --primary: #2EC4B6;
@@ -199,16 +201,17 @@
   --color-primary-soft: rgba(46, 196, 182, 0.16);
   --color-primary-foreground: #04191A;
 
-  /* Secondary Brand: Steel Blue */
-  --secondary: #5AA9E6;
-  --secondary-hover: #7DBBEE;
-  --secondary-foreground: #04121C;
-  --secondary-light: #A7D0F3;
-  --secondary-soft: rgba(90, 169, 230, 0.16);
-  --color-secondary: #5AA9E6;
-  --color-secondary-hover: #7DBBEE;
-  --color-secondary-foreground: #04121C;
-  --color-secondary-soft: rgba(90, 169, 230, 0.16);
+  /* Secondary Brand: Steel Blue (brightened vs. before so it still stands
+     out from the bluer navy background, instead of blending into it) */
+  --secondary: #6C93E8;
+  --secondary-hover: #8AA9EE;
+  --secondary-foreground: #04091C;
+  --secondary-light: #B0C4F4;
+  --secondary-soft: rgba(108, 147, 232, 0.16);
+  --color-secondary: #6C93E8;
+  --color-secondary-hover: #8AA9EE;
+  --color-secondary-foreground: #04091C;
+  --color-secondary-soft: rgba(108, 147, 232, 0.16);
 
   /* Accent: Cinematic Orange */
   --accent: #FF8B45;
@@ -220,21 +223,21 @@
   --color-accent-soft: rgba(255, 139, 69, 0.16);
 
   /* Muted */
-  --muted: #16232B;
-  --muted-foreground: #7896A0;
-  --color-muted: #16232B;
-  --color-muted-foreground: #7896A0;
+  --muted: #182036;
+  --muted-foreground: #7C87A3;
+  --color-muted: #182036;
+  --color-muted-foreground: #7C87A3;
 
   /* Borders & Dividers */
-  --border: #22343D;
-  --border-subtle: rgba(34, 52, 61, 0.70);
+  --border: #232C42;
+  --border-subtle: rgba(35, 44, 66, 0.70);
   --border-hover: #2EC4B6;
-  --color-border: #22343D;
+  --color-border: #232C42;
   --color-border-hover: #2EC4B6;
 
   /* Navbar / Header */
-  --color-header-bg: rgba(7, 11, 15, 0.78);
-  --color-header-border: rgba(34, 52, 61, 0.85);
+  --color-header-bg: rgba(9, 12, 22, 0.78);
+  --color-header-border: rgba(35, 44, 66, 0.85);
 
   /* Semantic Alerts */
   --destructive: #F26B6B;
@@ -248,16 +251,16 @@
   --color-warning: #F5B94A;
 
   /* RGB triplets */
-  --color-bg-rgb: 7, 11, 15;
-  --color-surface-rgb: 13, 20, 25;
-  --color-surface-raised-rgb: 19, 29, 36;
-  --color-border-rgb: 34, 52, 61;
-  --color-text-primary-rgb: 234, 242, 243;
-  --color-text-secondary-rgb: 163, 184, 191;
-  --color-text-muted-rgb: 120, 150, 160;
+  --color-bg-rgb: 9, 12, 22;
+  --color-surface-rgb: 14, 18, 32;
+  --color-surface-raised-rgb: 21, 27, 46;
+  --color-border-rgb: 35, 44, 66;
+  --color-text-primary-rgb: 233, 236, 245;
+  --color-text-secondary-rgb: 169, 178, 200;
+  --color-text-muted-rgb: 124, 135, 163;
   --color-primary-rgb: 46, 196, 182;
   --color-primary-light-rgb: 140, 234, 223;
-  --color-secondary-rgb: 90, 169, 230;
+  --color-secondary-rgb: 108, 147, 232;
   --color-accent-rgb: 255, 139, 69;
   --color-success-rgb: 79, 211, 154;
   --color-warning-rgb: 245, 185, 74;
@@ -279,7 +282,7 @@
   --color-glow-emerald: rgba(79, 211, 154, 0.24);
 
   /* Glass */
-  --glass-bg: rgba(13, 20, 25, 0.72);
+  --glass-bg: rgba(14, 18, 32, 0.72);
   --glass-border: rgba(46, 196, 182, 0.18);
   --glass-blur: 24px;
 
@@ -307,6 +310,12 @@
    ═══════════════════════════════════════════════ */
 * {
   border-color: var(--color-border);
+  /* Prevent subpixel rendering artefacts (phantom hairlines) on high-DPI
+     displays. border-style:solid on box-model borders drawn as 0.5 CSS px
+     on 2× / 3× retina screens can produce visible hairlines. Explicitly
+     rounding to the nearest physical pixel at the OS level suppresses this
+     without changing the visual appearance at standard density. */
+  box-sizing: border-box;
 }
 
 html {
@@ -314,6 +323,8 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  /* Prevent iOS rubber-band horizontal scroll */
+  overscroll-behavior-x: none;
 }
 
 body {
@@ -321,6 +332,37 @@ body {
   color: var(--color-text-primary);
   overflow-x: hidden;
   max-width: 100vw;
+  /* Prevent tap highlight flash on mobile */
+  -webkit-tap-highlight-color: transparent;
+  /* Smooth momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ═══════════════════════════════════════════════
+   High-DPI / Retina: suppress phantom hairlines
+   On 2× and 3× screens, a CSS 1px border can render as a 0.5 physical-pixel
+   hairline that bleeds through rounded corners or gradient overlays. We zero
+   out border-width on purely decorative divider elements and replace them with
+   a box-shadow instead, which always snaps to a full physical pixel.
+   ═══════════════════════════════════════════════ */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Gradient dividers in cards (h-px elements): bump up to 2px logical so
+     they render as exactly 2 physical pixels on retina and stay invisible on
+     the transparent ends of the gradient. */
+  .h-px[class*="bg-gradient"] {
+    height: 2px;
+    /* Still invisible at the edges thanks to the gradient — no visual change */
+  }
+
+  /* Ensure card/glass borders do not produce sub-pixel ghost lines by
+     rounding borders to integer physical pixels via border-image technique */
+  .glass-alive,
+  [class*="border-primary"],
+  [class*="border-danger"],
+  [class*="border-accent"],
+  [class*="border-secondary"] {
+    image-rendering: crisp-edges;
+  }
 }
 
 /* Prevent iOS Safari from zooming in on inputs with font-size < 16px */
@@ -330,6 +372,18 @@ body {
   select {
     font-size: 16px !important;
   }
+}
+
+/* ═══════════════════════════════════════════════
+   Mobile touch improvements
+   ═══════════════════════════════════════════════ */
+/* Faster tap response on mobile — remove 300 ms delay */
+a,
+button,
+[role="button"],
+label,
+select {
+  touch-action: manipulation;
 }
 
 /* Silky transitions — scoped to interactive elements only.
@@ -391,14 +445,13 @@ body, header, footer, aside, nav, main, div {
   .gradient-text-alive,
   .gradient-text {
     background-image: linear-gradient(110deg, var(--gradient-text-start) 0%, var(--gradient-text-mid) 50%, var(--gradient-text-end) 100%);
-    background-size: 200% 300%;
-    background-position: 0% 30%;
+    background-size: 200% 100%;
+    background-position: 0% 50%;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
     display: inline-block;
-    overflow: visible;
     animation: text-drift 12s ease-in-out infinite alternate;
   }
 
@@ -445,7 +498,7 @@ body, header, footer, aside, nav, main, div {
   left: -20vmax;
   top: -26vmax;
   background: radial-gradient(closest-side, rgba(var(--cine-teal), var(--cine-orb-teal-alpha)), transparent 72%);
-  animation: cine-drift-a 42s ease-in-out infinite alternate;
+  animation: cine-drift-a 26s ease-in-out infinite alternate;
 }
 
 .cine-orb-orange {
@@ -454,7 +507,27 @@ body, header, footer, aside, nav, main, div {
   right: -18vmax;
   bottom: -26vmax;
   background: radial-gradient(closest-side, rgba(var(--cine-orange), var(--cine-orb-orange-alpha)), transparent 72%);
-  animation: cine-drift-b 52s ease-in-out infinite alternate;
+  animation: cine-drift-b 32s ease-in-out infinite alternate;
+}
+
+/* Two extra orbs — a "vital signs" green and a steel-blue — so the
+   background reads as more alive without overpowering the teal/orange key. */
+.cine-orb-vital {
+  width: 46vmax;
+  height: 46vmax;
+  right: -14vmax;
+  top: -18vmax;
+  background: radial-gradient(closest-side, rgba(var(--color-success-rgb), 0.10), transparent 72%);
+  animation: cine-drift-c 34s ease-in-out infinite alternate;
+}
+
+.cine-orb-steel {
+  width: 50vmax;
+  height: 50vmax;
+  left: -16vmax;
+  bottom: -20vmax;
+  background: radial-gradient(closest-side, rgba(var(--color-secondary-rgb), 0.09), transparent 72%);
+  animation: cine-drift-d 30s ease-in-out infinite alternate;
 }
 
 .cine-orb-core {
@@ -463,8 +536,53 @@ body, header, footer, aside, nav, main, div {
   left: 50%;
   top: 34%;
   margin-left: -20vmax;
-  background: radial-gradient(closest-side, rgba(var(--cine-teal), 0.07), transparent 70%);
-  animation: cine-breathe 14s ease-in-out infinite;
+  background: radial-gradient(closest-side, rgba(var(--cine-teal), 0.10), transparent 70%);
+  animation: cine-breathe 6s ease-in-out infinite;
+}
+
+/* Medical monitor sweep — a slow vertical scan-line, like an ultrasound or
+   MRI pass, crossing the whole page top to bottom on a loop. */
+.cine-monitor-sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -10%;
+  height: 26%;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(var(--cine-teal), 0.05) 45%,
+    rgba(var(--cine-teal), 0.09) 50%,
+    rgba(var(--cine-teal), 0.05) 55%,
+    transparent 100%
+  );
+  animation: cine-monitor-sweep 9s linear infinite;
+}
+
+/* Floating medical particles (heartbeat, cross, DNA, pill, stethoscope) */
+.cine-particle {
+  position: absolute;
+  pointer-events: none;
+  color: rgba(var(--cine-teal), 1);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Continuous "vital" pulse ring — expands and fades on a loop, like a
+   heart-rate monitor blip, behind an icon badge. Wrap the badge in a
+   relatively-positioned element with class="pulse-ring-host" and add
+   <span class="pulse-ring" /> (x2 with a delay) inside it. */
+.pulse-ring-host {
+  position: relative;
+}
+.pulse-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1.5px solid currentColor;
+  opacity: 0;
+  animation: pulse-ring-expand 2.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
 .cine-streak {
@@ -553,18 +671,68 @@ body, header, footer, aside, nav, main, div {
 }
 
 @keyframes cine-drift-a {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to   { transform: translate3d(7vmax, 5vmax, 0) scale(1.14); }
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(30vmax, 22vmax, 0) scale(1.28); }
+  100% { transform: translate3d(4vmax, -14vmax, 0) scale(1.05); }
 }
 
 @keyframes cine-drift-b {
-  from { transform: translate3d(0, 0, 0) scale(1.08); }
-  to   { transform: translate3d(-8vmax, -4vmax, 0) scale(0.96); }
+  0%   { transform: translate3d(0, 0, 0) scale(1.08); }
+  50%  { transform: translate3d(-32vmax, -18vmax, 0) scale(0.9); }
+  100% { transform: translate3d(-6vmax, 16vmax, 0) scale(1.12); }
+}
+
+@keyframes cine-drift-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-22vmax, 20vmax, 0) scale(1.2); }
+}
+
+@keyframes cine-drift-d {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(20vmax, -22vmax, 0) scale(0.92); }
 }
 
 @keyframes cine-breathe {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.12); }
+  0%, 100% { opacity: 0.5; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1.22); }
+}
+
+@keyframes cine-monitor-sweep {
+  0%   { transform: translateY(0%); }
+  100% { transform: translateY(500%); }
+}
+
+@keyframes pulse-ring-expand {
+  0%   { opacity: 0.55; transform: scale(0.85); }
+  80%  { opacity: 0; transform: scale(1.9); }
+  100% { opacity: 0; transform: scale(1.9); }
+}
+
+/* A real heartbeat "lub-dub": two quick beats, then a rest — repeats like a
+   resting pulse (~72bpm feel, sped up slightly so it reads on screen). */
+@keyframes heartbeat-scale {
+  0%   { transform: scale(1); }
+  12%  { transform: scale(1.09); }
+  24%  { transform: scale(1); }
+  36%  { transform: scale(1.14); }
+  48%  { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes particle-float-a {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.5; }
+  50%  { transform: translate(3vw, -14vh) rotate(12deg); opacity: 0.32; }
+  90%  { opacity: 0.4; }
+  100% { transform: translate(-2vw, -30vh) rotate(-6deg); opacity: 0; }
+}
+
+@keyframes particle-float-b {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.4; }
+  50%  { transform: translate(-4vw, -18vh) rotate(-16deg); opacity: 0.28; }
+  90%  { opacity: 0.35; }
+  100% { transform: translate(2vw, -34vh) rotate(10deg); opacity: 0; }
 }
 
 @keyframes cine-streak {
@@ -573,8 +741,8 @@ body, header, footer, aside, nav, main, div {
 }
 
 @keyframes text-drift {
-  from { background-position: 0% 30%; }
-  to   { background-position: 100% 30%; }
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
 }
 
 @keyframes live-ring {
@@ -648,6 +816,9 @@ body, header, footer, aside, nav, main, div {
 .animate-fade-scale-out{ animation: fade-scale-out 0.95s var(--ease-soft) forwards; }
 .animate-float-slow    { animation: float-slow 7s ease-in-out infinite; }
 .animate-pulse-glow    { animation: pulse-glow 4.5s ease-in-out infinite; }
+.animate-heartbeat     { animation: heartbeat-scale 2.4s ease-in-out infinite; }
+.particle-a            { animation: particle-float-a 16s ease-in-out infinite; }
+.particle-b            { animation: particle-float-b 19s ease-in-out infinite; }
 .animate-pulse         { animation: pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 .animate-ecg-pulse     { stroke-dasharray: 0.32 1; animation: ecg-travel 1.7s linear infinite; }
 .animate-ecg-scan      { animation: ecg-scan 2.2s ease-in-out infinite; }
@@ -790,11 +961,15 @@ table td {
 
   .cine-orb,
   .cine-streak,
+  .cine-monitor-sweep,
+  .cine-particle,
+  .pulse-ring,
   .gradient-text-alive,
   .gradient-text,
   .live-dot::after,
   .animate-float-slow,
-  .animate-pulse-glow {
+  .animate-pulse-glow,
+  .animate-heartbeat {
     animation: none !important;
   }
 
@@ -819,12 +994,19 @@ table td {
 /* Decorative heartbeat line (<HeartbeatLine />): a soft pulse travelling along the trace */
 .hb-pulse {
   stroke-dasharray: 0.32 1;
-  animation: ecg-travel 3.6s linear infinite;
+  animation: ecg-travel 2.1s linear infinite;
+}
+
+.hb-blip {
+  filter: drop-shadow(0 0 6px rgba(var(--color-primary-rgb), 0.9)) drop-shadow(0 0 14px rgba(var(--color-accent-rgb), 0.4));
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hb-pulse {
     animation: none !important;
     stroke-dasharray: none !important;
+  }
+  .hb-blip {
+    display: none;
   }
 }

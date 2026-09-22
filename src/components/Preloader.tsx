@@ -93,7 +93,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (!mounted) {
-    return <div className="min-h-screen bg-[#05090C]" />;
+    return <div className="min-h-screen bg-[#05070D]" />;
   }
 
   return (
@@ -103,7 +103,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
           aria-hidden={done}
           role="status"
           aria-live="polite"
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-[#05090C] text-white ${done ? "pointer-events-none animate-fade-scale-out" : ""
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-[#05070D] text-white ${done ? "pointer-events-none animate-fade-scale-out" : ""
             }`}
         >
           {/* Cinematic stage: teal key light, orange kicker, lens streak, vignette */}
@@ -141,7 +141,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
             {/* Nabd Logo — teal glow */}
             <div className="flex flex-col items-center gap-4">
               <div
-                className="relative flex h-28 w-28 sm:h-36 sm:w-36 items-center justify-center rounded-full overflow-hidden border border-white/15 bg-[#071014] shadow-[0_0_50px_rgba(46,196,182,0.35),0_0_110px_rgba(46,196,182,0.12)] animate-float-slow"
+                className="relative flex h-28 w-28 sm:h-36 sm:w-36 items-center justify-center rounded-full overflow-hidden border border-white/15 bg-[#0A0E1A] shadow-[0_0_50px_rgba(46,196,182,0.35),0_0_110px_rgba(46,196,182,0.12)] animate-float-slow"
               >
                 <img
                   src="/images/nabd-logo.jpeg"
@@ -167,7 +167,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
             {/* ARC Logo — orange glow */}
             <div className="flex flex-col items-center gap-4">
               <div
-                className="relative flex h-28 w-28 sm:h-36 sm:w-36 items-center justify-center rounded-full overflow-hidden border border-white/15 bg-[#071014] shadow-[0_0_50px_rgba(255,139,69,0.30),0_0_110px_rgba(255,139,69,0.10)] animate-float-slow"
+                className="relative flex h-28 w-28 sm:h-36 sm:w-36 items-center justify-center rounded-full overflow-hidden border border-white/15 bg-[#0A0E1A] shadow-[0_0_50px_rgba(255,139,69,0.30),0_0_110px_rgba(255,139,69,0.10)] animate-float-slow"
                 style={{ animationDelay: "1s" }}
               >
                 <img
