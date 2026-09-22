@@ -48,13 +48,13 @@ export default function AdminDashboardPage() {
         <div className="grid gap-4 sm:grid-cols-2 animate-fade-in">
           <Card>
             <p className="text-sm text-text-secondary">حالات الطوارئ المكتملة</p>
-            <p className="mt-2 font-display text-3xl font-bold text-green-500">
+            <p className="mt-2 font-display text-3xl font-bold text-success">
               {stats.emergencyCompleted ?? 0}
             </p>
           </Card>
           <Card>
             <p className="text-sm text-text-secondary">حالات الطوارئ غير المكتملة</p>
-            <p className="mt-2 font-display text-3xl font-bold text-red-500">
+            <p className="mt-2 font-display text-3xl font-bold text-danger">
               {stats.emergencyNotCompleted ?? 0}
             </p>
           </Card>

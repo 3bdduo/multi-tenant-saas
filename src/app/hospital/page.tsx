@@ -100,9 +100,9 @@ export default function HospitalDashboard() {
 
       {/* Welcome Banner */}
       {hospital && (
-        <Card glass vibrant className="p-6 border-cyan-400/20 shadow-xl">
+        <Card glass vibrant className="p-6 border-primary/25 shadow-xl">
           <div className="flex flex-wrap items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-600 dark:from-amber-700 dark:to-amber-800 text-white shadow-sm">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-hover text-primary-foreground shadow-sm">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                 <path d="M3 21h18" /><path d="M19 21v-4a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v4" />
                 <path d="M5 15V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8" />

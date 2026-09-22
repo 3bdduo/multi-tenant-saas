@@ -28,7 +28,7 @@ export function NabdLogoIcon({
 
   return (
     <div
-      className={`relative shrink-0 flex items-center justify-center rounded-2xl overflow-hidden shadow-md border border-white/20 bg-[#0c1017] transition-all duration-300 group-hover:shadow-[0_6px_24px_rgba(13,148,136,0.35)] group-hover:scale-105 ${dimensions[size]} ${className}`}
+      className={`relative shrink-0 flex items-center justify-center rounded-2xl overflow-hidden shadow-md border border-white/20 bg-[#071014] transition-all duration-300 group-hover:shadow-[0_6px_26px_rgba(var(--color-primary-rgb),0.4)] group-hover:scale-105 ${dimensions[size]} ${className}`}
     >
       <img
         src="/images/nabd-logo.jpeg"
@@ -36,7 +36,7 @@ export function NabdLogoIcon({
         className="w-full h-full object-cover select-none"
       />
       {/* Glossy overlay */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-white/10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-primary/15 via-transparent to-accent/10 pointer-events-none" />
     </div>
   );
 }
@@ -82,7 +82,7 @@ export function Logo({
     isModalOpen && mounted
       ? createPortal(
         <div
-          className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-xl animate-fade-in overflow-y-auto"
+          className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-xl animate-fade-in overflow-y-auto"
           onClick={() => setIsModalOpen(false)}
         >
           {/* Modal Inner Card */}
@@ -112,7 +112,7 @@ export function Logo({
             </button>
 
             {/* Large Logo Visual Display */}
-            <div className="relative w-full rounded-2xl overflow-hidden border border-border/60 shadow-xl bg-slate-950">
+            <div className="relative w-full rounded-2xl overflow-hidden border border-border/60 shadow-xl bg-[#071014]">
               <img
                 src="/images/nabd-logo.jpeg"
                 alt="شعار نبض Nabd Healthcare SaaS"

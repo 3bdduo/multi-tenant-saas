@@ -118,7 +118,7 @@ export default function HospitalProfilePage() {
         </Card>
       )}
 
-      <Card glass vibrant className="p-6 border-violet-500/20 shadow-xl">
+      <Card glass vibrant className="p-6 border-secondary/25 shadow-xl">
         <h2 className="font-display text-lg font-bold text-text-primary mb-5">تعديل البيانات الأساسية</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field

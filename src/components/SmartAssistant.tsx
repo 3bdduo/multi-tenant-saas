@@ -195,8 +195,7 @@ function SmartAssistantInner() {
       {}
       {isOpen && (
         <div
-          className="fixed z-[99996] pointer-events-none"
-          style={{ left: cx, top: cy, width: 0, height: 0 }}
+          className="fixed inset-0 z-[99996] pointer-events-none"
         >
           {ACTIONS.map((item, i) => {
             const disabled = item.isDisabled(pathname, searchType, role);
@@ -204,16 +203,37 @@ function SmartAssistantInner() {
             const ox = Math.round(Math.cos(angle) * radius);
             const oy = Math.round(Math.sin(angle) * radius);
 
+            // Rough half-size of the pill (Arabic label + padding), so the
+            // clamp below keeps the WHOLE button on screen, not just its
+            // center point. This is what was missing before: buttons near
+            // a screen edge (very common on mobile, where the orb itself
+            // sits close to the edge) could render partly or fully outside
+            // the viewport, or stack on top of each other.
+            const halfW = Math.max(46, item.label.length * 6 + 24);
+            const halfH = 20;
+            const edgePad = 8;
+
+            const rawX = cx + ox;
+            const rawY = cy + oy;
+            const clampedX = Math.min(
+              Math.max(rawX, halfW + edgePad),
+              (typeof window !== "undefined" ? window.innerWidth : rawX) - halfW - edgePad
+            );
+            const clampedY = Math.min(
+              Math.max(rawY, halfH + edgePad),
+              (typeof window !== "undefined" ? window.innerHeight : rawY) - halfH - edgePad
+            );
+
             return (
-              
-              
-              
+
+
+
               <div
                 key={item.id}
                 className="absolute pointer-events-none"
                 style={{
-                  left: ox,
-                  top: oy,
+                  left: clampedX,
+                  top: clampedY,
                   transform: "translate(-50%, -50%)",
                 }}
               >
@@ -234,19 +254,19 @@ function SmartAssistantInner() {
                     disabled
                       ? /* disabled */
                         "opacity-30 cursor-not-allowed pointer-events-none " +
-                        "bg-[#E2E8F0] dark:bg-[#1A1F26]/70 " +
-                        "text-[#94A3B8] dark:text-[#374151] " +
-                        "border border-dashed border-[#CBD5E1] dark:border-[#1E2530] shadow-none"
+                        "bg-surface-raised/70 " +
+                        "text-text-muted " +
+                        "border border-dashed border-border shadow-none"
                       : /* active */
                         "cursor-pointer active:scale-95 hover:scale-[1.08] " +
-                        "bg-gradient-to-b from-white via-[#F8FAFC] to-[#E8EDF4] " +
-                        "text-[#0F172A] border border-[#C4CDD9] " +
-                        "shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_4px_14px_rgba(0,0,0,0.14)] " +
-                        "hover:border-[#94A3B8] hover:shadow-[0_6px_20px_rgba(0,0,0,0.2)] " +
-                        "dark:bg-gradient-to-b dark:from-[#2A3340] dark:via-[#1F2830] dark:to-[#161C25] " +
-                        "dark:text-[#F1F5F9] dark:border-[#3D4E63] " +
-                        "dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_4px_16px_rgba(0,0,0,0.6)] " +
-                        "dark:hover:border-[#94A3B8] dark:hover:text-white dark:hover:shadow-[0_0_18px_rgba(148,163,184,0.3)]",
+                        "bg-gradient-to-b from-white via-[#F3F9F9] to-[#E3EFEF] " +
+                        "text-[#0A1D22] border border-[#B7CBCF] " +
+                        "shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_4px_14px_rgba(6,50,52,0.16)] " +
+                        "hover:border-[#086B67] hover:shadow-[0_6px_20px_rgba(8,107,103,0.28)] " +
+                        "dark:bg-gradient-to-b dark:from-[#16252D] dark:via-[#111D24] dark:to-[#0B141A] " +
+                        "dark:text-[#EAF2F3] dark:border-[#24404A] " +
+                        "dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_4px_16px_rgba(0,0,0,0.6)] " +
+                        "dark:hover:border-[#2EC4B6] dark:hover:text-white dark:hover:shadow-[0_0_18px_rgba(46,196,182,0.35)]",
                   ].join(" ")}
                 >
                   {item.label}
@@ -291,10 +311,10 @@ function SmartAssistantInner() {
           }}
         >
           <div className="relative whitespace-nowrap rounded-lg px-3 py-1 text-[11px] font-black shadow-lg
-            bg-[#0F172A] text-white border border-slate-700
-            dark:bg-white dark:text-[#0F172A] dark:border-slate-300">
+            bg-[#0A1D22] text-white border border-[#1B4A50]
+            dark:bg-[#EAF2F3] dark:text-[#04191A] dark:border-[#8CEADF]">
             مساعد ذكي
-            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 block w-2 h-2 rotate-45 bg-[#0F172A] dark:bg-white border-r border-b border-slate-700 dark:border-slate-300" />
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 block w-2 h-2 rotate-45 bg-[#0A1D22] dark:bg-[#EAF2F3] border-r border-b border-[#1B4A50] dark:border-[#8CEADF]" />
           </div>
         </div>
 
@@ -304,16 +324,16 @@ function SmartAssistantInner() {
           className={[
             "relative flex h-full w-full items-center justify-center rounded-full",
             "select-none cursor-pointer outline-none transition-all duration-300 ease-out",
-            /* Light mode: DARK slate orb — stands out on light backgrounds */
-            "bg-gradient-to-b from-[#1E2430] via-[#242A33] to-[#111418]",
-            "text-white border-[2.5px] border-[#374151]",
-            "shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),inset_0_-2px_3px_rgba(0,0,0,0.5),0_6px_20px_rgba(0,0,0,0.35)]",
-            "hover:border-[#64748B] hover:scale-[1.08]",
-            /* Dark mode: LIGHT platinum orb — stands out on dark backgrounds */
-            "dark:bg-gradient-to-b dark:from-white dark:via-[#F1F5F9] dark:to-[#CBD5E1]",
-            "dark:text-[#0F172A] dark:border-[#C4CDD9]",
-            "dark:shadow-[inset_0_2px_2px_rgba(255,255,255,1),inset_0_-2px_4px_rgba(0,0,0,0.12),0_8px_24px_rgba(0,0,0,0.5)]",
-            "dark:hover:border-[#94A3B8] dark:hover:scale-[1.08]",
+            /* Light mode: DEEP TEAL orb — stands out on light backgrounds */
+            "bg-gradient-to-b from-[#12363B] via-[#0E2B30] to-[#071A1E]",
+            "text-white border-[2.5px] border-[#1F5A60]",
+            "shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),inset_0_-2px_3px_rgba(0,0,0,0.5),0_6px_22px_rgba(8,107,103,0.4)]",
+            "hover:border-[#2EC4B6] hover:scale-[1.08]",
+            /* Dark mode: GLOWING TEAL orb — stands out on dark backgrounds */
+            "dark:bg-gradient-to-b dark:from-[#9AF0E6] dark:via-[#4FD8CB] dark:to-[#22A99D]",
+            "dark:text-[#04191A] dark:border-[#8CEADF]",
+            "dark:shadow-[inset_0_2px_2px_rgba(255,255,255,0.6),inset_0_-2px_4px_rgba(0,0,0,0.15),0_8px_28px_rgba(46,196,182,0.45)]",
+            "dark:hover:border-[#D4FBF6] dark:hover:scale-[1.08]",
             isOpen ? "scale-[1.04] ring-4 ring-primary/25" : "",
             isDragging ? "scale-[1.12] shadow-2xl" : "",
           ].join(" ")}

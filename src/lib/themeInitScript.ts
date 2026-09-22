@@ -1,11 +1,9 @@
-
-
-
 export const themeInitScript = `
 (function() {
   try {
     var stored = localStorage.getItem('clinic-theme');
-    var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    // Cinematic look is dark-first: visitors with no saved choice start in dark mode.
+    var theme = stored || 'dark';
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     }

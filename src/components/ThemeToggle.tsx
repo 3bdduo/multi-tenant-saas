@@ -21,8 +21,8 @@ export function ThemeToggle({
         title={isDark ? "الوضع النهاري" : "الوضع الليلي"}
         className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-all duration-300 ${
           isDark
-            ? "bg-slate-800/80 border-slate-700 text-amber-300 hover:bg-slate-700"
-            : "bg-amber-50 border-amber-200/80 text-amber-600 hover:bg-amber-100"
+            ? "bg-surface-raised border-border text-accent hover:bg-primary-soft"
+            : "bg-mint border-border text-accent hover:bg-primary-soft"
         } ${className}`}
       >
         {isDark ? (
@@ -75,7 +75,7 @@ export function ThemeToggle({
       className={`
         relative inline-flex h-[34px] w-[64px] shrink-0 cursor-pointer items-center rounded-full
         p-[3px] transition-colors duration-300 ease-in-out select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
-        ${isDark ? "bg-[#1E293B] border border-[#334155]" : "bg-[#BDE3FA] border border-[#A6D5F5]"}
+        ${isDark ? "bg-[#131D24] border border-[#22343D]" : "bg-[#CFE6E4] border border-[#A9CBC8]"}
         ${className}
       `}
     >
@@ -91,7 +91,7 @@ export function ThemeToggle({
             width="15"
             height="15"
             viewBox="0 0 24 24"
-            fill="#E2E8F0"
+            fill="#BFEDE7"
             stroke="none"
           >
             <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
@@ -109,13 +109,13 @@ export function ThemeToggle({
             height="17"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#78889B"
+            stroke="#A24005"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
             {/* Center filled circle */}
-            <circle cx="12" cy="12" r="4.5" fill="#78889B" />
+            <circle cx="12" cy="12" r="4.5" fill="#A24005" />
             {/* 8 rays around */}
             <line x1="12" y1="2" x2="12" y2="4.5" />
             <line x1="12" y1="19.5" x2="12" y2="22" />
@@ -132,7 +132,7 @@ export function ThemeToggle({
       {/* ── Sliding Circular Knob ── */}
       <span
         className={`
-          inline-block h-[26px] w-[26px] transform rounded-full bg-white shadow-[0_2px_5px_rgba(0,0,0,0.2)]
+          inline-block h-[26px] w-[26px] transform rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.3)]
           transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
           ${isDark ? "translate-x-[30px]" : "translate-x-0"}
         `}

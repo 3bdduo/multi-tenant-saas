@@ -89,14 +89,14 @@ function LoaderInner() {
       { }
       <div className="fixed top-0 left-0 right-0 z-[10000] pointer-events-none">
         <div
-          className="h-1 bg-gradient-to-r from-primary via-accent to-emerald-400 shadow-[0_0_15px_rgba(0,229,255,0.9)] transition-all duration-150 ease-out"
+          className="h-1 bg-gradient-to-r from-primary via-primary-light to-accent shadow-[0_0_14px_rgba(var(--color-primary-rgb),0.75)] transition-all duration-150 ease-out"
           style={{ width: `${progress}%`, opacity: progress > 0 ? 1 : 0 }}
         />
       </div>
 
       {/* Instant ECG Pulse Modal Overlay */}
       {showOverlay && (
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-950/50 backdrop-blur-md transition-all duration-200 animate-fade-in">
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/55 backdrop-blur-md transition-all duration-200 animate-fade-in">
           <div className="relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl bg-surface/95 border border-primary/30 shadow-2xl backdrop-blur-xl max-w-xs sm:max-w-sm w-full mx-4 animate-scale-up">
 
             {/* ECG Heartbeat SVG */}
@@ -120,13 +120,14 @@ function LoaderInner() {
                   strokeWidth="5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  pathLength={1}
                   className="animate-ecg-pulse"
                 />
                 <defs>
                   <linearGradient id="ecg-gradient-instant" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="var(--color-primary, #06b6d4)" stopOpacity="0.2" />
-                    <stop offset="50%" stopColor="var(--color-primary-light, #22d3ee)" stopOpacity="1" />
-                    <stop offset="100%" stopColor="var(--color-accent, #3b82f6)" stopOpacity="0.2" />
+                    <stop offset="0%" stopColor="var(--color-primary, #2EC4B6)" stopOpacity="0.35" />
+                    <stop offset="50%" stopColor="var(--color-primary-light, #8CEADF)" stopOpacity="1" />
+                    <stop offset="100%" stopColor="var(--color-accent, #FF8B45)" stopOpacity="0.9" />
                   </linearGradient>
                 </defs>
               </svg>

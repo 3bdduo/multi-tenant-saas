@@ -65,7 +65,7 @@ export function SupportContactBox() {
                 target="_blank"
                 rel="noopener noreferrer"
                 title="تواصل عبر واتساب"
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all duration-200 shadow-sm"
+                className="flex h-9 w-9 items-center justify-center rounded-lg bg-success/15 text-success hover:bg-success hover:text-surface transition-all duration-200 shadow-sm"
               >
                 <IconWhatsApp className="h-4.5 w-4.5" />
               </a>

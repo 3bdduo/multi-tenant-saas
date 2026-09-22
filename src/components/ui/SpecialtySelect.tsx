@@ -87,7 +87,7 @@ export const SpecialtySelect = forwardRef<HTMLSelectElement, SpecialtySelectProp
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               className={`h-11 sm:h-12 w-full appearance-none rounded-xl border bg-surface px-4 py-2 text-sm sm:text-base font-medium text-text-primary outline-none transition-all duration-200 cursor-pointer focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-soft)] ${
-                error ? "border-danger shadow-[0_0_0_3px_rgba(209,68,68,0.08)]" : "border-border hover:border-border-hover"
+                error ? "border-danger shadow-[0_0_0_3px_rgba(var(--color-danger-rgb),0.14)]" : "border-border hover:border-border-hover"
               }`}
               {...props}
             >

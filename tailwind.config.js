@@ -136,8 +136,8 @@ module.exports = {
           "100%": { opacity: "1", transform: "scale(1)" },
         },
         "pulse-glow": {
-          "0%, 100%": { opacity: "0.8", transform: "scale(0.95)", filter: "drop-shadow(0 0 10px rgba(45, 212, 191, 0.5))" },
-          "50%": { opacity: "1", transform: "scale(1.15)", filter: "drop-shadow(0 0 25px rgba(45, 212, 191, 0.9))" },
+          "0%, 100%": { opacity: "0.8", transform: "scale(0.95)", filter: "drop-shadow(0 0 10px rgba(var(--color-primary-rgb), 0.5))" },
+          "50%": { opacity: "1", transform: "scale(1.15)", filter: "drop-shadow(0 0 25px rgba(var(--color-primary-rgb), 0.9))" },
         },
         "float-slow": {
           "0%, 100%": { transform: "translateY(0px)" },

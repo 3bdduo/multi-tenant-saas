@@ -211,14 +211,14 @@ export function DashboardShell({
             >
               {/* Avatar with Role Badge & Online Indicator */}
               <div className="relative shrink-0">
-                <div className="h-11 w-11 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-md bg-slate-900 group-hover:border-primary transition-all">
+                <div className="h-11 w-11 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-md bg-surface-raised group-hover:border-primary transition-all">
                   <img
                     src={profileData.avatar}
                     alt={profileData.name}
                     className="h-full w-full object-cover select-none group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <span className="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-surface shadow-xs" />
+                <span className="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 rounded-full bg-success live-dot border-2 border-surface shadow-xs" />
               </div>
 
               {/* Name & Role Portal Badge (Clear, fits perfectly without truncation) */}
@@ -247,14 +247,14 @@ export function DashboardShell({
                 title={`${profileData.name} (${profileData.roleLabel}) - انقر للإعدادات`}
               >
                 <div className="relative">
-                  <div className="h-11 w-11 rounded-2xl overflow-hidden border-2 border-primary/40 shadow-md bg-slate-900 group-hover:border-primary transition-all group-hover:scale-105">
+                  <div className="h-11 w-11 rounded-2xl overflow-hidden border-2 border-primary/40 shadow-md bg-surface-raised group-hover:border-primary transition-all group-hover:scale-105">
                     <img
                       src={profileData.avatar}
                       alt={profileData.name}
                       className="h-full w-full object-cover select-none"
                     />
                   </div>
-                  <span className="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-surface" />
+                  <span className="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 rounded-full bg-success live-dot border-2 border-surface" />
                 </div>
               </Link>
             </div>
@@ -263,7 +263,7 @@ export function DashboardShell({
 
         {/* ── Navigation Links ── */}
         <nav className="flex flex-col gap-0.5 overflow-x-hidden w-full">
-          {navItems.map((item) => {
+          {navItems.map((item, index) => {
             const active = pathname === item.href;
             return (
               <Link
@@ -271,12 +271,13 @@ export function DashboardShell({
                 href={item.href}
                 prefetch
                 title={isCollapsed ? item.label : undefined}
-                className={`group relative flex items-center rounded-xl py-2.5 font-medium transition-all duration-200 ${isCollapsed
+                style={{ animationDelay: `${index * 45}ms` }}
+                className={`animate-fade-in group relative flex items-center rounded-xl py-2.5 font-medium transition-all duration-200 ${isCollapsed
                     ? "justify-center px-2 text-base"
                     : "justify-start px-3.5 gap-3 text-sm"
                   } ${active
-                    ? "bg-gradient-to-r from-cyan-500/15 via-sky-500/10 to-emerald-500/5 text-cyan-700 dark:text-amber-400 font-bold border-r-2 border-cyan-600 dark:border-amber-500 shadow-xs"
-                    : "text-text-secondary hover:bg-cyan-50/60 dark:hover:bg-stone-800/40 hover:text-cyan-700 dark:hover:text-amber-300"
+                    ? "bg-gradient-to-r from-primary/15 via-primary/10 to-transparent text-primary font-bold border-r-2 border-primary shadow-[inset_-14px_0_24px_-18px_rgba(var(--color-primary-rgb),0.7)]"
+                    : "text-text-secondary hover:bg-primary-soft hover:text-primary"
                   }`}
               >
                 <span
@@ -427,14 +428,14 @@ export function DashboardShell({
                 className="flex items-center gap-3 rounded-2xl p-2.5 border border-border/50 bg-surface-raised/50"
               >
                 <div className="relative shrink-0">
-                  <div className="h-11 w-11 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-md bg-slate-900">
+                  <div className="h-11 w-11 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-md bg-surface-raised">
                     <img
                       src={profileData.avatar}
                       alt={profileData.name}
                       className="h-full w-full object-cover"
                     />
                   </div>
-                  <span className="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-surface" />
+                  <span className="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 rounded-full bg-success live-dot border-2 border-surface" />
                 </div>
                 <div className="flex flex-1 flex-col min-w-0 text-right leading-tight">
                   <span className="font-bold text-sm text-text-primary truncate">
@@ -494,7 +495,9 @@ export function DashboardShell({
 
         {/* Page Content */}
         <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8 min-w-0 overflow-x-hidden">
-          {children}
+          <div key={pathname} className="page-enter">
+            {children}
+          </div>
         </main>
       </div>
 

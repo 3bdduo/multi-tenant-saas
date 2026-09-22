@@ -64,17 +64,18 @@ export function GlobalPreloader() {
       else if (role === "Hospital") routesToPrefetch.push(...HOSPITAL_ROUTES);
     }
 
-    
-    const timer = setTimeout(() => {
-      routesToPrefetch.forEach((route) => {
-        try {
-          router.prefetch(route);
-        } catch {
-          
-        }
-      });
+    // Fire immediately (was delayed 500ms for no real reason — prefetching
+    // is exactly the kind of work that should start the instant we know
+    // who the user is, not after an arbitrary pause).
+    routesToPrefetch.forEach((route) => {
+      try {
+        router.prefetch(route);
+      } catch {
 
-      
+      }
+    });
+
+    {
       prefetchApi("/clinic/paid", { auth: false });
 
       if (isAuthenticated) {
@@ -100,9 +101,7 @@ export function GlobalPreloader() {
           prefetchApi("/notification");
         }
       }
-    }, 500);
-
-    return () => clearTimeout(timer);
+    }
   }, [router, isAuthenticated, role]);
 
   return null;

@@ -33,7 +33,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(
               placeholder:text-text-secondary/50 outline-none
               transition-all duration-250 ease-spring
               focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-soft)]
-              ${error ? "border-danger shadow-[0_0_0_3px_rgba(209,68,68,0.08)]" : "border-border hover:border-border-hover"}
+              ${error ? "border-danger shadow-[0_0_0_3px_rgba(var(--color-danger-rgb),0.14)]" : "border-border hover:border-border-hover"}
               ${isPassword ? "pr-10" : ""}`}
             onFocus={(e) => {
               setFocused(true);
@@ -110,7 +110,7 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
           className={`h-11 rounded-xl border bg-surface px-4 text-sm text-text-primary
             outline-none transition-all duration-250 ease-spring cursor-pointer
             focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-soft)]
-            ${error ? "border-danger shadow-[0_0_0_3px_rgba(209,68,68,0.08)]" : "border-border hover:border-border-hover"}`}
+            ${error ? "border-danger shadow-[0_0_0_3px_rgba(var(--color-danger-rgb),0.14)]" : "border-border hover:border-border-hover"}`}
           onFocus={(e) => {
             setFocused(true);
             onFocus?.(e);
@@ -173,7 +173,7 @@ export const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>
             placeholder:text-text-secondary/50 outline-none min-h-[90px]
             transition-all duration-250 ease-spring
             focus:border-primary focus:shadow-[0_0_0_3px_var(--color-primary-soft)]
-            ${error ? "border-danger shadow-[0_0_0_3px_rgba(209,68,68,0.08)]" : "border-border hover:border-border-hover"}`}
+            ${error ? "border-danger shadow-[0_0_0_3px_rgba(var(--color-danger-rgb),0.14)]" : "border-border hover:border-border-hover"}`}
           onFocus={(e) => {
             setFocused(true);
             onFocus?.(e);

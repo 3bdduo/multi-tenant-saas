@@ -7,26 +7,27 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  // All variants: gray-700 + white text (light) / gray-200 + dark text (dark)
-  // Hover NEVER changes background color, text color, or border color
+  // Cinematic palette: teal = primary, orange = vibrant, tinted-glass = secondary.
+  // Hover NEVER changes background color, text color, or border color —
+  // it only lifts the button and blooms a soft colored glow.
 
   primary:
-    "bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-900 font-bold border border-gray-600 dark:border-gray-300 shadow-xs hover:shadow-sm hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98]",
+    "bg-primary text-surface font-bold border border-primary/60 shadow-[0_6px_18px_-8px_rgba(var(--color-primary-rgb),0.55)] hover:shadow-[0_12px_28px_-8px_rgba(var(--color-primary-rgb),0.7)] hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98]",
 
   secondary:
-    "bg-gray-600 text-white dark:bg-gray-300 dark:text-gray-900 font-semibold border border-gray-500 dark:border-gray-400 shadow-xs hover:shadow-sm hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98]",
+    "bg-primary/10 text-primary font-semibold border border-primary/40 hover:shadow-[0_10px_24px_-10px_rgba(var(--color-primary-rgb),0.55)] hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98]",
 
   vibrant:
-    "bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-900 font-extrabold border border-gray-600 dark:border-gray-300 shadow-xs hover:shadow-sm hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98]",
+    "bg-accent text-surface font-extrabold border border-accent/60 shadow-[0_6px_18px_-8px_rgba(var(--color-accent-rgb),0.6)] hover:shadow-[0_12px_28px_-8px_rgba(var(--color-accent-rgb),0.75)] hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98]",
 
   outline:
-    "bg-transparent text-gray-800 dark:text-gray-200 font-semibold border border-gray-500 dark:border-gray-500 hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98]",
+    "bg-transparent text-text-primary font-semibold border border-text-secondary/40 hover:shadow-[0_8px_22px_-10px_rgba(var(--color-primary-rgb),0.45)] hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98]",
 
   ghost:
-    "bg-transparent text-gray-700 dark:text-gray-300 font-medium hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98]",
+    "bg-transparent text-text-secondary font-medium hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98]",
 
   danger:
-    "bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-900 font-bold border border-gray-600 dark:border-gray-300 shadow-xs hover:shadow-sm hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98]",
+    "bg-danger text-surface font-bold border border-danger/60 shadow-[0_6px_18px_-8px_rgba(var(--color-danger-rgb),0.55)] hover:shadow-[0_12px_28px_-8px_rgba(var(--color-danger-rgb),0.7)] hover:-translate-y-0.5 active:translate-y-[1px] active:scale-[0.98]",
 };
 
 
@@ -45,7 +46,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={`group relative inline-flex items-center justify-center text-center font-medium select-none cursor-pointer
-          transition-all duration-150 ease-out
+          transition-[transform,box-shadow] duration-100 ease-out
           disabled:cursor-not-allowed disabled:opacity-50 disabled:pointer-events-none disabled:transform-none disabled:shadow-none
           ${variants[variant]} ${sizes[size]} ${className}`}
         {...props}

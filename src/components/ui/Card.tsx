@@ -10,7 +10,7 @@ export function Card({
   return (
     <div
       className={`
-        rounded-2xl border border-border/80 bg-surface p-6 shadow-sm
+        cine-rim rounded-2xl border border-border/80 bg-surface p-6 shadow-sm
         transition-all duration-280 ease-smooth
         ${glass ? "glass-alive" : ""}
         ${vibrant ? "hover:border-primary/60 hover:shadow-glow" : ""}

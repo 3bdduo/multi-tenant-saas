@@ -630,9 +630,9 @@ function TabButton({
 }) {
   const colorMap = {
     primary: "shadow-glow-cyan",
-    success: "shadow-[0_0_12px_rgba(34,197,94,0.3)]",
-    danger: "shadow-[0_0_12px_rgba(239,68,68,0.3)]",
-    warning: "shadow-[0_0_12px_rgba(234,179,8,0.3)]",
+    success: "shadow-[0_0_12px_rgba(var(--color-success-rgb),0.35)]",
+    danger: "shadow-[0_0_12px_rgba(var(--color-danger-rgb),0.35)]",
+    warning: "shadow-[0_0_12px_rgba(var(--color-warning-rgb),0.35)]",
   };
 
   return (

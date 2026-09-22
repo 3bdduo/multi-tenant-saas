@@ -314,9 +314,16 @@ export default function DoctorPatientsPage() {
       {/* ══════════════════════════════════════════════════
           FLOATING BUTTON -> Redirects to the new page
       ══════════════════════════════════════════════════ */}
-      <Link href="/doctor/patient-reports" className="fixed bottom-8 left-8 z-40">
-        <button className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-surface-raised text-text-primary font-bold text-sm shadow-xl hover:bg-surface hover:-translate-y-0.5 border border-border/60 transition-all duration-200">
-          ملفات وتقارير المرضى
+      {/* bottom-24 on mobile keeps this clear of the draggable assistant
+          orb's default resting spot in the same corner; text collapses to
+          an icon below sm so the pill can't run into the screen edge. */}
+      <Link href="/doctor/patient-reports" className="fixed bottom-24 sm:bottom-8 left-4 sm:left-8 z-40">
+        <button className="flex items-center gap-2 sm:gap-3 px-3.5 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-surface-raised text-text-primary font-bold text-sm shadow-xl hover:bg-surface hover:-translate-y-0.5 border border-border/60 transition-all duration-200">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 sm:hidden">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <path d="M14 2v6h6" />
+          </svg>
+          <span className="hidden sm:inline">ملفات وتقارير المرضى</span>
           {unseenCount > 0 && (
             <span className="h-6 min-w-[1.5rem] flex items-center justify-center rounded-full bg-danger text-surface text-xs font-black px-1.5 animate-pulse">
               {unseenCount}

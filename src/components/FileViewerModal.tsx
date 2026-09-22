@@ -155,7 +155,7 @@ export function FileViewerModal({ file, onClose }: FileViewerModalProps) {
         </div>
 
         {/* Content Viewer Canvas */}
-        <div className="relative flex-1 overflow-auto p-4 sm:p-6 bg-[#0B0F15] flex items-center justify-center min-h-[55vh] max-h-[75vh]">
+        <div className="relative flex-1 overflow-auto p-4 sm:p-6 bg-[#070B0F] flex items-center justify-center min-h-[55vh] max-h-[75vh]">
           {isImage ? (
             <div className="overflow-auto max-w-full max-h-full flex items-center justify-center p-2">
               <img

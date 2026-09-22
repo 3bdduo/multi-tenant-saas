@@ -28,7 +28,7 @@ export default function HospitalNotificationsPage() {
         </p>
       </div>
 
-      <Card className="shadow-xl border-violet-500/20">
+      <Card className="shadow-xl border-secondary/25">
         <div className="border-b border-border/50 pb-4 mb-4">
           <h2 className="font-display text-base sm:text-lg font-bold text-text-primary flex items-center gap-2">
             <span>التنبيهات الإدارية ({notifications.length})</span>
@@ -50,7 +50,7 @@ export default function HospitalNotificationsPage() {
                 className="py-4 flex flex-col gap-1.5 cursor-pointer hover:bg-surface-raised/60 p-3 rounded-xl transition-all"
               >
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <span className="rounded-full bg-cyan-500/15 border border-cyan-500/30 px-2.5 py-0.5 text-[11px] font-bold text-cyan-700 dark:text-amber-400 dark:bg-amber-800/15 dark:border-amber-700/30">
+                  <span className="rounded-full bg-primary/15 border border-primary/30 px-2.5 py-0.5 text-[11px] font-bold text-primary">
                     تنبيه من إدارة المنصة
                   </span>
                   <span className="text-[10px] text-text-secondary opacity-60 font-mono">
@@ -86,12 +86,12 @@ export default function HospitalNotificationsPage() {
           onClick={() => setSelectedNotif(null)}
         >
           <Card
-            className="max-w-lg w-full shadow-2xl border-cyan-400/25 bg-surface p-6"
+            className="max-w-lg w-full shadow-2xl border-primary/25 bg-surface p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between border-b border-border/50 pb-4 mb-4">
               <div>
-                <span className="inline-block rounded-full bg-cyan-500/15 border border-cyan-500/30 px-2.5 py-0.5 text-[11px] font-extrabold text-cyan-700 dark:text-amber-400 dark:bg-amber-800/15 dark:border-amber-700/30 mb-2">
+                <span className="inline-block rounded-full bg-primary/15 border border-primary/30 px-2.5 py-0.5 text-[11px] font-extrabold text-primary mb-2">
                   تنبيه إداري
                 </span>
                 <h3 className="font-display text-xl font-extrabold text-text-primary">
@@ -118,7 +118,7 @@ export default function HospitalNotificationsPage() {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setSelectedNotif(null)}
-                className="rounded-xl bg-gray-700 dark:bg-gray-200 dark:text-gray-900 px-5 py-2.5 text-xs font-bold text-white transition-all shadow-sm"
+                className="rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-xs font-bold transition-all shadow-sm hover:shadow-glow-cyan"
               >
                 إغلاق
               </button>

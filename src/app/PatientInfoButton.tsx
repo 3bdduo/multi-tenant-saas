@@ -43,7 +43,7 @@ export function PatientInfoButton() {
                 يتم إنشاء حساب المريض <span className="font-bold text-accent">حصرياً من قبل الطبيب المعالج</span> للحفاظ على سرية وخصوصية سجلاتك الطبية.
               </p>
 
-              <div className="rounded-2xl bg-mint border border-[rgba(20,107,112,0.18)] dark:bg-primary/10 dark:border-primary/20 p-4 mb-6 w-full text-right">
+              <div className="rounded-2xl bg-mint border border-[rgba(var(--color-primary-rgb),0.22)] dark:bg-primary/10 dark:border-primary/20 p-4 mb-6 w-full text-right">
                 <p className="text-xs text-text-secondary leading-relaxed">
                   <strong className="text-text-primary">خطوات بسيطة:</strong> تواصل مع طبيبك أو عيادتك المسجلة، وسيتم تزويدك ببيانات الدخول للوصول الفوري لسجلاتك ومواعيدك.
                 </p>
