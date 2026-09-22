@@ -36,12 +36,12 @@ export default function LandingPage() {
       {/* Main Content */}
       <main className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 sm:py-10 md:px-12 md:py-16">
         {/* Intro Header */}
-        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 md:mb-16 animate-fade-in-slow">
-          <HeartbeatLine className="mx-auto mb-5 h-10 w-56 sm:h-12 sm:w-72" />
-
-          <h1 className="font-brush text-3xl sm:text-5xl md:text-6xl font-bold leading-[1.35] tracking-normal text-text-primary dark:text-glow">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 md:mb-16 animate-fade-in-slow flex flex-col items-center">
+          <h1 className="font-brush text-3xl sm:text-5xl md:text-6xl font-bold leading-[1.35] tracking-normal text-text-primary dark:text-glow mb-6 sm:mb-8">
             مرحباً بك في منصة <span className="gradient-text-alive font-brush">نبض | Nabd</span>
           </h1>
+
+          <HeartbeatLine className="mx-auto h-10 w-56 sm:h-12 sm:w-72" />
           <p className="mt-3 text-sm leading-relaxed text-text-secondary sm:text-base md:text-lg">
             منصة سحابية متكاملة لربط المرضى، العيادات، والمستشفيات. اختر وجهتك للبدء أو احجز كشفك مباشرةً.
           </p>

@@ -398,7 +398,6 @@ body, header, footer, aside, nav, main, div {
     -webkit-text-fill-color: transparent;
     color: transparent;
     display: inline-block;
-    padding-bottom: 0.3em;
     overflow: visible;
     animation: text-drift 12s ease-in-out infinite alternate;
   }
