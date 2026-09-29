@@ -538,35 +538,6 @@ body, header, footer, aside, nav, main, div {
   animation: cine-breathe 6s ease-in-out infinite;
 }
 
-/* Medical monitor sweep — a slow vertical scan-line, like an ultrasound or
-   MRI pass, crossing the whole page top to bottom on a loop. */
-.cine-monitor-sweep {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -10%;
-  height: 26%;
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(var(--cine-teal), 0.05) 45%,
-    rgba(var(--cine-teal), 0.09) 50%,
-    rgba(var(--cine-teal), 0.05) 55%,
-    transparent 100%
-  );
-  animation: cine-monitor-sweep 9s linear infinite;
-}
-
-/* Floating medical particles (heartbeat, cross, DNA, pill, stethoscope) */
-.cine-particle {
-  position: absolute;
-  pointer-events: none;
-  color: rgba(var(--cine-teal), 1);
-  opacity: 0;
-  will-change: transform, opacity;
-}
-
 /* Continuous "vital" pulse ring — expands and fades on a loop, like a
    heart-rate monitor blip, behind an icon badge. Wrap the badge in a
    relatively-positioned element with class="pulse-ring-host" and add
@@ -675,11 +646,6 @@ body, header, footer, aside, nav, main, div {
   50% { opacity: 1; transform: scale(1.22); }
 }
 
-@keyframes cine-monitor-sweep {
-  0%   { transform: translateY(0%); }
-  100% { transform: translateY(500%); }
-}
-
 @keyframes pulse-ring-expand {
   0%   { opacity: 0.55; transform: scale(0.85); }
   80%  { opacity: 0; transform: scale(1.9); }
@@ -695,22 +661,6 @@ body, header, footer, aside, nav, main, div {
   36%  { transform: scale(1.14); }
   48%  { transform: scale(1); }
   100% { transform: scale(1); }
-}
-
-@keyframes particle-float-a {
-  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  10%  { opacity: 0.5; }
-  50%  { transform: translate(3vw, -14vh) rotate(12deg); opacity: 0.32; }
-  90%  { opacity: 0.4; }
-  100% { transform: translate(-2vw, -30vh) rotate(-6deg); opacity: 0; }
-}
-
-@keyframes particle-float-b {
-  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-  10%  { opacity: 0.4; }
-  50%  { transform: translate(-4vw, -18vh) rotate(-16deg); opacity: 0.28; }
-  90%  { opacity: 0.35; }
-  100% { transform: translate(2vw, -34vh) rotate(10deg); opacity: 0; }
 }
 
 @keyframes text-drift {
@@ -790,8 +740,6 @@ body, header, footer, aside, nav, main, div {
 .animate-float-slow    { animation: float-slow 7s ease-in-out infinite; }
 .animate-pulse-glow    { animation: pulse-glow 4.5s ease-in-out infinite; }
 .animate-heartbeat     { animation: heartbeat-scale 2.4s ease-in-out infinite; }
-.particle-a            { animation: particle-float-a 16s ease-in-out infinite; }
-.particle-b            { animation: particle-float-b 19s ease-in-out infinite; }
 .animate-pulse         { animation: pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 .animate-ecg-pulse     { stroke-dasharray: 0.32 1; animation: ecg-travel 1.7s linear infinite; }
 .animate-ecg-scan      { animation: ecg-scan 2.2s ease-in-out infinite; }
@@ -933,8 +881,6 @@ table td {
   }
 
   .cine-orb,
-  .cine-monitor-sweep,
-  .cine-particle,
   .pulse-ring,
   .gradient-text-alive,
   .gradient-text,
