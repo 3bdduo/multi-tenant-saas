@@ -18,14 +18,21 @@ export function RequireRole({
 
   useEffect(() => {
     if (isLoading) return;
-    if (!isAuthenticated || currentRole !== role) {
+    if (!isAuthenticated) {
+      // مش مسجل دخول أصلًا → صفحة اللوجن المناسبة
       const target =
         role === "Admin"
           ? "/admin-login"
-          : !isAuthenticated && pathname
+          : pathname
             ? `/login?redirect=${encodeURIComponent(pathname)}`
             : "/login";
       router.replace(target);
+      return;
+    }
+    if (currentRole !== role) {
+      // مسجل دخول فعلًا لكن بدور مختلف (مثلاً Patient بيحاول يفتح /doctor/...)
+      // → صفحة 403 واضحة بدل ما يترمي على صفحة اللوجن وهو أصلًا داخل
+      router.replace("/forbidden");
     }
   }, [isLoading, isAuthenticated, currentRole, role, router, pathname]);
 

@@ -292,7 +292,7 @@ export default function DoctorPatientsPage() {
           <Card className="max-w-md w-full shadow-2xl bg-surface border-primary/20">
             <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-4">
               <h3 className="font-display text-lg font-bold text-text-primary">إرسال إشعار للمريض</h3>
-              <button onClick={() => setShowNotifModal(false)} className="h-8 w-8 flex items-center justify-center rounded-full text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors">✕</button>
+              <button onClick={() => setShowNotifModal(false)} className="h-11 w-11 flex items-center justify-center rounded-full text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors">✕</button>
             </div>
             <p className="text-sm text-text-secondary mb-4">إرسال رسالة للمريض: <span className="font-bold text-text-primary">{selectedPatient.firstName} {selectedPatient.lastName}</span></p>
             <form onSubmit={handleSendNotification} className="flex flex-col gap-4">

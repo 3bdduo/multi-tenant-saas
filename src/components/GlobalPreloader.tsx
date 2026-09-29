@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { prefetchApi } from "@/lib/http";
+import { runIdlePrefetch } from "@/lib/idlePrefetch";
 
 const COMMON_ROUTES = [
   "/",
@@ -75,33 +76,44 @@ export function GlobalPreloader() {
       }
     });
 
-    {
-      prefetchApi("/clinic/paid", { auth: false });
+    // خفيف ومشترك: بيانات الصفحة الرئيسية العامة، فورًا (مش محتاجة تسجيل دخول)
+    prefetchApi("/clinic/paid", { auth: false });
 
-      if (isAuthenticated) {
-        if (role === "Doctor") {
-          prefetchApi("/doctor/clinic");
-          prefetchApi("/appointment");
-          prefetchApi("/patient/my-patients");
-          prefetchApi("/notification");
-        } else if (role === "Patient") {
-          prefetchApi("/patient");
-          prefetchApi("/appointment/patient");
-          prefetchApi("/medical-record");
-          prefetchApi("/medical-record/patient/my-documents");
-          prefetchApi("/notification");
-        } else if (role === "Admin") {
-          prefetchApi("/admin/doctor");
-          prefetchApi("/admin/clinic");
-          prefetchApi("/admin/hospital");
-          prefetchApi("/admin/patient");
-        } else if (role === "Hospital") {
-          prefetchApi("/hospital/profile");
-          prefetchApi("/emergency-case/hospital");
-          prefetchApi("/notification");
-        }
-      }
+    if (!isAuthenticated) return;
+
+    // باقي بيانات الصفحات المحتملة: في الخلفية وقت الخمول، بحد أقصى 3 متزامنين،
+    // وبس اللي يناسب صلاحية المستخدم الحالي.
+    const idleTasks: Array<() => Promise<unknown>> = [];
+    if (role === "Doctor") {
+      idleTasks.push(
+        () => prefetchApi("/notification"), // إشعارات: خفيفة ومهمة فعلاً من أول لحظة
+        () => prefetchApi("/doctor/clinic"),
+        () => prefetchApi("/appointment"),
+        () => prefetchApi("/patient/my-patients"),
+      );
+    } else if (role === "Patient") {
+      idleTasks.push(
+        () => prefetchApi("/notification"),
+        () => prefetchApi("/patient"),
+        () => prefetchApi("/appointment/patient"),
+        () => prefetchApi("/medical-record"),
+        () => prefetchApi("/medical-record/patient/my-documents"),
+      );
+    } else if (role === "Admin") {
+      idleTasks.push(
+        () => prefetchApi("/admin/doctor"),
+        () => prefetchApi("/admin/clinic"),
+        () => prefetchApi("/admin/hospital"),
+        () => prefetchApi("/admin/patient"),
+      );
+    } else if (role === "Hospital") {
+      idleTasks.push(
+        () => prefetchApi("/notification"),
+        () => prefetchApi("/hospital/profile"),
+        () => prefetchApi("/emergency-case/hospital"),
+      );
     }
+    runIdlePrefetch(idleTasks, 3);
   }, [router, isAuthenticated, role]);
 
   return null;

@@ -153,7 +153,6 @@
   --cine-vignette: rgba(8, 45, 50, 0.10);
   --cine-grain-opacity: 0.05;
   --cine-grain-invert: 1;
-  --cine-streak-max: 0;
   --cine-rim: rgba(255, 255, 255, 0);
 
   /* Motion */
@@ -299,7 +298,6 @@
   --cine-vignette: rgba(0, 0, 0, 0.55);
   --cine-grain-opacity: 0.06;
   --cine-grain-invert: 0;
-  --cine-streak-max: 0.55;
   --cine-rim: rgba(255, 255, 255, 0.09);
 
   color-scheme: dark;
@@ -585,26 +583,6 @@ body, header, footer, aside, nav, main, div {
   animation: pulse-ring-expand 2.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
-.cine-streak {
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 22%;
-  height: 1px;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(var(--cine-teal), 0.85) 30%,
-    rgba(255, 246, 235, 0.95) 50%,
-    rgba(var(--cine-orange), 0.85) 70%,
-    transparent 100%
-  );
-  box-shadow: 0 0 22px 2px rgba(var(--cine-teal), 0.30), 0 0 60px 6px rgba(var(--cine-orange), 0.14);
-  opacity: 0;
-  animation: cine-streak 13s ease-in-out infinite;
-}
-
 .cine-vignette {
   position: absolute;
   inset: 0;
@@ -733,11 +711,6 @@ body, header, footer, aside, nav, main, div {
   50%  { transform: translate(-4vw, -18vh) rotate(-16deg); opacity: 0.28; }
   90%  { opacity: 0.35; }
   100% { transform: translate(2vw, -34vh) rotate(10deg); opacity: 0; }
-}
-
-@keyframes cine-streak {
-  0%, 100% { opacity: 0; transform: scaleX(0.72); }
-  35%, 65% { opacity: var(--cine-streak-max); transform: scaleX(1); }
 }
 
 @keyframes text-drift {
@@ -960,7 +933,6 @@ table td {
   }
 
   .cine-orb,
-  .cine-streak,
   .cine-monitor-sweep,
   .cine-particle,
   .pulse-ring,

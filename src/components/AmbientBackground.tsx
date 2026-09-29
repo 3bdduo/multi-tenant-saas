@@ -85,9 +85,6 @@ export function AmbientBackground() {
       {/* Medical monitor scan sweep, passing top to bottom on a loop */}
       <div className="cine-monitor-sweep" />
 
-      {/* Anamorphic lens streak (mostly a dark-mode effect via tokens) */}
-      <div className="cine-streak" style={{ animationDelay: "-4s" }} />
-
       {/* Drifting medical icon particles — heartbeat, cross, DNA, pill, stethoscope */}
       {PARTICLES.map(({ Icon, style, size, cls, delay }, i) => (
         <div
