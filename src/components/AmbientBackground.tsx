@@ -1,5 +1,5 @@
 /**
- * Medical icon particles — drawn as inline SVG (no image assets needed).
+ * Medical icon particles z,zll — drawn as inline SVG (no image assets needed).
  * Extremely low opacity, aria-hidden, and animate on transform/opacity only
  * so they're cheap to render and never affect click responsiveness.
  */
