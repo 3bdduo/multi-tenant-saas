@@ -64,7 +64,7 @@ export default function LandingPage() {
           {/* 1. Emergency & Cases Card (Danger / warm red) */}
           <Card
             glass
-            className="reveal group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl !border-danger/30 hover:!border-danger/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-22px_rgba(var(--color-danger-rgb),0.5)] text-center shadow-sm"
+            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl !border-danger/30 hover:!border-danger/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-22px_rgba(var(--color-danger-rgb),0.5)] text-center shadow-sm"
           >
             <div className="flex flex-col items-center">
               <div className="pulse-ring-host rounded-xl sm:rounded-2xl mb-4 sm:mb-6">
@@ -111,7 +111,7 @@ export default function LandingPage() {
           {/* 2. Patients & Bookings Card (Teal / primary) */}
           <Card
             glass
-            className="reveal group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl !border-primary/30 hover:!border-primary/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-22px_rgba(var(--color-primary-rgb),0.5)] text-center shadow-sm"
+            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl !border-primary/30 hover:!border-primary/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-22px_rgba(var(--color-primary-rgb),0.5)] text-center shadow-sm"
           >
             <div className="flex flex-col items-center">
               <div className="pulse-ring-host rounded-xl sm:rounded-2xl mb-4 sm:mb-6">
@@ -159,7 +159,7 @@ export default function LandingPage() {
           {/* 3. Doctors & Clinics Card (Orange / accent) */}
           <Card
             glass
-            className="reveal group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl !border-accent/30 hover:!border-accent/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-22px_rgba(var(--color-accent-rgb),0.5)] text-center shadow-sm"
+            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl !border-accent/30 hover:!border-accent/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-22px_rgba(var(--color-accent-rgb),0.5)] text-center shadow-sm"
           >
             <div className="flex flex-col items-center">
               <div className="pulse-ring-host rounded-xl sm:rounded-2xl mb-4 sm:mb-6">
@@ -205,7 +205,7 @@ export default function LandingPage() {
           {/* 4. Hospitals & Facilities Card (Steel blue / secondary) */}
           <Card
             glass
-            className="reveal group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl !border-secondary/30 hover:!border-secondary/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-22px_rgba(var(--color-secondary-rgb),0.5)] text-center shadow-sm"
+            className="group relative flex flex-col justify-between p-5 sm:p-8 md:p-9 min-h-[360px] sm:min-h-[490px] rounded-2xl sm:rounded-3xl !border-secondary/30 hover:!border-secondary/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_-22px_rgba(var(--color-secondary-rgb),0.5)] text-center shadow-sm"
           >
             <div className="flex flex-col items-center">
               <div className="pulse-ring-host rounded-xl sm:rounded-2xl mb-4 sm:mb-6">

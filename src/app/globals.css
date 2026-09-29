@@ -777,31 +777,6 @@ body, header, footer, aside, nav, main, div {
   animation: live-ring 2.6s ease-out infinite;
 }
 
-/* Scroll-driven reveal (progressive enhancement: browsers without support
-   simply show the element normally). Add `reveal` to any block. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .reveal {
-      animation: reveal-up linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 55%;
-    }
-  }
-}
-
-@keyframes reveal-up {
-  from { opacity: 0; translate: 0 26px; scale: 0.985; }
-}
-
-/* Fallback (e.g. Firefox): a gentle fade-in on load instead of on scroll */
-@supports not (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .reveal {
-      animation: fade-in 0.8s var(--ease-cine) both;
-    }
-  }
-}
-
 /* ═══════════════════════════════════════════════
    Mobile-First Responsive Utilities
    ═══════════════════════════════════════════════ */
@@ -904,11 +879,6 @@ table td {
     animation-delay: 0ms !important;
   }
 
-  .reveal {
-    animation: none !important;
-  }
-}
-
 /* Decorative heartbeat line (<HeartbeatLine />): a soft pulse travelling along the trace */
 .hb-pulse {
   stroke-dasharray: 0.32 1;
@@ -927,4 +897,4 @@ table td {
   .hb-blip {
     display: none;
   }
-}
+}}
