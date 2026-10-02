@@ -642,6 +642,26 @@ function DoctorNotificationsContent() {
                           </Button>
                         </div>
                       </div>
+                    ) : n.consultationId ? (
+                      // إشعار استشارة طبية عامة (من النظام، مش من الدكتور نفسه) — رابط بس، مفيش تعديل/حذف
+                      <Link
+                        href={`/doctor/consultations/${n.consultationId}`}
+                        className="flex-1 flex items-start justify-between gap-3 -m-1 p-1 rounded-xl hover:bg-surface-raised transition-colors"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className="rounded-full bg-accent/15 border border-accent/30 px-2.5 py-0.5 text-[11px] font-bold text-accent">
+                              🩺 استشارة طبية جديدة
+                            </span>
+                            <span className="text-[10px] text-text-secondary opacity-60">
+                              {new Date(n.createdAt).toLocaleString("ar-EG")}
+                            </span>
+                          </div>
+                          <p className="text-sm font-bold text-text-primary mt-1">{n.title}</p>
+                          <p className="text-xs sm:text-sm text-text-secondary mt-1 leading-relaxed whitespace-pre-wrap">{n.message}</p>
+                        </div>
+                        <span className="text-xs font-bold text-primary shrink-0 self-center">فتح ←</span>
+                      </Link>
                     ) : (
                       // View Mode
                       <>

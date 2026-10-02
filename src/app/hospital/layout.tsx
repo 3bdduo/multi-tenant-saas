@@ -2,7 +2,7 @@
 
 import { RequireRole } from "@/components/RequireRole";
 import { DashboardShell } from "@/components/layout/DashboardShell";
-import { IconDashboard, IconUsers, IconBell } from "@/components/ui/icons";
+import { IconDashboard, IconUsers, IconBell, IconSurgery } from "@/components/ui/icons";
 
 const HospitalIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -22,6 +22,7 @@ const AlertIcon = () => (
 const NAV_ITEMS = [
   { href: "/hospital", label: "لوحة التحكم", icon: <IconDashboard /> },
   { href: "/hospital/emergency", label: "تقارير الطوارئ", icon: <AlertIcon /> },
+  { href: "/hospital/surgery-bookings", label: "طلبات حجز العمليات", icon: <IconSurgery /> },
   { href: "/hospital/profile", label: "بيانات المستشفى", icon: <HospitalIcon /> },
   { href: "/hospital/notifications", label: "الإشعارات", icon: <IconBell /> },
 ];

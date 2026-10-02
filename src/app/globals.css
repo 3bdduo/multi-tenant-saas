@@ -878,6 +878,7 @@ table td {
     animation-duration: 0.01ms !important;
     animation-delay: 0ms !important;
   }
+}
 
 /* Decorative heartbeat line (<HeartbeatLine />): a soft pulse travelling along the trace */
 .hb-pulse {
@@ -897,4 +898,4 @@ table td {
   .hb-blip {
     display: none;
   }
-}}
+}

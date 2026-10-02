@@ -8,7 +8,6 @@ import { Preloader } from "@/components/Preloader";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { HeartbeatLoader } from "@/components/ui/HeartbeatLoader";
-import { SmartAssistant } from "@/components/SmartAssistant";
 
 
 const readexPro = Readex_Pro({
@@ -75,7 +74,6 @@ export default function RootLayout({
             <GlobalPreloader />
             <AmbientBackground />
             <HeartbeatLoader />
-            <SmartAssistant />
             <Preloader>{children}</Preloader>
           </AuthProvider>
         </ThemeProvider>

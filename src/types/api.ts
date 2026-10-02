@@ -118,6 +118,45 @@ export interface ExtractedPrescription {
   notes: string;
 }
 
+export type ConsultationSenderType = "Patient" | "AI" | "Doctor";
+
+export interface ConsultationMessage {
+  _id: string;
+  senderType: ConsultationSenderType;
+  senderId?: string | { _id: string; firstName: string; lastName: string };
+  text?: string;
+  image?: { public_id: string; secure_url: string };
+  createdAt: string;
+}
+
+export type SurgeryBookingStatus = "Pending" | "Accepted" | "Completed" | "Cancelled";
+export type AccepterRole = "Doctor" | "Hospital";
+
+export interface SurgeryBooking {
+  _id: string;
+  patientId: string | { _id: string; firstName: string; lastName: string; phoneNumber?: string };
+  title: string;
+  description?: string;
+  reports: { public_id: string; secure_url: string }[];
+  bookingCode: string;
+  status: SurgeryBookingStatus;
+  viewedBy: { role: AccepterRole; id: string }[];
+  acceptedByRole?: AccepterRole;
+  acceptedById?: string | { _id: string; firstName?: string; lastName?: string; hospitalName?: string };
+  statusMessage?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Consultation {
+  _id: string;
+  patientId: string | { _id: string; firstName: string; lastName: string };
+  messages: ConsultationMessage[];
+  lastMessageAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface MedicalRecord {
   _id: string;
   patientId: string | { _id: string; role: string; firstName: string; lastName: string };
@@ -290,6 +329,8 @@ export interface Notification {
   isRead?: boolean;
   createdAt: string;
   updatedAt: string;
+  // اختياري: موجود بس في إشعارات الاستشارات الطبية العامة (نظام، مش من الدكتور)
+  consultationId?: string;
 }
 
 export interface CreateNotificationPayload {
