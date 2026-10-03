@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useParams, useRouter } from "next/navigation";
 import { getHospitalById, renewHospitalSubscription, deleteHospital } from "@/lib/api/admin";
 import { Card } from "@/components/ui/Card";
@@ -17,8 +18,13 @@ export default function AdminHospitalDetailPage() {
   const [renewLoading, setRenewLoading] = useState(false);
   const [months, setMonths] = useState("1");
   const [actionMsg, setActionMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [mounted, setMounted] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   async function loadHospital() {
     if (!id) return;
@@ -209,9 +215,15 @@ export default function AdminHospitalDetailPage() {
       </Card>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <Card className="max-w-md w-full shadow-2xl border-danger/30 bg-surface p-6">
+      {showDeleteModal && mounted && createPortal(
+        <div
+          className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in"
+          onClick={() => setShowDeleteModal(false)}
+        >
+          <Card
+            className="max-w-md w-full shadow-2xl border-danger/30 bg-surface p-6 animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex flex-col items-center text-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-danger/10 text-danger text-3xl font-black">
                 !
@@ -253,7 +265,8 @@ export default function AdminHospitalDetailPage() {
               </div>
             </div>
           </Card>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

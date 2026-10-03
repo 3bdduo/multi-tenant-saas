@@ -39,11 +39,19 @@ export default function DoctorDashboardPage() {
 
 
 
+        const [meRes, clinicRes, apptRes, patientRes] = await Promise.allSettled([
+          getMe(),
+          getMyClinic(),
+          getMyAppointments(),
+          getMyPatients(),
+        ]);
+        if (cancelled) return;
+
         let doctorActive = false;
-        try {
-          await getMe();
+        if (meRes.status === "fulfilled") {
           doctorActive = true;
-        } catch (err) {
+        } else {
+          const err = meRes.reason;
           if (err instanceof ApiError && err.status === 401) return; // session ended → auth layer redirects to login
           if (!(err instanceof ApiError) || err.status === 0 || err.status >= 500) {
             if (!cancelled) setLoadError(true); // network / server hiccup, NOT an inactive account
@@ -52,18 +60,8 @@ export default function DoctorDashboardPage() {
           doctorActive = false;
         }
 
-        if (cancelled) return;
         setIsPaid(doctorActive);
-
         if (!doctorActive) return;
-
-
-        const [clinicRes, apptRes, patientRes] = await Promise.allSettled([
-          getMyClinic(),
-          getMyAppointments(),
-          getMyPatients(),
-        ]);
-        if (cancelled) return;
 
         if (clinicRes.status === "fulfilled") setClinic(clinicRes.value.data);
         else setNeedsClinic(true);

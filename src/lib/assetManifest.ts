@@ -3,8 +3,8 @@
 
 
 export const IMAGE_MANIFEST = [
-  "/images/hero-clinic-1.jpg",
-  "/images/hero-clinic-2.jpg",
+  "/images/nabd-logo-sm.webp",
+  "/logo/arc-logo.webp",
 ] as const;
 
 export type ManifestImage = (typeof IMAGE_MANIFEST)[number];

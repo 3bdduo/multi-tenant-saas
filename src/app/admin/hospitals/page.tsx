@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
   getHospitals,
@@ -17,9 +18,13 @@ export default function AdminHospitalsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  
+  const [mounted, setMounted] = useState(false);
   const [hospitalToDelete, setHospitalToDelete] = useState<Hospital | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   async function load() {
     setLoading(true);
@@ -183,9 +188,15 @@ export default function AdminHospitalsPage() {
       </Card>
 
       {/* Delete Confirmation Modal */}
-      {hospitalToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <Card className="max-w-md w-full shadow-2xl border-danger/30 bg-surface p-6">
+      {hospitalToDelete && mounted && createPortal(
+        <div
+          className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in"
+          onClick={() => setHospitalToDelete(null)}
+        >
+          <Card
+            className="max-w-md w-full shadow-2xl border-danger/30 bg-surface p-6 animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex flex-col items-center text-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-danger/10 text-danger text-3xl font-black">
                 !
@@ -218,7 +229,8 @@ export default function AdminHospitalsPage() {
               </div>
             </div>
           </Card>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

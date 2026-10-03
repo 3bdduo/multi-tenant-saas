@@ -76,8 +76,8 @@ export function GlobalPreloader() {
       }
     });
 
-    // خفيف ومشترك: بيانات الصفحة الرئيسية العامة، فورًا (مش محتاجة تسجيل دخول)
-    prefetchApi("/clinic/paid", { auth: false });
+    // خفيف ومشترك: بيانات قائمة العيادات العامة، فورًا (مش محتاجة تسجيل دخول)
+    prefetchApi("/clinic", { auth: false });
 
     if (!isAuthenticated) return;
 

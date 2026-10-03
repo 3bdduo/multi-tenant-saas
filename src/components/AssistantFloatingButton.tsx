@@ -1,8 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { AssistantChatModal } from "@/components/AssistantChatModal";
+import dynamic from "next/dynamic";
 import { IconChat } from "@/components/ui/icons";
+
+const AssistantChatModal = dynamic(
+  () =>
+    import("@/components/AssistantChatModal").then(
+      (mod) => mod.AssistantChatModal
+    ),
+  { ssr: false }
+);
 
 /**
  * زرار عائم واحد بس بيفتح شات الذكاء الاصطناعي للتنقل في الموقع — مفيش أي

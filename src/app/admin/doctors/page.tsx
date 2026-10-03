@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { getDoctors, renewDoctorSubscription, deleteDoctor, createDoctorByAdmin } from "@/lib/api/admin";
 import { Card } from "@/components/ui/Card";
@@ -13,7 +14,7 @@ export default function AdminDoctorsPage() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
 
-  
+  const [mounted, setMounted] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -25,6 +26,24 @@ export default function AdminDoctorsPage() {
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setShowCreateModal(false);
+    }
+    if (showCreateModal) {
+      window.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [showCreateModal]);
 
   async function load() {
     setLoading(true);
@@ -158,16 +177,29 @@ export default function AdminDoctorsPage() {
       </Card>
 
       {/* Create Doctor Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200 overflow-y-auto">
-          <Card className="max-w-xl w-full shadow-2xl bg-surface my-8">
-            <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-4">
-              <h3 className="font-display text-xl font-bold text-text-primary">
-                تسجيل طبيب جديد (يدوياً)
-              </h3>
+      {showCreateModal && mounted && createPortal(
+        <div
+          className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-md overflow-y-auto animate-fade-in"
+          onClick={() => setShowCreateModal(false)}
+        >
+          <div
+            className="relative w-full max-w-xl my-auto rounded-3xl bg-surface border border-border/80 shadow-2xl p-6 sm:p-8 animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-5">
+              <div>
+                <h3 className="font-display text-xl font-bold text-text-primary">
+                  تسجيل طبيب جديد (يدوياً)
+                </h3>
+                <p className="text-xs text-text-secondary mt-1">
+                  أدخل بيانات الطبيب لإنشاء حسابه وتفعيله في المنصة
+                </p>
+              </div>
               <button
+                type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="text-text-secondary hover:text-danger h-8 w-8 rounded-full flex items-center justify-center hover:bg-danger/10"
+                className="text-text-secondary hover:text-danger h-9 w-9 rounded-full flex items-center justify-center hover:bg-danger/10 transition-colors"
+                title="إغلاق"
               >
                 ✕
               </button>
@@ -243,8 +275,9 @@ export default function AdminDoctorsPage() {
                 </Button>
               </div>
             </form>
-          </Card>
-        </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

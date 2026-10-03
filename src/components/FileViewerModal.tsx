@@ -56,7 +56,7 @@ export function FileViewerModal({ file, onClose }: FileViewerModalProps) {
             <div className="flex items-center gap-2">
               <div className="relative h-9 w-9 sm:h-10 sm:w-10 rounded-full overflow-hidden border border-border/80 shadow-md bg-black/40">
                 <img
-                  src="/logo/arc-logo.jpg"
+                  src="/logo/arc-logo.webp"
                   alt="ARC Logo"
                   className="h-full w-full object-cover"
                 />
@@ -71,7 +71,7 @@ export function FileViewerModal({ file, onClose }: FileViewerModalProps) {
             {/* Nabd Logo */}
             <div className="flex items-center gap-2">
               <img
-                src="/images/nabd-logo.jpeg"
+                src="/images/nabd-logo-sm.webp"
                 alt="شعار نبض"
                 className="h-8 sm:h-9 w-auto rounded-lg object-cover shadow-sm border border-border/40"
               />

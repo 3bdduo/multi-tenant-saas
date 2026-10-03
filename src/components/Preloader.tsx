@@ -7,10 +7,10 @@ import { IMAGE_MANIFEST } from "@/lib/assetManifest";
 // first visit, no matter how fast assets actually loaded. Now: wait for the
 // real preload tasks OR this cap, whichever comes first — and the cap itself
 // is much lower, since a splash this short barely needs a safety net.
-const SPLASH_MAX_MS = 500;
-const SPLASH_MIN_MS = 150; // just enough to avoid an ugly instant-flash on fast connections
+const SPLASH_MAX_MS = 350;
+const SPLASH_MIN_MS = 80;
 const SPLASH_KEY = "clinic-preloaded-at";
-const SPLASH_TTL_MS = 6 * 60 * 60 * 1000; // show the splash at most once every 6 hours
+const SPLASH_TTL_MS = 6 * 60 * 60 * 1000;
 
 function hasSeenSplash(): boolean {
   try {
@@ -93,7 +93,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (!mounted) {
-    return <div className="min-h-screen bg-[#05070D]" />;
+    return <>{children}</>;
   }
 
   return (
@@ -144,7 +144,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
                 className="relative flex h-28 w-28 sm:h-36 sm:w-36 items-center justify-center rounded-full overflow-hidden border border-white/15 bg-[#0A0E1A] shadow-[0_0_50px_rgba(46,196,182,0.35),0_0_110px_rgba(46,196,182,0.12)] animate-float-slow"
               >
                 <img
-                  src="/images/nabd-logo.jpeg"
+                  src="/images/nabd-logo.webp"
                   alt="شعار نبض"
                   className="w-full h-full object-cover rounded-full select-none drop-shadow-[0_0_20px_rgba(46,196,182,0.45)]"
                 />
@@ -171,7 +171,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
                 style={{ animationDelay: "1s" }}
               >
                 <img
-                  src="/logo/arc-logo.jpg"
+                  src="/logo/arc-logo.webp"
                   alt="ARC"
                   className="w-full h-full object-cover rounded-full select-none drop-shadow-[0_0_20px_rgba(255,139,69,0.40)]"
                 />
@@ -205,7 +205,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       )}
-      <div className={done ? "animate-fade-in" : "invisible"}>{children}</div>
+      <div>{children}</div>
     </>
   );
 }

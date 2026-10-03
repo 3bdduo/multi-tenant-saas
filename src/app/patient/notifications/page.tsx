@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
   getAllNotificationsForPatient,
@@ -37,6 +38,11 @@ export default function PatientNotificationsPage() {
 
   // Modal inspection
   const [selectedNotification, setSelectedNotification] = useState<UnifiedNotification | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   async function loadData(isManual = false) {
     if (isManual) setRefreshing(true);
@@ -382,13 +388,13 @@ export default function PatientNotificationsPage() {
       </Card>
 
       {/* Full Modal Viewer for Notification Details */}
-      {selectedNotification && (
+      {selectedNotification && mounted && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/75 backdrop-blur-md p-4 animate-fade-in"
           onClick={() => setSelectedNotification(null)}
         >
           <Card
-            className="max-w-lg w-full shadow-2xl border-primary/30 bg-surface p-6"
+            className="max-w-lg w-full shadow-2xl border-primary/30 bg-surface p-6 animate-scale-in"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between border-b border-border/50 pb-4 mb-4">
@@ -436,7 +442,8 @@ export default function PatientNotificationsPage() {
               </Button>
             </div>
           </Card>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
