@@ -331,6 +331,10 @@ export interface Notification {
   updatedAt: string;
   // اختياري: موجود بس في إشعارات الاستشارات الطبية العامة (نظام، مش من الدكتور)
   consultationId?: string;
+  // اختياري: موجود بس في إشعارات طلبات حجز العمليات (نظام)
+  surgeryBookingId?: string;
+  // اختياري: موجود بس للإشعارات الموجّهة لمستشفى
+  hospitalId?: string;
 }
 
 export interface CreateNotificationPayload {
@@ -396,7 +400,7 @@ export interface CreateGeneralNotificationPayload {
 
 
 
-export type EmergencyStatus = "open" | "claimed" | "resolved" | "expired";
+export type EmergencyStatus = "open" | "claimed" | "accepted" | "resolved" | "expired";
 
 export interface ClaimedHospital {
   _id: string;
@@ -415,6 +419,9 @@ export interface EmergencyCase {
   status: EmergencyStatus;
   reportImageUrl?: { public_id: string; secure_url: string };
   claimedByHospitalIds: (string | ClaimedHospital)[];
+  // جديد: مشاهدة بدون تفاعل + المستشفى اللي قبلت فعليًا (حصري)
+  viewedByHospitalIds?: string[];
+  acceptedByHospitalId?: string | ClaimedHospital;
   expiresAt: string;
   createdAt: string;
 }
@@ -422,7 +429,9 @@ export interface EmergencyCase {
 
 export interface TrackEmergencyCaseResponse {
   status: EmergencyStatus;
-  interestedHospitalsCount: number;
+  message: string;
+  viewedCount?: number;
+  acceptedHospital: ClaimedHospital | null;
 }
 
 export interface CreateEmergencyCasePayload {

@@ -1,23 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getEmergencyCases, claimEmergencyCase, resolveEmergencyCase } from "@/lib/api/hospital";
+import { getEmergencyCases, acceptEmergencyCase, resolveEmergencyCase } from "@/lib/api/hospital";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/http";
+import { useAuth } from "@/hooks/useAuth";
 import type { EmergencyCase } from "@/types/api";
 
 const STATUS_MAP: Record<string, { label: string; badge: string }> = {
   open:     { label: "بانتظار الاستجابة", badge: "bg-warning/15 text-warning border-warning/30" },
   claimed:  { label: "تم الاستلام",       badge: "bg-primary/15 text-primary border-primary/30" },
+  accepted: { label: "تم القبول",         badge: "bg-primary/15 text-primary border-primary/30" },
   resolved: { label: "تم الحل",           badge: "bg-success/15 text-success border-success/30" },
   expired:  { label: "منتهية / ملغاة",    badge: "bg-border/30 text-text-secondary border-border/40" },
 };
 
 export default function HospitalEmergencyPage() {
+  const { userId: myId } = useAuth();
   const [cases, setCases] = useState<EmergencyCase[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "open" | "claimed" | "resolved">("all");
+  const [filter, setFilter] = useState<"all" | "open" | "accepted" | "resolved">("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,13 +38,13 @@ export default function HospitalEmergencyPage() {
 
   useEffect(() => { loadCases(); }, []);
 
-  async function handleClaim(id: string) {
+  async function handleAccept(id: string) {
     setActionLoading(id);
     try {
-      await claimEmergencyCase(id);
+      await acceptEmergencyCase(id);
       await loadCases();
     } catch (err) {
-      alert(err instanceof ApiError ? err.message : "فشل العملية");
+      alert(err instanceof ApiError ? err.message : "تم قبول هذه الحالة بالفعل من مستشفى أخرى");
     } finally {
       setActionLoading(null);
     }
@@ -79,7 +82,7 @@ export default function HospitalEmergencyPage() {
 
       {/* Filter Tabs */}
       <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 pt-1 scrollbar-hide">
-        {(["all", "open", "claimed", "resolved"] as const).map((f) => {
+        {(["all", "open", "accepted", "resolved"] as const).map((f) => {
           const count = f === "all" ? cases.length : cases.filter((c) => (c.status || "").toLowerCase() === f).length;
           return (
             <button
@@ -91,7 +94,7 @@ export default function HospitalEmergencyPage() {
                   : "border-border text-text-secondary hover:border-primary/50 hover:text-text-primary"
               }`}
             >
-              {{all:"الكل", open:"مفتوحة (جديدة)", claimed:"جارية", resolved:"محلولة"}[f]}
+              {{all:"الكل", open:"مفتوحة (جديدة)", accepted:"مقبولة", resolved:"محلولة"}[f]}
               {" "}({count})
             </button>
           );
@@ -119,7 +122,14 @@ export default function HospitalEmergencyPage() {
             const st = STATUS_MAP[normalizedStatus] ?? { label: ec.status, badge: "bg-surface text-text-primary border-border" };
             const isActioning = actionLoading === ec._id || actionLoading === ec._id + "_resolve";
             const isOpen = normalizedStatus === "open";
-            const isClaimed = normalizedStatus === "claimed";
+            const isAccepted = normalizedStatus === "accepted";
+            const acceptedHospitalId =
+              typeof ec.acceptedByHospitalId === "object"
+                ? ec.acceptedByHospitalId?._id
+                : ec.acceptedByHospitalId;
+            const acceptedByMe = isAccepted && acceptedHospitalId === myId;
+            const acceptedHospitalName =
+              typeof ec.acceptedByHospitalId === "object" ? ec.acceptedByHospitalId?.hospitalName : null;
 
             return (
               <Card key={ec._id} glass className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-border/40 hover:border-primary/30 transition-all">
@@ -134,7 +144,12 @@ export default function HospitalEmergencyPage() {
                     <span>الهاتف: {ec.phoneNumber}</span>
                     {ec.notes && <span>الملاحظات: {ec.notes}</span>}
                     <span>الوقت: {new Date(ec.createdAt).toLocaleString("ar-EG")}</span>
-                    <span>المستجيبون: {ec.claimedByHospitalIds?.length ?? 0} مستشفى</span>
+                    {isOpen && (
+                      <span>شاهدها: {ec.viewedByHospitalIds?.length ?? 0} مستشفى</span>
+                    )}
+                    {isAccepted && acceptedHospitalName && !acceptedByMe && (
+                      <span className="font-bold text-primary">مقبولة من: {acceptedHospitalName}</span>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap pt-2 sm:pt-0 border-t border-border/40 sm:border-0 justify-end shrink-0">
@@ -148,13 +163,13 @@ export default function HospitalEmergencyPage() {
                       size="sm"
                       variant="vibrant"
                       disabled={isActioning}
-                      onClick={() => handleClaim(ec._id)}
+                      onClick={() => handleAccept(ec._id)}
                       className="text-xs font-bold shadow-glow-cyan"
                     >
                       {isActioning ? "..." : "قبول واستلام الحالة ✓"}
                     </Button>
                   )}
-                  {isClaimed && (
+                  {acceptedByMe && (
                     <Button
                       size="sm"
                       variant="secondary"

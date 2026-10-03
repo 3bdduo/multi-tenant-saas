@@ -13,6 +13,7 @@ import type { TrackEmergencyCaseResponse } from "@/types/api";
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
   open:     { label: "مفتوحة — بانتظار استجابة المستشفى", color: "text-warning",        bg: "bg-warning/10 border-warning/30" },
   claimed:  { label: "مستشفى استجاب وقيد الاستقبال",      color: "text-primary",        bg: "bg-primary/10 border-primary/30" },
+  accepted: { label: "تم القبول من مستشفى",               color: "text-primary",        bg: "bg-primary/10 border-primary/30" },
   resolved: { label: "تم حل الحالة بنجاح",                color: "text-success",        bg: "bg-success/10 border-success/30" },
   expired:  { label: "انتهت المهلة أو تم الإلغاء",         color: "text-text-secondary", bg: "bg-border/10 border-border/40" },
 };
@@ -135,16 +136,36 @@ export default function EmergencyTrackPage() {
                 </div>
               </div>
 
-              {/* Interested hospitals count */}
-              <div className="flex items-center justify-between rounded-xl border border-border bg-surface/60 px-5 py-4">
-                <div>
-                  <p className="text-sm font-semibold text-text-primary">المستشفيات التي استجابت</p>
-                  <p className="text-xs text-text-secondary mt-0.5">عدد المستشفيات التي طلعت على البلاغ</p>
-                </div>
-                <span className="text-3xl font-extrabold text-text-primary">
-                  {result.interestedHospitalsCount}
-                </span>
+              {/* الرسالة الواضحة من السيرفر حسب حالة البلاغ بالظبط */}
+              <div className="rounded-xl border border-border bg-surface/60 px-5 py-4">
+                <p className="text-sm font-bold text-text-primary">{result.message}</p>
               </div>
+
+              {/* لما تتقبل، بيانات المستشفى كاملة عشان المريض يروحلها */}
+              {result.acceptedHospital && (
+                <div className="rounded-xl border border-primary/30 bg-primary/5 px-5 py-4 space-y-1.5">
+                  <p className="text-sm font-extrabold text-text-primary">{result.acceptedHospital.hospitalName}</p>
+                  <p className="text-xs text-text-secondary">
+                    {result.acceptedHospital.governorate} — {result.acceptedHospital.city} — {result.acceptedHospital.address}
+                  </p>
+                  <a href={`tel:${result.acceptedHospital.phoneNumber}`} className="text-sm font-bold text-primary block mt-1">
+                    📞 {result.acceptedHospital.phoneNumber}
+                  </a>
+                </div>
+              )}
+
+              {/* عدد المستشفيات اللي شافت البلاغ من غير رد لسه (بس وهو لسه مفتوح) */}
+              {result.status === "open" && typeof result.viewedCount === "number" && (
+                <div className="flex items-center justify-between rounded-xl border border-border bg-surface/60 px-5 py-4">
+                  <div>
+                    <p className="text-sm font-semibold text-text-primary">المستشفيات التي شاهدت البلاغ</p>
+                    <p className="text-xs text-text-secondary mt-0.5">ولسه محدش ردّ عليه</p>
+                  </div>
+                  <span className="text-3xl font-extrabold text-text-primary">
+                    {result.viewedCount}
+                  </span>
+                </div>
+              )}
 
               <p className="text-xs text-text-secondary text-center bg-border/10 rounded-lg px-4 py-2.5">
                 لأسباب أمنية، لا تُعرض صورة التقرير في هذه الصفحة. المستشفيات هي التي تطلع على التقرير كاملاً.

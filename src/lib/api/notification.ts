@@ -25,6 +25,11 @@ export function updateNotification(id: string, payload: UpdateNotificationPayloa
   );
 }
 
+// GET /notification/hospital  (إشعارات موجّهة للمستشفى، زي طلبات حجز العمليات الجديدة)
+export function getAllNotificationsForHospital() {
+  return apiFetch<ApiEnvelope<{ notifications: Notification[] }>>("/notification/hospital");
+}
+
 // GET /notification  (doctor: all notifications they've sent)
 export function getAllNotificationsForDoctor() {
   return apiFetch<ApiEnvelope<{ notifications: Notification[] }>>("/notification", {

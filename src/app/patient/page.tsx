@@ -227,6 +227,30 @@ export default function PatientHomePage() {
             </div>
           </Card>
         </Link>
+        <Link href="/patient/consultations">
+          <Card hover className="p-5 flex items-center gap-4 cursor-pointer border-primary/20">
+            <div>
+              <p className="font-display font-bold text-text-primary text-base">
+                استشارة طبية عامة 🩺
+              </p>
+              <p className="text-xs text-text-secondary mt-0.5">
+                ارفع صورة تقرير أو أشعة واحصل على رأي الذكاء الاصطناعي ثم أي طبيب — مجانًا
+              </p>
+            </div>
+          </Card>
+        </Link>
+        <Link href="/patient/surgery-bookings">
+          <Card hover className="p-5 flex items-center gap-4 cursor-pointer border-warning/20">
+            <div>
+              <p className="font-display font-bold text-text-primary text-base">
+                حجز عملية
+              </p>
+              <p className="text-xs text-text-secondary mt-0.5">
+                قدّم طلب حجز عملية مع تقاريرك، وأي طبيب أو مستشفى يقدر يقبله
+              </p>
+            </div>
+          </Card>
+        </Link>
       </div>
 
       {/* Appointments List */}

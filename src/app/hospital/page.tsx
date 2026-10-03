@@ -1,24 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMyHospital, getEmergencyCases, claimEmergencyCase, resolveEmergencyCase } from "@/lib/api/hospital";
+import Link from "next/link";
+import { getMyHospital, getEmergencyCases, acceptEmergencyCase, resolveEmergencyCase } from "@/lib/api/hospital";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/http";
+import { useAuth } from "@/hooks/useAuth";
 import type { Hospital, EmergencyCase } from "@/types/api";
 
 const STATUS_MAP: Record<string, { label: string; badge: string }> = {
   open: { label: "بانتظار الاستجابة (جديدة)", badge: "bg-warning/15 text-warning border-warning/30" },
   claimed: { label: "تم الاستلام (جارية)", badge: "bg-primary/15 text-primary border-primary/30" },
+  accepted: { label: "تم القبول (جارية)", badge: "bg-primary/15 text-primary border-primary/30" },
   resolved: { label: "تم الحل", badge: "bg-success/15 text-success border-success/30" },
   expired: { label: "منتهية / ملغاة", badge: "bg-border/30 text-text-secondary border-border/40" },
 };
 
 export default function HospitalDashboard() {
+  const { userId: myId } = useAuth();
   const [hospital, setHospital] = useState<Hospital | null>(null);
   const [cases, setCases] = useState<EmergencyCase[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "open" | "claimed" | "resolved">("all");
+  const [filter, setFilter] = useState<"all" | "open" | "accepted" | "resolved">("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
@@ -41,16 +45,16 @@ export default function HospitalDashboard() {
 
   useEffect(() => { loadData(); }, []);
 
-  async function handleClaim(id: string) {
+  async function handleAccept(id: string) {
     setActionLoading(id);
     setSuccessToast(null);
     try {
-      await claimEmergencyCase(id);
+      await acceptEmergencyCase(id);
       setSuccessToast("تم استلام وقبول الحالة بنجاح! يمكنك الآن التنسيق مع الحالة.");
       setTimeout(() => setSuccessToast(null), 4000);
       await loadData();
     } catch (err) {
-      alert(err instanceof ApiError ? err.message : "فشلت عملية قبول الحالة");
+      alert(err instanceof ApiError ? err.message : "تم قبول هذه الحالة بالفعل من مستشفى أخرى");
     } finally {
       setActionLoading(null);
     }
@@ -72,7 +76,7 @@ export default function HospitalDashboard() {
   }
 
   const pendingCases = cases.filter((c) => (c.status || "").toLowerCase() === "open");
-  const activeCases = cases.filter((c) => (c.status || "").toLowerCase() === "claimed");
+  const activeCases = cases.filter((c) => (c.status || "").toLowerCase() === "accepted");
   const resolvedCases = cases.filter((c) => (c.status || "").toLowerCase() === "resolved");
 
   const filteredCases = filter === "all"
@@ -140,11 +144,39 @@ export default function HospitalDashboard() {
         </div>
       )}
 
+      {/* Quick Links */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Link href="/hospital/surgery-bookings">
+          <Card hover className="p-5 flex items-center gap-4 cursor-pointer border-warning/20">
+            <div>
+              <p className="font-display font-bold text-text-primary text-base">
+                طلبات حجز العمليات
+              </p>
+              <p className="text-xs text-text-secondary mt-0.5">
+                طلبات مرضى محتاجين حجز عملية، اقبل أي طلب وتواصل معاهم
+              </p>
+            </div>
+          </Card>
+        </Link>
+        <Link href="/hospital/notifications">
+          <Card hover className="p-5 flex items-center gap-4 cursor-pointer border-primary/20">
+            <div>
+              <p className="font-display font-bold text-text-primary text-base">
+                الإشعارات
+              </p>
+              <p className="text-xs text-text-secondary mt-0.5">
+                تنبيهات إدارية وطلبات جديدة موجّهة للمستشفى
+              </p>
+            </div>
+          </Card>
+        </Link>
+      </div>
+
       {/* Stats Cards (Clickable filters) */}
       <div className="grid gap-4 sm:grid-cols-3">
         {[
           { key: "open" as const, label: "حالات بانتظار الاستجابة (مفتوحة)", value: pendingCases.length, color: "text-warning", bg: "bg-warning/10", border: "border-warning/30" },
-          { key: "claimed" as const, label: "حالات تم قبولها (جارية)", value: activeCases.length, color: "text-primary", bg: "bg-primary/10", border: "border-primary/30" },
+          { key: "accepted" as const, label: "حالات تم قبولها (جارية)", value: activeCases.length, color: "text-primary", bg: "bg-primary/10", border: "border-primary/30" },
           { key: "resolved" as const, label: "حالات تم علاجها (محلولة)", value: resolvedCases.length, color: "text-success", bg: "bg-success/10", border: "border-success/30" },
         ].map((stat) => (
           <Card
@@ -168,9 +200,9 @@ export default function HospitalDashboard() {
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-hide">
-        {(["all", "open", "claimed", "resolved"] as const).map((f) => {
-          const count = f === "all" ? cases.length : f === "open" ? pendingCases.length : f === "claimed" ? activeCases.length : resolvedCases.length;
-          const labels = { all: "جميع الحالات", open: "بانتظار الاستجابة", claimed: "جارية ومستلمة", resolved: "تم حلها" };
+        {(["all", "open", "accepted", "resolved"] as const).map((f) => {
+          const count = f === "all" ? cases.length : f === "open" ? pendingCases.length : f === "accepted" ? activeCases.length : resolvedCases.length;
+          const labels = { all: "جميع الحالات", open: "بانتظار الاستجابة", accepted: "جارية ومقبولة", resolved: "تم حلها" };
           return (
             <button
               key={f}
@@ -224,7 +256,9 @@ export default function HospitalDashboard() {
                   const st = STATUS_MAP[normalizedStatus] ?? { label: ec.status, badge: "bg-surface text-text-primary border-border" };
                   const isActioning = actionLoading === ec._id || actionLoading === ec._id + "_resolve";
                   const isOpen = normalizedStatus === "open";
-                  const isClaimed = normalizedStatus === "claimed";
+                  const acceptedHospitalId =
+                    typeof ec.acceptedByHospitalId === "object" ? ec.acceptedByHospitalId?._id : ec.acceptedByHospitalId;
+                  const acceptedByMe = normalizedStatus === "accepted" && acceptedHospitalId === myId;
 
                   return (
                     <tr key={ec._id} className="hover:bg-surface-elevated/40 transition-colors">
@@ -254,14 +288,14 @@ export default function HospitalDashboard() {
                               size="sm"
                               variant="vibrant"
                               disabled={isActioning}
-                              onClick={() => handleClaim(ec._id)}
+                              onClick={() => handleAccept(ec._id)}
                               className="text-xs font-bold shadow-xs hover:shadow-sm"
                             >
                               {isActioning ? "جارٍ القبول..." : "قبول واستلام الحالة ✓"}
                             </Button>
                           )}
 
-                          {isClaimed && (
+                          {acceptedByMe && (
                             <Button
                               size="sm"
                               variant="secondary"

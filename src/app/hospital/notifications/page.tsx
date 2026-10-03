@@ -1,20 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { getMyGeneralNotifications } from "@/lib/api/generalNotification";
+import { getAllNotificationsForHospital } from "@/lib/api/notification";
 import { Card } from "@/components/ui/Card";
-import type { GeneralNotification } from "@/types/api";
+import type { GeneralNotification, Notification } from "@/types/api";
 
 export default function HospitalNotificationsPage() {
   const [notifications, setNotifications] = useState<GeneralNotification[]>([]);
+  const [personalNotifications, setPersonalNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedNotif, setSelectedNotif] = useState<GeneralNotification | null>(null);
 
   useEffect(() => {
-    getMyGeneralNotifications()
-      .then((res) => setNotifications(res.data.notifications ?? []))
-      .catch(() => setNotifications([]))
-      .finally(() => setLoading(false));
+    Promise.all([
+      getMyGeneralNotifications().then((res) => setNotifications(res.data.notifications ?? [])).catch(() => setNotifications([])),
+      getAllNotificationsForHospital().then((res) => setPersonalNotifications(res.data.notifications ?? [])).catch(() => setPersonalNotifications([])),
+    ]).finally(() => setLoading(false));
   }, []);
 
   return (
@@ -27,6 +30,42 @@ export default function HospitalNotificationsPage() {
           التنبيهات الإدارية وتحديثات نظام الطوارئ من إدارة المنصة
         </p>
       </div>
+
+      {/* إشعارات شخصية (طلبات حجز عمليات، إلخ) */}
+      {!loading && personalNotifications.length > 0 && (
+        <Card className="shadow-xl border-primary/25">
+          <div className="border-b border-border/50 pb-4 mb-4">
+            <h2 className="font-display text-base sm:text-lg font-bold text-text-primary">
+              إشعاراتي ({personalNotifications.length})
+            </h2>
+          </div>
+          <div className="flex flex-col divide-y divide-border/60">
+            {personalNotifications.map((n) => {
+              const content = (
+                <div className="py-4 flex flex-col gap-1.5 p-3 rounded-xl hover:bg-surface-raised/60 transition-all">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="rounded-full bg-accent/15 border border-accent/30 px-2.5 py-0.5 text-[11px] font-bold text-accent">
+                      {n.surgeryBookingId ? "🏥 طلب حجز عملية جديد" : "إشعار"}
+                    </span>
+                    <span className="text-[10px] text-text-secondary opacity-60 font-mono">
+                      {new Date(n.createdAt).toLocaleString("ar-EG")}
+                    </span>
+                  </div>
+                  <p className="text-sm sm:text-base font-bold text-text-primary mt-1">{n.title}</p>
+                  <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">{n.message}</p>
+                </div>
+              );
+              return n.surgeryBookingId ? (
+                <Link key={n._id} href={`/hospital/surgery-bookings/${n.surgeryBookingId}`}>
+                  {content}
+                </Link>
+              ) : (
+                <div key={n._id}>{content}</div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
 
       <Card className="shadow-xl border-secondary/25">
         <div className="border-b border-border/50 pb-4 mb-4">

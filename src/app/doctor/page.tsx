@@ -175,6 +175,33 @@ export default function DoctorDashboardPage() {
         <StatCard label="مواعيد قيد الانتظار" value={String(pendingCount)} />
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Link href="/doctor/consultations">
+          <Card hover className="p-5 flex items-center gap-4 cursor-pointer border-primary/20">
+            <div>
+              <p className="font-display font-bold text-text-primary text-base">
+                الاستشارات الطبية العامة 🩺
+              </p>
+              <p className="text-xs text-text-secondary mt-0.5">
+                استشارات المرضى اللي محتاجة رد طبيب، بعد رد الذكاء الاصطناعي
+              </p>
+            </div>
+          </Card>
+        </Link>
+        <Link href="/doctor/surgery-bookings">
+          <Card hover className="p-5 flex items-center gap-4 cursor-pointer border-warning/20">
+            <div>
+              <p className="font-display font-bold text-text-primary text-base">
+                طلبات حجز العمليات
+              </p>
+              <p className="text-xs text-text-secondary mt-0.5">
+                طلبات مرضى محتاجين حجز عملية، اقبل أي طلب وتواصل معاهم
+              </p>
+            </div>
+          </Card>
+        </Link>
+      </div>
+
       <Card>
         <h2 className="font-display text-base font-bold text-text-primary">
           أحدث المواعيد
