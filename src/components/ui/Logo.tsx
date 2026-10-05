@@ -115,7 +115,7 @@ export function Logo({
             <div className="relative w-full rounded-2xl overflow-hidden border border-border/60 shadow-xl bg-[#0A0E1A]">
               <img
                 src="/images/nabd-logo.webp"
-                alt="شعار نبض Nabd Healthcare SaaS"
+                alt="شعار نبض Nabd Healthcare"
                 className="w-full h-auto object-contain max-h-72 select-none"
               />
             </div>
@@ -127,7 +127,7 @@ export function Logo({
                 <span className="text-sm font-extrabold uppercase tracking-[0.2em] text-primary">NABD</span>
               </div>
               <p className="text-sm font-bold text-primary">
-                رعاية طبية متكاملة — Healthcare SaaS
+                رعاية طبية متكاملة — Healthcare Platform
               </p>
               <p className="text-xs text-text-secondary max-w-xs mt-1 leading-relaxed">
                 منظومة ذكية ومتطورة لإدارة العيادات الطبية، المرضى، المواعيد، والسجلات الصحية.

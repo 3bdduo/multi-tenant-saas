@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { ApiError } from "@/lib/http";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
+import { QuickNav } from "@/components/layout/QuickNav";
 import type { TrackEmergencyCaseResponse } from "@/types/api";
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
@@ -91,6 +92,7 @@ export default function EmergencyTrackPage() {
       </header>
 
       <main className="mx-auto max-w-2xl px-4 py-6 sm:py-14 md:px-8">
+        <QuickNav className="mb-4" />
         {/* Title */}
         <div className="text-center mb-6 sm:mb-10 animate-fade-in-slow">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary">

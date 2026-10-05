@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { ApiError } from "@/lib/http";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
+import { QuickNav } from "@/components/layout/QuickNav";
 
 
 
@@ -119,6 +120,7 @@ export default function EmergencyReportPage() {
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-6 sm:py-12 md:px-8">
+        <QuickNav className="mb-4" />
         {/* Title */}
         <div className="text-center mb-6 sm:mb-10 animate-fade-in-slow">
           <div className="mb-6 inline-flex items-center rounded-md border  px-5 py-5 text-2xl ">

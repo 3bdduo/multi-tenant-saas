@@ -22,7 +22,7 @@
   /* ── 1. Light Mode (warm clinical: cream + teal ink + warm accents) ── */
   --radius: 1rem;
 
-  /* Backgrounds & Surfaces */
+  /* Backgrounds & Surfaces */ 
   --background: #FAF5EC;
   --background-secondary: #F3ECDD;
   --background-tertiary: #EBE1CC;
@@ -90,7 +90,7 @@
   --color-border-hover: #086B67;
 
   /* Navbar / Header */
-  --color-header-bg: rgba(250, 245, 236, 0.85);
+  --color-header-bg: rgba(250, 245, 236, 0.88);
   --color-header-border: rgba(222, 208, 184, 0.80);
 
   /* Semantic Alerts */
@@ -235,7 +235,7 @@
   --color-border-hover: #2EC4B6;
 
   /* Navbar / Header */
-  --color-header-bg: rgba(9, 12, 22, 0.78);
+  --color-header-bg: rgba(9, 12, 22, 0.85);
   --color-header-border: rgba(35, 44, 66, 0.85);
 
   /* Semantic Alerts */
@@ -601,6 +601,13 @@ body, header, footer, aside, nav, main, div {
   from { transform: translateX(100%); opacity: 0; }
 }
 
+/* RTL drawer slide-in: element is at insetInlineStart:0.
+   In RTL that = right edge of viewport. translateX(-100%) hides it to the right.
+   In LTR that = left edge. translateX(-100%) hides it to the left. Either way correct. */
+@keyframes slide-in-from-start {
+  from { transform: translateX(-100%); opacity: 0; }
+}
+
 @keyframes fade-scale-out {
   to { opacity: 0; transform: scale(1.035); filter: blur(6px); }
 }
@@ -736,6 +743,11 @@ body, header, footer, aside, nav, main, div {
 .animate-scale-up      { animation: scale-in 0.35s var(--ease-cine) both; }
 .animate-slide-down    { animation: slide-down 0.35s var(--ease-cine) both; }
 .animate-slide-in-right{ animation: slide-in-right 0.42s var(--ease-cine) both; }
+/* RTL drawer: slides from inline-start (right in RTL, left in LTR).
+   translateX(-100%) = hidden to the LEFT of its own position.
+   Since the drawer is positioned at insetInlineStart:0 in RTL that means
+   it starts off-screen to the right and slides left into view. */
+.animate-slide-in-from-start { animation: slide-in-from-start 0.38s var(--ease-cine) both; }
 .animate-fade-scale-out{ animation: fade-scale-out 0.95s var(--ease-soft) forwards; }
 .animate-float-slow    { animation: float-slow 7s ease-in-out infinite; }
 .animate-pulse-glow    { animation: pulse-glow 4.5s ease-in-out infinite; }

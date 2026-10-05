@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/http";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
+import { QuickNav } from "@/components/layout/QuickNav";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -49,7 +50,10 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center px-6 py-12">
-      <div className="absolute top-6 left-6 z-20">
+      <div className="absolute top-6 z-20" style={{ insetInlineStart: "1.5rem" }}>
+        <QuickNav className="mb-0" />
+      </div>
+      <div className="absolute top-6 z-20" style={{ insetInlineEnd: "1.5rem" }}>
         <ThemeToggle />
       </div>
       <Card glass vibrant className="w-full max-w-md animate-scale-in-slow p-8 border-primary/20 shadow-2xl">

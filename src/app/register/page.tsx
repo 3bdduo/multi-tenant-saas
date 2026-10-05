@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
+import { QuickNav } from "@/components/layout/QuickNav";
 
 import { PatientRegisterForm } from "./PatientRegisterForm";
 
@@ -33,7 +34,10 @@ function RegisterContent() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 sm:py-12">
-      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
+      <div className="absolute top-4 sm:top-6 z-20" style={{ insetInlineStart: "1rem" }}>
+        <QuickNav className="mb-0" />
+      </div>
+      <div className="absolute top-4 sm:top-6 z-20" style={{ insetInlineEnd: "1rem" }}>
         <ThemeToggle />
       </div>
       <Card glass vibrant className="w-full max-w-lg animate-scale-in-slow p-5 sm:p-8 border-primary/20 shadow-md">

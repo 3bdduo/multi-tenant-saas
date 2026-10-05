@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { NabdLogoIcon } from "@/components/ui/Logo";
 import { useAuth } from "@/hooks/useAuth";
+import { QuickNav } from "@/components/layout/QuickNav";
 
 const HOME_BY_ROLE: Record<string, string> = {
   Admin: "/admin",
@@ -19,7 +20,10 @@ export default function ForbiddenPage() {
   const homeHref = (role && HOME_BY_ROLE[role]) || "/";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg px-4 py-12">
+    <div className="relative flex min-h-screen items-center justify-center bg-bg px-4 py-12">
+      <div className="absolute top-6 z-20" style={{ insetInlineStart: "1.5rem" }}>
+        <QuickNav className="mb-0" />
+      </div>
       <Card className="w-full max-w-md text-center" glass>
         <div className="mx-auto mb-4 flex justify-center">
           <NabdLogoIcon size="lg" />

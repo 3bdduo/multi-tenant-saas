@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/Button";
@@ -11,11 +11,14 @@ import { getMyProfile } from "@/lib/api/patient";
 import { getMe as getDoctorMe } from "@/lib/api/doctor";
 import { getMyHospital } from "@/lib/api/hospital";
 
+import { QuickNav } from "@/components/layout/QuickNav";
+
 export interface NavItem {
   href: string;
   label: string;
   icon: React.ReactNode;
 }
+
 
 export function DashboardShell({
   navItems,
@@ -30,6 +33,7 @@ export function DashboardShell({
   const { role, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  const [scrolled, setScrolled] = useState(false);
 
   // Load and persist sidebar collapsed preference
   useEffect(() => {
@@ -42,6 +46,18 @@ export function DashboardShell({
       // Ignore localStorage errors
     }
   }, []);
+
+  // Track scroll for stronger shadow on mobile topbar
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   const toggleCollapse = () => {
     setIsCollapsed((prev) => {
@@ -163,15 +179,23 @@ export function DashboardShell({
     };
   }, [role]); // was [role, pathname] → refetched the profile on every navigation
 
+  const isDashboardHome =
+    pathname === "/doctor" ||
+    pathname === "/patient" ||
+    pathname === "/hospital" ||
+    pathname === "/admin";
+
   return (
     <div className="flex min-h-screen">
       {/* ── Desktop Collapsible Sidebar ── */}
       <aside
-        className={`hidden shrink-0 flex-col border-l py-4 transition-all duration-300 ease-in-out md:flex select-none sticky top-0 h-screen overflow-hidden ${isCollapsed ? "w-20 px-2.5 items-center" : "w-64 px-4"
-          }`}
+        className={`hidden shrink-0 flex-col border-e py-4 transition-all duration-300 ease-in-out md:flex select-none sticky top-0 h-screen overflow-hidden ${
+          isCollapsed ? "w-20 px-2.5 items-center" : "w-64 px-4"
+        }`}
         style={{
           background: "var(--color-surface)",
           borderColor: "var(--color-header-border)",
+          boxShadow: "var(--shadow-sm)",
         }}
       >
         {/* Header: Logo + Smooth Collapse Toggle Button */}
@@ -192,7 +216,7 @@ export function DashboardShell({
           <button
             type="button"
             onClick={toggleCollapse}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-text-secondary hover:bg-primary-soft hover:text-primary transition-colors focus:outline-none"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-text-secondary hover:bg-primary-soft hover:text-primary transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-primary"
             title={isCollapsed ? "توسيع القائمة الجانبية" : "طي القائمة الجانبية"}
             aria-label={isCollapsed ? "توسيع القائمة الجانبية" : "طي القائمة الجانبية"}
           >
@@ -218,7 +242,7 @@ export function DashboardShell({
                     className="h-full w-full object-cover select-none group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <span className="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 rounded-full bg-success live-dot border-2 border-surface shadow-xs" />
+                <span className="absolute -bottom-0.5 h-3.5 w-3.5 rounded-full bg-success live-dot border-2 border-surface shadow-xs" style={{ insetInlineStart: "-2px" }} />
               </div>
 
               {/* Name & Role Portal Badge (Clear, fits perfectly without truncation) */}
@@ -254,7 +278,7 @@ export function DashboardShell({
                       className="h-full w-full object-cover select-none"
                     />
                   </div>
-                  <span className="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 rounded-full bg-success live-dot border-2 border-surface" />
+                  <span className="absolute -bottom-0.5 h-3.5 w-3.5 rounded-full bg-success live-dot border-2 border-surface" style={{ insetInlineStart: "-2px" }} />
                 </div>
               </Link>
             </div>
@@ -272,17 +296,20 @@ export function DashboardShell({
                 prefetch
                 title={isCollapsed ? item.label : undefined}
                 style={{ animationDelay: `${index * 45}ms` }}
-                className={`animate-fade-in group relative flex items-center rounded-xl py-2.5 font-medium transition-all duration-200 ${isCollapsed
+                className={`animate-fade-in group relative flex items-center rounded-xl py-2.5 font-medium transition-all duration-150 ${
+                  isCollapsed
                     ? "justify-center px-2 text-base"
                     : "justify-start px-3.5 gap-3 text-sm"
-                  } ${active
-                    ? "bg-gradient-to-r from-primary/15 via-primary/10 to-transparent text-primary font-bold border-r-2 border-primary shadow-[inset_-14px_0_24px_-18px_rgba(var(--color-primary-rgb),0.7)]"
+                } ${
+                  active
+                    ? "bg-gradient-to-l from-primary/15 via-primary/8 to-transparent text-primary font-bold"
                     : "text-text-secondary hover:bg-primary-soft hover:text-primary"
-                  }`}
+                }`}
               >
                 <span
-                  className={`shrink-0 transition-transform duration-200 ${active ? "scale-110 text-primary" : "group-hover:scale-105"
-                    }`}
+                  className={`shrink-0 transition-transform duration-150 ${
+                    active ? "scale-110 text-primary" : "group-hover:scale-105"
+                  }`}
                 >
                   {item.icon}
                 </span>
@@ -293,13 +320,11 @@ export function DashboardShell({
                   </span>
                 )}
 
-                {/* Subtle active indicator marker */}
+                {/* Active indicator — inset-inline-end so it's always on the outer edge in RTL/LTR */}
                 {active && (
                   <span
-                    className={`absolute rounded-full bg-primary ${isCollapsed
-                        ? "right-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-l-full"
-                        : "right-1 top-1/2 -translate-y-1/2 h-5 w-1 rounded-l-full"
-                      }`}
+                    className="absolute top-1/2 -translate-y-1/2 h-5 w-1 rounded-s-full bg-primary"
+                    style={{ insetInlineEnd: isCollapsed ? "0" : "4px" }}
                   />
                 )}
               </Link>
@@ -309,26 +334,15 @@ export function DashboardShell({
 
         {/* ── Bottom Section: Theme Toggle & Logout ── */}
         <div
-          className={`mt-3 pt-3 border-t border-border/50 flex flex-col gap-1.5 w-full ${isCollapsed ? "items-center" : ""
-            }`}
+          className={`mt-auto pt-3 border-t border-border/50 flex flex-col gap-1.5 w-full ${
+            isCollapsed ? "items-center" : ""
+          }`}
         >
           {/* Mode switch inside sidebar */}
           {!isCollapsed ? (
             <div className="flex items-center justify-between rounded-xl px-3 py-2 bg-surface-raised/60 border border-border/40 text-xs font-semibold text-text-secondary">
               <div className="flex items-center gap-2">
-                <svg
-                  width="15"
-                  height="15"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="4" />
-                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-                </svg>
+                <SunMoonIcon />
                 <span>المظهر</span>
               </div>
               <ThemeToggle />
@@ -365,20 +379,25 @@ export function DashboardShell({
 
       {/* ── Main Content Area (Topbar header removed for full spacious desktop view) ── */}
       <div className="flex flex-1 flex-col min-w-0">
-        {/* Mobile-only Top Bar — RTL: Logo left of hamburger, theme toggle far right */}
+        {/* Mobile-only Top Bar — sticky, with scroll-triggered shadow */}
         <div
-          className="flex items-center justify-between px-3 py-2.5 md:hidden border-b shrink-0"
+          className={`flex items-center justify-between px-3 py-2.5 md:hidden border-b shrink-0 sticky top-0 z-30 transition-shadow duration-200 ${
+            scrolled ? "shadow-md" : ""
+          }`}
           style={{
             background: "var(--color-header-bg)",
             borderBottomColor: "var(--color-header-border)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
           }}
         >
-          {/* Right side: Hamburger + Logo together */}
+          {/* Inline-start side (right in RTL): Hamburger + Logo together */}
           <div className="flex items-center gap-2.5 min-w-0">
             <button
-              className="flex items-center justify-center h-9 w-9 shrink-0 rounded-xl text-text-secondary hover:bg-primary-soft/50 hover:text-primary transition-colors"
+              className="flex items-center justify-center h-9 w-9 shrink-0 rounded-xl text-text-secondary hover:bg-primary-soft/50 hover:text-primary transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-primary"
               onClick={() => setMobileMenuOpen(true)}
-              aria-label="فتح القائمة"
+              aria-label="فتح قائمة التنقل"
+              aria-expanded={mobileMenuOpen}
             >
               <MenuIcon />
             </button>
@@ -388,7 +407,7 @@ export function DashboardShell({
               <Logo size="sm" />
             </div>
           </div>
-          {/* Left side: compact theme toggle */}
+          {/* Inline-end side (left in RTL): compact theme toggle */}
           <ThemeToggle compact />
         </div>
 
@@ -399,22 +418,27 @@ export function DashboardShell({
             <div
               className="fixed inset-0 z-40 bg-bg/60 backdrop-blur-sm md:hidden"
               onClick={() => setMobileMenuOpen(false)}
+              aria-hidden="true"
             />
-            {/* Drawer */}
+            {/* Drawer — slides in from inline-start (right side in RTL) */}
             <div
-              className="fixed top-0 right-0 z-50 h-full w-72 max-w-[85vw] px-4 py-6 flex flex-col gap-4 md:hidden animate-slide-in-right shadow-2xl"
+              className="fixed top-0 z-50 h-full w-72 max-w-[85vw] px-4 py-6 flex flex-col gap-4 md:hidden animate-slide-in-right shadow-2xl"
               style={{
+                insetInlineStart: 0,
                 background: "var(--color-surface)",
-                borderLeft: "1px solid var(--color-header-border)",
+                borderInlineEnd: "1px solid var(--color-header-border)",
               }}
+              role="dialog"
+              aria-label="قائمة التنقل"
+              aria-modal="true"
             >
               {/* Header */}
               <div className="flex items-center justify-between mb-1">
                 <Logo size="sm" />
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="h-9 w-9 flex items-center justify-center rounded-xl text-text-secondary hover:bg-primary-soft/50 shrink-0"
-                  aria-label="إغلاق"
+                  className="h-9 w-9 flex items-center justify-center rounded-xl text-text-secondary hover:bg-primary-soft/50 shrink-0 focus-visible:outline-2 focus-visible:outline-primary"
+                  aria-label="إغلاق القائمة"
                 >
                   <CloseIcon />
                 </button>
@@ -435,9 +459,9 @@ export function DashboardShell({
                       className="h-full w-full object-cover"
                     />
                   </div>
-                  <span className="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 rounded-full bg-success live-dot border-2 border-surface" />
+                  <span className="absolute -bottom-0.5 h-3.5 w-3.5 rounded-full bg-success live-dot border-2 border-surface" style={{ insetInlineStart: "-2px" }} />
                 </div>
-                <div className="flex flex-1 flex-col min-w-0 text-right leading-tight">
+                <div className="flex flex-1 flex-col min-w-0 leading-tight">
                   <span className="font-bold text-sm text-text-primary truncate">
                     {profileData.name}
                   </span>
@@ -450,7 +474,7 @@ export function DashboardShell({
               </Link>
 
               {/* Mobile Navigation */}
-              <nav className="flex flex-1 flex-col gap-1 overflow-y-auto mt-2">
+              <nav className="flex flex-1 flex-col gap-1 overflow-y-auto mt-2" aria-label="قائمة التنقل الرئيسية">
                 {navItems.map((item) => {
                   const active = pathname === item.href;
                   return (
@@ -458,15 +482,22 @@ export function DashboardShell({
                       key={item.href}
                       href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`group flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-all duration-200 ${active
-                          ? "bg-primary-soft text-primary shadow-xs font-semibold"
+                      className={`group relative flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-all duration-150 ${
+                        active
+                          ? "bg-primary-soft text-primary font-bold"
                           : "text-text-secondary hover:bg-primary-soft/50 hover:text-text-primary"
-                        }`}
+                      }`}
                     >
-                      <span className={active ? "scale-110 text-primary" : ""}>
+                      <span className={`shrink-0 ${active ? "scale-110 text-primary" : ""}`}>
                         {item.icon}
                       </span>
                       {item.label}
+                      {active && (
+                        <span
+                          className="absolute top-1/2 -translate-y-1/2 h-5 w-1 rounded-s-full bg-primary"
+                          style={{ insetInlineEnd: "4px" }}
+                        />
+                      )}
                     </Link>
                   );
                 })}
@@ -495,6 +526,9 @@ export function DashboardShell({
 
         {/* Page Content */}
         <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8 min-w-0 overflow-x-hidden">
+          {/* QuickNav: Home + Back buttons — rendered on all pages */}
+          <QuickNav />
+
           <div key={pathname} className="page-enter">
             {children}
           </div>
@@ -516,6 +550,7 @@ function MenuIcon() {
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
+      aria-hidden="true"
     >
       <line x1="3" y1="6" x2="21" y2="6" />
       <line x1="3" y1="12" x2="21" y2="12" />
@@ -534,6 +569,7 @@ function CloseIcon() {
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
+      aria-hidden="true"
     >
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
@@ -552,6 +588,7 @@ function LogoutIcon() {
       strokeWidth="1.7"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
       <polyline points="16 17 21 12 16 7" />
@@ -571,6 +608,7 @@ function SettingsIcon() {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
       <circle cx="12" cy="12" r="3" />
@@ -589,12 +627,31 @@ function PanelToggleIcon({ isCollapsed }: { isCollapsed: boolean }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={`transition-transform duration-300 ${isCollapsed ? "rotate-180" : ""
-        }`}
+      aria-hidden="true"
+      className={`transition-transform duration-300 ${isCollapsed ? "rotate-180" : ""}`}
     >
       <rect width="18" height="18" x="3" y="3" rx="2" />
       <path d="M9 3v18" />
       <path d="m14 9-3 3 3 3" />
+    </svg>
+  );
+}
+
+function SunMoonIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
     </svg>
   );
 }

@@ -153,7 +153,7 @@ export function Preloader({ children }: { children: React.ReactNode }) {
               </div>
               <div className="text-center">
                 <h2 className="font-display text-2xl font-black text-white">نبض</h2>
-                <p className="text-xs font-bold tracking-[0.2em] text-[#5EE0D2] uppercase">Nabd SaaS</p>
+                <p className="text-xs font-bold tracking-[0.2em] text-[#5EE0D2] uppercase">Nabd Health</p>
               </div>
             </div>
 

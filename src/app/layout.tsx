@@ -36,7 +36,7 @@ const arefRuqaaInk = Aref_Ruqaa_Ink({
 
 export const metadata: Metadata = {
   title: "نبض | Nabd — منصة إدارة العيادات الطبية",
-  description: "منصة نبض (Nabd SaaS) المتطورة لإدارة العيادات الطبية — مواعيد، مرضى، وسجلات طبية. Your Pulse, Our Care.",
+  description: "منصة نبض المتطورة لإدارة العيادات الطبية — مواعيد، مرضى، وسجلات طبية. Your Pulse, Our Care.",
 };
 
 export const viewport: Viewport = {
