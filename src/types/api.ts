@@ -101,6 +101,7 @@ export interface Appointment {
   notes?: string;
   contactPhone?: string;
   queueNumber?: number;
+  waitlistPosition?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -249,6 +250,7 @@ export interface QueueStatus {
   isOpenDay: boolean;
   isFull: boolean;
   queueCount: number;
+  waitlistCount?: number;
   maxPatientsPerDay: number;
   remainingSlots: number;
 }

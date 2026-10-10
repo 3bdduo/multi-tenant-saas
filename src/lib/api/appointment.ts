@@ -18,6 +18,15 @@ export function createAppointmentByPatient(
   );
 }
 
+export function joinWaitlistByPatient(
+  payload: CreateAppointmentByPatientPayload
+) {
+  return apiFetch<ApiEnvelope<{ createdAppointment: Appointment; wasWaitlisted: boolean }>>(
+    "/appointment/patient/waitlist",
+    { method: "POST", body: JSON.stringify(payload) }
+  );
+}
+
 
 export function createAppointmentByDoctor(
   patientId: string,

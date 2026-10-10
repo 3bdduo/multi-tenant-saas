@@ -3,7 +3,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getPublicClinicById, getQueueStatus } from "@/lib/api/public";
-import { createAppointmentByPatient, getMyAppointments } from "@/lib/api/appointment";
+import {
+  createAppointmentByPatient,
+  joinWaitlistByPatient,
+  getMyAppointments,
+} from "@/lib/api/appointment";
 import { getMyProfile } from "@/lib/api/patient";
 import { useAuth } from "@/hooks/useAuth";
 import type { Clinic, Patient, QueueStatus } from "@/types/api";
@@ -28,13 +32,22 @@ const DAY_MAP: Record<string, string> = {
   Saturday: "السبت",
 };
 
-function formatTime(iso: string) {
+function formatTime(timeStr: string) {
+  if (!timeStr) return "";
   try {
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return iso.slice(0, 5);
-    return d.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", hour12: true });
+    if (/^\d{1,2}:\d{2}$/.test(timeStr)) {
+      const [h, m] = timeStr.split(":").map(Number);
+      const period = h >= 12 ? "م" : "ص";
+      const hour12 = h % 12 || 12;
+      return `${hour12}:${m < 10 ? "0" + m : m} ${period}`;
+    }
+    const d = new Date(timeStr);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", hour12: true });
+    }
+    return timeStr;
   } catch {
-    return iso;
+    return timeStr;
   }
 }
 
@@ -65,6 +78,8 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     type: "success" | "error" | "warning";
     text: string;
     queueNumber?: number;
+    waitlistPosition?: number;
+    isWaitlist?: boolean;
   } | null>(null);
 
   
@@ -206,15 +221,28 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
         notes: finalNotes || undefined,
       };
 
-      const res = await createAppointmentByPatient(payload);
+      const isWaitlist = Boolean(queueStatus?.isFull);
+      const res = isWaitlist
+        ? await joinWaitlistByPatient(payload)
+        : await createAppointmentByPatient(payload);
       const appt = res.data.createdAppointment;
 
       const visitLabel = visitingType === "FOLLOW_UP" ? "إعادة كشف" : "كشف جديد";
-      setMessage({
-        type: "success",
-        text: `تم حجز موعد (${visitLabel}) بنجاح! رقمك في الدور: ${appt.queueNumber ?? "—"}`,
-        queueNumber: appt.queueNumber,
-      });
+      if (isWaitlist || appt.status === "waitlisted") {
+        setMessage({
+          type: "warning",
+          text: `تمت إضافتك إلى قائمة الانتظار بنجاح! رقمك في قائمة الانتظار: #${appt.waitlistPosition ?? 1}`,
+          waitlistPosition: appt.waitlistPosition ?? 1,
+          isWaitlist: true,
+        });
+      } else {
+        setMessage({
+          type: "success",
+          text: `تم حجز موعد (${visitLabel}) بنجاح! رقم دورك في العيادة: #${appt.queueNumber ?? "—"}`,
+          queueNumber: appt.queueNumber,
+          isWaitlist: false,
+        });
+      }
 
       setDate(tomorrow());
       setContactPhone("");
@@ -265,7 +293,6 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
     !isInactive &&
     Boolean(date) &&
     !isDateBlocked &&
-    !isDateFull &&
     !isNotWorkingDay &&
     !queueLoading;
 
@@ -317,22 +344,53 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
             <InfoRow label="رقم الهاتف" value={clinic.phoneNumber || "غير متوفر"} dir="ltr" />
           </div>
 
-          {/* Working days */}
+          {/* Working days & Opening/Closing Hours */}
           {clinic.workingDays?.length > 0 && (
-            <div className="mt-6">
-              <h3 className="font-bold text-text-primary mb-3">أيام العمل</h3>
-              <ul className="space-y-2 text-sm text-text-secondary">
+            <div className="mt-6 pt-5 border-t border-border/50">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-primary text-base">🕒</span>
+                  <h3 className="font-bold text-text-primary text-sm sm:text-base">
+                    مواعيد وساعات فتح وغلق العيادة
+                  </h3>
+                </div>
+                <span className="text-[11px] font-bold text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
+                  استقبال بالدور
+                </span>
+              </div>
+              <p className="text-xs text-text-secondary mb-3 leading-relaxed">
+                تفتح العيادة وتغلق في الساعات المحددة أدناه. يتم استقبال المرضى وفق أرقام الأدوار بأسبقية الحضور فور فتح العيادة.
+              </p>
+              <ul className="space-y-2 text-sm">
                 {clinic.workingDays.map((wd, i) => (
-                  <li key={i} className="flex justify-between rounded-xl bg-surface-raised px-3 py-2">
-                    <span className="font-semibold text-text-primary">
-                      {DAY_MAP[wd.day] ?? wd.day}
-                    </span>
-                    <span dir="ltr">
-                      {formatTime(wd.from)} – {formatTime(wd.to)}
-                    </span>
+                  <li
+                    key={i}
+                    className="flex items-center justify-between rounded-xl bg-surface-raised border border-border/40 px-3.5 py-2.5 hover:border-primary/30 transition-all"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-primary/70" />
+                      <span className="font-semibold text-text-primary">
+                        {DAY_MAP[wd.day] ?? wd.day}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-text-primary" dir="ltr">
+                      <span className="rounded bg-primary/10 px-2 py-0.5 text-primary font-bold">
+                        {formatTime(wd.from)}
+                      </span>
+                      <span className="text-text-secondary font-normal">إلى</span>
+                      <span className="rounded bg-accent/10 px-2 py-0.5 text-accent font-bold">
+                        {formatTime(wd.to)}
+                      </span>
+                    </div>
                   </li>
                 ))}
               </ul>
+              {clinic.maxPatientsPerDay && (
+                <div className="mt-3.5 flex items-center justify-between text-xs text-text-secondary bg-surface-raised/60 rounded-xl px-3 py-2 border border-border/40">
+                  <span>الحد الأقصى للكشوفات اليومية:</span>
+                  <span className="font-bold text-text-primary">{clinic.maxPatientsPerDay} كشف فقط</span>
+                </div>
+              )}
             </div>
           )}
         </Card>
@@ -445,8 +503,21 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                       العيادة لا تعمل في هذا اليوم. يرجى اختيار أحد أيام العمل الموضحة.
                     </div>
                   ) : isDateFull ? (
-                    <div className="rounded-xl bg-danger/10 border border-danger/20 p-3.5 text-sm text-danger font-bold text-center">
-                      تم اكتمال الحد الأقصى للحجوزات لهذا اليوم ({queueStatus?.maxPatientsPerDay} كشف). الحجز مغلق لهذا اليوم.
+                    <div className="rounded-2xl bg-amber-500/10 border border-amber-500/30 p-4 text-sm text-text-primary animate-fade-in">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
+                        <span className="font-bold text-amber-500">
+                          اكتمل الحد الأقصى للحجوزات اليومية ({queueStatus?.maxPatientsPerDay} كشف)
+                        </span>
+                      </div>
+                      <p className="text-xs text-text-secondary leading-relaxed">
+                        يمكنك <strong>الانضمام إلى قائمة الانتظار</strong> الآن. في حال اعتذار أي مريض أو زيادة سعة الكشوفات، سيتم تأكيد دورك تلقائياً وفق الأسبقية.
+                      </p>
+                      {queueStatus?.waitlistCount !== undefined && queueStatus.waitlistCount > 0 && (
+                        <div className="mt-2 text-[11px] font-bold text-amber-500 bg-amber-500/15 rounded-lg px-2.5 py-1 inline-block">
+                          عدد المرضى في قائمة الانتظار حالياً: {queueStatus.waitlistCount}
+                        </div>
+                      )}
                     </div>
                   ) : queueStatus ? (
                     <div className="rounded-xl bg-primary/10 border border-primary/20 px-4 py-3 text-sm text-text-primary flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
@@ -473,15 +544,48 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
 
               {message && (
                 <div
-                  className={`rounded-xl px-4 py-3 text-sm font-medium animate-fade-in border ${
+                  className={`rounded-2xl p-4 sm:p-5 text-sm font-medium animate-fade-in border shadow-sm ${
                     message.type === "success"
-                      ? "bg-success/10 text-success border-success/20"
+                      ? "bg-success/10 text-success border-success/30"
                       : message.type === "warning"
-                      ? "bg-warning/10 text-warning border-warning/20"
+                      ? "bg-amber-500/10 text-amber-500 border-amber-500/30"
                       : "bg-danger/10 text-danger border-danger/20"
                   }`}
                 >
-                  {message.text}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                      {message.type === "success" && message.queueNumber != null && (
+                        <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-success text-surface font-black shadow-md">
+                          <span className="text-[10px] opacity-80 leading-none">دور</span>
+                          <span className="text-xl leading-none font-black mt-0.5">#{message.queueNumber}</span>
+                        </div>
+                      )}
+                      {message.type === "warning" && message.waitlistPosition != null && (
+                        <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-amber-500 text-surface font-black shadow-md">
+                          <span className="text-[10px] opacity-80 leading-none">انتظار</span>
+                          <span className="text-xl leading-none font-black mt-0.5">#{message.waitlistPosition}</span>
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-extrabold text-base text-text-primary">
+                          {message.type === "success"
+                            ? "تم تأكيد الحجز بالدور بنجاح!"
+                            : message.type === "warning"
+                            ? "تم إضافتك إلى قائمة الانتظار!"
+                            : "تنبيه"}
+                        </p>
+                        <p className="text-xs text-text-secondary mt-1 leading-relaxed">{message.text}</p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="font-bold shrink-0 text-xs self-end sm:self-center"
+                      onClick={() => router.push("/patient/appointments")}
+                    >
+                      عرض مواعيدي ←
+                    </Button>
+                  </div>
                 </div>
               )}
 
@@ -530,13 +634,17 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                 <div className="mt-auto pt-4">
                   <Button
                     type="submit"
-                    variant="primary"
-                    className="w-full shadow-sm font-bold py-3.5"
+                    variant={isDateFull ? "vibrant" : "primary"}
+                    className={`w-full shadow-sm font-bold py-3.5 ${
+                      isDateFull ? "bg-amber-600 hover:bg-amber-700 text-white" : ""
+                    }`}
                     loading={bookingLoading}
                     disabled={!canSubmit || bookingLoading}
                   >
                     {bookingLoading
-                      ? "جارٍ الحجز..."
+                      ? "جارٍ المعالجة..."
+                      : isDateFull
+                      ? `الانضمام إلى قائمة الانتظار (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`
                       : `متابعة الحجز بالدور (${visitingType === "FOLLOW_UP" ? `إعادة كشف - ${followUpPrice} ج.م` : `كشف جديد - ${clinic.consultationPrice} ج.م`})`}
                   </Button>
                 </div>
@@ -574,7 +682,9 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <Card className="max-w-sm w-full shadow-2xl bg-surface p-5 sm:p-6">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-border/50">
-              <h3 className="font-display text-lg font-bold text-text-primary">تأكيد بيانات الحجز</h3>
+              <h3 className="font-display text-lg font-bold text-text-primary">
+                {isDateFull ? "تأكيد الانضمام لقائمة الانتظار" : "تأكيد بيانات الحجز"}
+              </h3>
               <button onClick={() => setShowConfirmModal(false)} className="text-text-secondary hover:text-text-primary text-xl leading-none">
                 ✕
               </button>
@@ -591,7 +701,9 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
               </div>
               <div className="flex justify-between">
                 <span className="text-text-secondary">طريقة الحجز</span>
-                <span className="font-bold text-text-primary">بالدور (أسبقية الحضور)</span>
+                <span className="font-bold text-text-primary">
+                  {isDateFull ? "قائمة انتظار (أسبقية التسجيل)" : "بالدور (أسبقية الحضور)"}
+                </span>
               </div>
               <div className="flex justify-between border-t border-primary/20 pt-1.5 mt-1.5">
                 <span className="text-text-secondary">السعر</span>
@@ -695,13 +807,13 @@ export default function ClinicDetailsPage({ params }: { params: { id: string } }
                 رجوع
               </Button>
               <Button
-                variant="primary"
-                className="flex-1 shadow-sm font-bold"
+                variant={isDateFull ? "vibrant" : "primary"}
+                className={`flex-1 shadow-sm font-bold ${isDateFull ? "bg-amber-600 hover:bg-amber-700 text-white" : ""}`}
                 onClick={handleConfirmBook}
                 loading={bookingLoading}
                 disabled={bookingLoading || profileLoading || profileError || !patientProfile}
               >
-                {bookingLoading ? "جارٍ الحجز..." : "تأكيد الحجز"}
+                {bookingLoading ? "جارٍ المعالجة..." : isDateFull ? "تأكيد الانضمام للانتظار" : "تأكيد الحجز"}
               </Button>
             </div>
           </Card>

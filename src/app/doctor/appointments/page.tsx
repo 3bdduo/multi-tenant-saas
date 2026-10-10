@@ -13,7 +13,7 @@ import type { Appointment, AppointmentStatus, Clinic, Patient } from "@/types/ap
 import { Field, SelectField, TextAreaField } from "@/components/ui/Input";
 import { ApiError } from "@/lib/http";
 
-type TabFilter = "active" | "completed" | "cancelled" | "past";
+type TabFilter = "active" | "waitlist" | "completed" | "cancelled" | "past";
 
 export default function DoctorAppointmentsPage() {
   const router = useRouter();
@@ -124,16 +124,18 @@ export default function DoctorAppointmentsPage() {
     return appointments
       .filter((appt) => {
         const apptDate = appt.date ? appt.date.split("T")[0] : "";
-        const isPending = appt.status === "pending" || appt.status === "confirmed" || appt.status === "waitlisted";
+        const isPending = appt.status === "pending" || appt.status === "confirmed";
+        const isWaitlisted = appt.status === "waitlisted";
         const isCompleted = appt.status === "completed";
         const isCancelled = appt.status === "cancelled";
         const isFutureOrToday = apptDate >= todayStr;
         const isPast = apptDate < todayStr;
 
         if (activeTab === "active") return isPending && isFutureOrToday;
+        if (activeTab === "waitlist") return isWaitlisted && isFutureOrToday;
         if (activeTab === "completed") return isCompleted;
         if (activeTab === "cancelled") return isCancelled;
-        if (activeTab === "past") return isPending && isPast;
+        if (activeTab === "past") return (isPending || isWaitlisted) && isPast;
         return false;
       })
       .filter((appt) => {
@@ -172,7 +174,8 @@ export default function DoctorAppointmentsPage() {
 
   // Tab label descriptions
   const tabDescriptions: Record<TabFilter, string> = {
-    active: "حجوزات لم يُكشف عنها بعد ويومها لم ينتهِ",
+    active: "كشوفات مؤكدة بالدور تنتظر الكشف",
+    waitlist: "مرضى مسجلين في قائمة الانتظار لهذا اليوم والأيام القادمة",
     completed: "جميع الحجوزات التي تم الكشف عنها",
     cancelled: "جميع الحجوزات التي تم إلغاؤها",
     past: "حجوزات انتهى يومها دون كشف أو إلغاء",
@@ -207,9 +210,16 @@ export default function DoctorAppointmentsPage() {
           <TabButton
             active={activeTab === "active"}
             onClick={() => setActiveTab("active")}
-            label="الحالية"
-            description="قيد الانتظار — يومها لم ينتهِ"
+            label="الكشوفات المؤكدة"
+            description="حجوزات بالدور تنتظر الكشف"
             color="primary"
+          />
+          <TabButton
+            active={activeTab === "waitlist"}
+            onClick={() => setActiveTab("waitlist")}
+            label="قائمة الانتظار"
+            description="مرضى ينتظرون قبول دورهم"
+            color="warning"
           />
           <TabButton
             active={activeTab === "completed"}
@@ -229,7 +239,7 @@ export default function DoctorAppointmentsPage() {
             active={activeTab === "past"}
             onClick={() => setActiveTab("past")}
             label="الأيام السابقة"
-            description="انتهى يومها — بدون كشف أو إلغاء"
+            description="انتهى يومها — بدون كشف"
             color="warning"
           />
         </div>
@@ -342,10 +352,18 @@ export default function DoctorAppointmentsPage() {
                       >
                         {/* ── Top row: number + name + type + profile link ── */}
                         <div className="flex items-start gap-3 sm:gap-4 min-w-0">
-                          {/* Queue / index badge */}
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary font-black text-base">
-                            #{appt.queueNumber ?? index + 1}
-                          </div>
+                          {/* Queue / Waitlist badge */}
+                          {appt.status === "waitlisted" ? (
+                            <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-2xl bg-amber-500/15 text-amber-500 font-black text-xs border border-amber-500/30">
+                              <span className="text-[9px] leading-none opacity-80">انتظار</span>
+                              <span className="text-sm font-black leading-none mt-0.5">#{appt.waitlistPosition ?? index + 1}</span>
+                            </div>
+                          ) : (
+                            <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-2xl bg-primary-soft text-primary font-black text-xs border border-primary/20">
+                              <span className="text-[9px] leading-none opacity-80">دور</span>
+                              <span className="text-sm font-black leading-none mt-0.5">#{appt.queueNumber ?? index + 1}</span>
+                            </div>
+                          )}
 
                           <div className="min-w-0 flex-1">
                             {/* Name row */}
@@ -458,6 +476,16 @@ export default function DoctorAppointmentsPage() {
                           <StatusBadge status={appt.status} />
 
                           <div className="flex items-center gap-2 flex-wrap">
+                            {appt.status === "waitlisted" && (
+                              <Button
+                                size="sm"
+                                variant="vibrant"
+                                className="bg-success hover:bg-success/90 font-bold text-xs"
+                                onClick={() => handleStatusUpdate(appt._id, "confirmed")}
+                              >
+                                قبول وتأكيد الحجز (إعطاء رقم دور) ✓
+                              </Button>
+                            )}
                             {appt.status === "pending" && (
                               <Button
                                 size="sm"

@@ -281,6 +281,7 @@ export default function PatientAppointmentsPage() {
                 const clinic = typeof a.clinicId === "object" && a.clinicId !== null ? a.clinicId : null;
                 const isFollowUp = a.visitingType === "FOLLOW_UP";
                 const docName = doc ? `د. ${doc.firstName || ""} ${doc.lastName || ""}`.trim() : "طبيب العيادة";
+                const canCancel = a.status === "pending" || a.status === "confirmed" || a.status === "waitlisted";
 
                 return (
                   <div key={a._id} className="rounded-2xl border border-border/60 bg-surface-raised p-4 flex flex-col gap-3">
@@ -293,15 +294,26 @@ export default function PatientAppointmentsPage() {
                           {clinic ? `${clinic.name} (${clinic.specialization})` : "كشف طبي"}
                         </p>
                       </div>
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-extrabold shrink-0 ${
-                          isFollowUp
-                            ? "bg-accent/15 text-accent border border-accent/30"
-                            : "bg-primary/15 text-primary border border-primary/30"
-                        }`}
-                      >
-                        {isFollowUp ? "إعادة كشف" : "كشف جديد"}
-                      </span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {a.status === "waitlisted" ? (
+                          <span className="rounded-xl bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 text-xs font-black text-amber-500">
+                            انتظار #{a.waitlistPosition ?? 1}
+                          </span>
+                        ) : a.queueNumber != null ? (
+                          <span className="rounded-xl bg-primary/10 border border-primary/30 px-2.5 py-1 text-xs font-black text-primary">
+                            دور #{a.queueNumber}
+                          </span>
+                        ) : null}
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-extrabold shrink-0 ${
+                            isFollowUp
+                              ? "bg-accent/15 text-accent border border-accent/30"
+                              : "bg-primary/15 text-primary border border-primary/30"
+                          }`}
+                        >
+                          {isFollowUp ? "إعادة كشف" : "كشف جديد"}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-text-secondary pt-2 border-t border-border/40">
@@ -315,7 +327,7 @@ export default function PatientAppointmentsPage() {
                       <StatusBadge status={a.status} />
                     </div>
 
-                    {a.status === "pending" && (
+                    {canCancel && (
                       <div className="pt-2 border-t border-border/40 flex justify-center items-center w-full">
                         <Button
                           variant="ghost"
@@ -339,6 +351,7 @@ export default function PatientAppointmentsPage() {
                 <thead>
                   <tr className="border-b border-border text-text-secondary bg-surface-elevated/50">
                     <th className="px-4 py-3 font-bold text-right whitespace-nowrap">الطبيب / العيادة</th>
+                    <th className="px-4 py-3 font-bold text-center whitespace-nowrap">رقم الدور / الانتظار</th>
                     <th className="px-4 py-3 font-bold text-center whitespace-nowrap">نوع الكشف</th>
                     <th className="px-4 py-3 font-bold text-center whitespace-nowrap">تاريخ الكشف</th>
                     <th className="px-4 py-3 font-bold text-center whitespace-nowrap">حالة الموعد</th>
@@ -351,6 +364,7 @@ export default function PatientAppointmentsPage() {
                     const clinic = typeof a.clinicId === "object" && a.clinicId !== null ? a.clinicId : null;
                     const isFollowUp = a.visitingType === "FOLLOW_UP";
                     const docName = doc ? `د. ${doc.firstName || ""} ${doc.lastName || ""}`.trim() : "طبيب العيادة";
+                    const canCancel = a.status === "pending" || a.status === "confirmed" || a.status === "waitlisted";
 
                     return (
                       <tr key={a._id} className="hover:bg-surface-elevated/40 transition-colors">
@@ -361,6 +375,19 @@ export default function PatientAppointmentsPage() {
                           <div className="text-xs text-text-secondary">
                             {clinic ? `${clinic.name} (${clinic.specialization})` : "كشف طبي"}
                           </div>
+                        </td>
+                        <td className="px-4 py-3.5 text-center align-middle whitespace-nowrap">
+                          {a.status === "waitlisted" ? (
+                            <span className="inline-flex items-center gap-1 rounded-xl bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-xs font-black text-amber-500">
+                              انتظار #{a.waitlistPosition ?? 1}
+                            </span>
+                          ) : a.queueNumber != null ? (
+                            <span className="inline-flex items-center gap-1 rounded-xl bg-primary/10 border border-primary/30 px-3 py-1 text-xs font-black text-primary">
+                              دور #{a.queueNumber}
+                            </span>
+                          ) : (
+                            <span className="text-text-secondary text-xs">—</span>
+                          )}
                         </td>
                         <td className="px-4 py-3.5 text-center align-middle whitespace-nowrap">
                           <span
@@ -388,7 +415,7 @@ export default function PatientAppointmentsPage() {
                         </td>
                         <td className="px-4 py-3.5 text-center align-middle whitespace-nowrap">
                           <div className="flex justify-center items-center">
-                            {a.status === "pending" ? (
+                            {canCancel ? (
                               <Button
                                 variant="ghost"
                                 size="sm"
